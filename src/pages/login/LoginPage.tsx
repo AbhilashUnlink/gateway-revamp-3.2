@@ -7,13 +7,44 @@ import { apiService } from '@/utils/apiService';
 import { getRedirectPath } from '@/utils/redirectByRole';
 import type { ApiResponse, SignInData } from '@/types/login/auth.types';
 import heroImg from '@/assets/hero.png';
-import { Globe, ChevronDown, X } from 'lucide-react';
+import { Globe, ChevronDown, CheckCircle } from 'lucide-react';
 
 interface MfaCheckResponse {
   IsMFA: number;
   IsMFAEnabled: number;
   QRCode?: string;
   PrivateKey?: string;
+}
+
+function PaymentOptionsLogo() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <svg
+        width="36"
+        height="36"
+        viewBox="0 0 36 36"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle cx="18" cy="18" r="18" fill="#f5a623" />
+        <path
+          d="M10 22c2-4 4-8 8-8s6 4 8 8"
+          stroke="#fff"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M18 14c0-2.5 1.5-4 3-4s3 1.5 3 4-1.5 4-3 4"
+          stroke="#fff"
+          strokeWidth="2"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </svg>
+      <span className="text-lg font-bold text-white tracking-wide">Payment Options</span>
+    </div>
+  );
 }
 
 function LoginPage() {
@@ -89,83 +120,78 @@ function LoginPage() {
   };
 
   return (
-    <div
-      className="relative flex h-screen w-screen overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #FDEBCA 0%, #F4EAD8 50%, #FFFBF1 100%)' }}
-    >
-      {/* Success toast */}
-      {successMessage && toastVisible && (
-        <div className="fixed right-6 top-6 z-[400] flex items-center gap-3 rounded-xl border border-[#1E8F1F] bg-[#C6F3DA] px-4 py-3 shadow-elevated">
-          <span className="text-sm font-medium text-[#1E8F1F]">{successMessage}</span>
-          <button
-            type="button"
-            onClick={() => setToastVisible(false)}
-            className="ml-2 text-[#1E8F1F] hover:opacity-70"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
+    <div className="flex h-screen w-screen overflow-hidden">
       {/* Left hero panel */}
-      <div className="relative hidden h-full w-1/2 overflow-hidden lg:flex lg:flex-col lg:justify-end">
+      <div className="relative hidden h-full w-1/2 overflow-hidden lg:flex lg:flex-col lg:items-center lg:justify-center">
         <img
           src={heroImg}
           alt="Payment solutions hero"
-          className="absolute inset-0 h-full w-full object-cover mix-blend-multiply"
+          className="absolute inset-0 h-full w-full object-cover"
         />
         <div
           className="absolute inset-0"
           style={{
-            background:
-              'linear-gradient(160deg, rgba(247,148,29,0.35) 0%, rgba(20,20,40,0.65) 100%)',
+            background: 'linear-gradient(160deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.6) 100%)',
           }}
         />
 
-        <div className="relative z-10 p-12 pb-14 text-right">
+        <div className="relative z-10 px-12 text-center">
           <h2
-            className="mb-4 font-bold leading-tight text-white"
-            style={{ fontSize: '40px', letterSpacing: '-0.5px' }}
+            className="mb-4 font-bold leading-tight text-[#f5a623]"
+            style={{ fontSize: '42px', letterSpacing: '-0.5px' }}
           >
             Simplifying
             <br />
             Payments
           </h2>
-          <p className="ml-auto max-w-xs text-sm leading-relaxed text-white/80">
+          <p className="mx-auto max-w-xs text-sm leading-relaxed text-neutral-300">
             All-in-one digital payment solutions provider, built to accelerate your business growth.
           </p>
+        </div>
 
-          {/* Carousel pagination dots */}
-          <div className="mt-8 flex items-center justify-end gap-2">
-            <span className="h-2 w-6 rounded-full bg-[#F7941D]" />
-            <span className="h-2 w-2 rounded-full bg-[#D9D9D9]" />
-            <span className="h-2 w-2 rounded-full bg-[#D9D9D9]" />
-          </div>
+        {/* Carousel pagination dots — bottom-center */}
+        <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 items-center gap-2">
+          <span className="h-2 w-6 rounded-full bg-[#f5a623]" />
+          <span className="h-2 w-2 rounded-full bg-white/40" />
+          <span className="h-2 w-2 rounded-full bg-white/40" />
         </div>
       </div>
 
-      {/* Right login panel */}
-      <div className="flex h-full w-full flex-col items-center justify-center px-6 py-8 lg:w-1/2">
-        {/* Header: language selector */}
-        <div className="mb-6 flex w-full max-w-md items-center justify-end gap-1.5">
-          <Globe className="h-4 w-4 text-neutral-500" />
-          <span className="text-sm text-neutral-600">English (UK)</span>
-          <ChevronDown className="h-4 w-4 text-neutral-500" />
+      {/* Right dark panel */}
+      <div
+        className="flex h-full w-full flex-col items-center justify-center px-6 py-10 lg:w-1/2"
+        style={{ background: '#2d2d2d' }}
+      >
+        {/* Success toast — top-center of right panel */}
+        {successMessage && toastVisible && (
+          <div className="mb-6 flex items-center gap-2 rounded-full border border-green-500 bg-green-900/40 px-5 py-2.5">
+            <CheckCircle className="h-4 w-4 shrink-0 text-green-400" />
+            <span className="text-sm font-medium text-green-300">{successMessage}</span>
+            <button
+              type="button"
+              onClick={() => setToastVisible(false)}
+              className="ml-2 text-green-400 hover:text-green-200"
+              aria-label="Dismiss"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {/* Logo above card */}
+        <div className="mb-6">
+          <PaymentOptionsLogo />
         </div>
 
-        {/* Glassmorphism card */}
-        <div
-          className="w-full max-w-md rounded-[24px] p-8"
-          style={{
-            background:
-              'linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            backdropFilter: 'blur(7.5px)',
-            WebkitBackdropFilter: 'blur(7.5px)',
-            boxShadow:
-              '0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5)',
-          }}
-        >
+        {/* Sign-in card */}
+        <div className="w-full max-w-md rounded-xl p-8" style={{ background: '#3a3a3a' }}>
+          {/* Language selector — top-right of card */}
+          <div className="mb-5 flex items-center justify-end gap-1">
+            <Globe className="h-3.5 w-3.5 text-neutral-400" />
+            <span className="text-xs text-neutral-400">English (UK)</span>
+            <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
+          </div>
+
           <LoginForm onSubmit={handleSubmit} loading={loading} error={error} />
         </div>
       </div>
