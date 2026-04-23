@@ -20,7 +20,7 @@ const registry: Record<string, PageLoader> = {
   'accounts/merchants': () => import('@/pages/accounts/merchants'),
   'accounts/merchants/merchant-details': () =>
     import('@/pages/accounts/merchants/merchant-details'),
-  'accounts/acquirers': () => import('@/pages/accounts/acquirers'),
+  acquirers: () => import('@/pages/acquirers'),
   'risk-management': () => import('@/pages/risk-management'),
   'finance/statements': () => import('@/pages/finance/statements'),
   'dispute-management/list': () => import('@/pages/dispute-management/list'),
