@@ -30,12 +30,12 @@ export const apiService = {
   },
 
   auth: {
+    signIn: (data?: unknown) => Api().post(`auth/signIn`, data),
     postRefreshToken: (data?: unknown) => Api().post(`auth/refreshToken`, data),
     postSignOut: () => Api().post(`auth/signOut`),
     postMfaGenerate: (data?: unknown) => Api().post(`auth/mfa/generate`, data),
     postMfaEmailVerify: (data?: unknown) => Api().post(`auth/mfa/email/verify`, data),
     postForgotPassword: (data?: unknown) => Api().post(`auth/forgotPassword`, data),
-    postSignIn: (data?: unknown) => Api().post(`auth/signIn`, data),
     postCheckMfaExist: (data?: unknown) => Api().post(`auth/check-mfa-exist`, data),
     postMfaVerifyGatewayOtp: (data?: unknown) => Api().post(`auth/mfa/verify/gateway/otp`, data),
     postMfaVerifyGatewayRegistrationOtp: (data?: unknown) =>
