@@ -1,0 +1,195 @@
+{
+  "publicRoutes": [
+    { "path": "/login", "component": "login" },
+    { "path": "/forgot-password", "component": "forgot-password" },
+    { "path": "/reset-password", "component": "reset-password" },
+    { "path": "/reset-successful", "component": "reset-successful" },
+    { "path": "/choose-account-type", "component": "choose-account-type" },
+    { "path": "/sign-up", "component": "sign-up" },
+    { "path": "/mfa-setup", "component": "mfa-setup" },
+    {
+      "path": "/daspay-transaction-details",
+      "component": "daspay-transaction-details",
+      "showAll": true
+    },
+    { "path": "/terms-condition", "component": "terms-condition" },
+    { "path": "/privacy-policy", "component": "privacy-policy" }
+  ],
+  "protectedRoutes": [
+    {
+      "path": "/dashboard",
+      "component": "dashboard",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE"
+      ]
+    },
+    {
+      "path": "/transactions",
+      "component": "transactions",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE",
+        "CUSTOMER",
+        "GUEST",
+        "GUESTSCHEDULER"
+      ]
+    },
+    {
+      "path": "/accounts/merchants",
+      "component": "accounts/merchants",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE",
+        "CUSTOMER",
+        "THIRDPARTY"
+      ]
+    },
+    {
+      "path": "/accounts/merchants/merchant-details/:id",
+      "component": "accounts/merchants/merchant-details",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE",
+        "CUSTOMER",
+        "THIRDPARTY"
+      ]
+    },
+    {
+      "path": "/accounts/merchants/merchant-details/:id/:CategoryID",
+      "component": "accounts/merchants/merchant-details",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE",
+        "CUSTOMER",
+        "THIRDPARTY"
+      ]
+    },
+    {
+      "path": "/acquirers",
+      "component": "acquirers",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE"
+      ]
+    },
+    {
+      "path": "/risk-management",
+      "component": "risk-management",
+      "allowedGroups": ["COMPLIANCE", "RISK"]
+    },
+    {
+      "path": "/finance/statements",
+      "component": "finance/statements",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE"
+      ]
+    },
+    {
+      "path": "/finance/statements/:id",
+      "component": "finance/statements",
+      "allowedGroups": ["SETTLEMENT", "SUPPORT"]
+    },
+    {
+      "path": "/dispute-management/list",
+      "component": "dispute-management/list",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE"
+      ]
+    },
+    {
+      "path": "/onboarding",
+      "component": "onboarding",
+      "allowedGroups": ["GUEST", "GUESTTHIRDPARTY", "GUESTSCHEDULER", "THIRDPARTY"]
+    },
+    {
+      "path": "/onboarding/details/:id",
+      "component": "onboarding/details",
+      "allowedGroups": ["GUEST", "GUESTTHIRDPARTY", "SALES", "SALESOPS", "THIRDPARTY"]
+    },
+    {
+      "path": "/partner",
+      "component": "partner",
+      "allowedGroups": ["SALES", "SALESOPS", "FINANCE"]
+    },
+    {
+      "path": "/reseller",
+      "component": "reseller",
+      "allowedGroups": ["THIRDPARTY"]
+    },
+    {
+      "path": "/hashcard",
+      "component": "hashcard",
+      "allowedGroups": ["RISK", "SETTLEMENT", "SUPPORT"]
+    },
+    {
+      "path": "/transaction-xray",
+      "component": "transaction-xray",
+      "allowedGroups": ["SUPPORT"]
+    },
+    {
+      "path": "/contact-us",
+      "component": "contact-us",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE"
+      ]
+    }
+  ]
+}
