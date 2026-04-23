@@ -1,10 +1,11 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { loginUser, logoutUser } from '../thunks/authThunks';
+import type { SignInData } from '@/types/login/auth.types';
 
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
-  user: Record<string, unknown> | null;
+  user: SignInData | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
@@ -28,6 +29,13 @@ const authSlice = createSlice({
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;
     },
+    setAuthData(state, action: PayloadAction<SignInData>) {
+      state.user = action.payload;
+      state.accessToken = action.payload.token.accessToken;
+      state.refreshToken = action.payload.token.refreshToken;
+      state.isAuthenticated = true;
+      state.error = null;
+    },
     resetTokens(state) {
       state.accessToken = null;
       state.refreshToken = null;
@@ -44,9 +52,9 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.accessToken = action.payload.accessToken ?? null;
-        state.refreshToken = action.payload.refreshToken ?? null;
-        state.user = action.payload.user ?? null;
+        state.accessToken = action.payload.token?.accessToken ?? null;
+        state.refreshToken = action.payload.token?.refreshToken ?? null;
+        state.user = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -62,5 +70,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setTokens, resetTokens } = authSlice.actions;
+export const { setTokens, setAuthData, resetTokens } = authSlice.actions;
 export default authSlice.reducer;
