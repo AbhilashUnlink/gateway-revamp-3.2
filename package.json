@@ -33,6 +33,7 @@
     "postcss": "^8.5.10",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-hook-form": "^7.73.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.14.2",
     "redux": "^5.0.1",
