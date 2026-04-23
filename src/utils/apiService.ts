@@ -1,3 +1,4 @@
+import type { MfaGeneratePayload, SignInPayload } from '@/types/login/auth.types';
 import { useFetchWrapper as Api } from '@/utils';
 
 export const apiService = {
@@ -24,17 +25,17 @@ export const apiService = {
   },
 
   dasconfig: {
+    userPreferences: () => Api().get(`dasconfig/user-preferences`),
     getSubsidiaryList: () => Api().get(`dasconfig/subsidiary-list`),
-    postUserPreferences: (data?: unknown) => Api().post(`dasconfig/user-preferences`, data),
     postRulesUpsert: (data?: unknown) => Api().post(`dasconfig/rules/upsert`, data),
   },
 
   auth: {
-    checkMfaExist: (data?: unknown) => Api().post(`auth/check-mfa-exist`, data),
-    signIn: (data?: unknown) => Api().post(`auth/signIn`, data),
+    checkMfaExist: (data: SignInPayload) => Api().post(`auth/check-mfa-exist`, data),
+    signIn: (data: SignInPayload) => Api().post(`auth/signIn`, data),
+    mfaGenerate: (data: MfaGeneratePayload) => Api().post(`auth/mfa/generate`, data),
     postRefreshToken: (data?: unknown) => Api().post(`auth/refreshToken`, data),
     postSignOut: () => Api().post(`auth/signOut`),
-    mfaGenerate: (data?: unknown) => Api().post(`auth/mfa/generate`, data),
     postMfaEmailVerify: (data?: unknown) => Api().post(`auth/mfa/email/verify`, data),
     postForgotPassword: (data?: unknown) => Api().post(`auth/forgotPassword`, data),
     postMfaVerifyGatewayOtp: (data?: unknown) => Api().post(`auth/mfa/verify/gateway/otp`, data),

@@ -2,12 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiService } from '@/utils/apiService';
 import { clearPermissions } from '../slices/permissionSlice';
 import { clearProfile } from '../slices/userSlice';
-import type { SignInData, SignInResponse } from '@/types/login/auth.types';
-
-interface SignInPayload {
-  username: string;
-  password: string;
-}
+import type { SignInData, SignInPayload, SignInResponse } from '@/types/login/auth.types';
 
 export const loginUser = createAsyncThunk<SignInData, SignInPayload>(
   'auth/loginUser',
