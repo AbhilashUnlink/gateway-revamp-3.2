@@ -8,7 +8,14 @@
       "Bash(git push *)",
       "Bash(gh pr create --title 'UI-10: Redux Setup \\(RTK + Async Thunks + Persist + API Integration Layer\\)' --body ' *)",
       "Bash(npm run *)",
-      "Bash(git pull *)"
+      "Bash(git pull *)",
+      "Bash(npm install *)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\91858\\\\gateway-revamp-3.2\\\\src\\\\types\\\\login\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\91858\\\\gateway-revamp-3.2\\\\src\\\\components\\\\forms\\\\login\")",
+      "Bash(npx tsc *)",
+      "Bash(npm test *)",
+      "Bash(git add *)",
+      "Bash(gh pr create --title 'UI-12: Login Form with Conditional MFA & Redux Integration' --body ' *)"
     ]
   }
 }
