@@ -37,22 +37,28 @@ function LoginPage() {
   };
 
   const handleInternalUser = async (values: LoginFormValues) => {
-    const mfaRes = await apiService.auth.checkMfaExist({ username: values.username });
+    const mfaRes = await apiService.auth.checkMfaExist({
+      username: values.username,
+      password: values.password,
+    });
     const mfa = (mfaRes.data as ApiResponse<MfaCheckResponse>).data;
 
     if (mfa.IsMFA === 0) {
-      const genRes = await apiService.auth.postMfaGenerate({
-        email: values.username,
-        password: values.password,
+      const genRes = await apiService.auth.mfaGenerate({
+        Email: values.username,
+        Password: values.password,
+        path: 'DASPOS',
       });
       const generated = (genRes.data as ApiResponse<{ QRCode: string; PrivateKey: string }>).data;
       localStorage.setItem('PrivateKey', generated.PrivateKey);
-      navigate('/mfa-setup', { state: { isMFASetup: false, QRCode: generated.QRCode } });
+      navigate('/mfa-setup', {
+        state: { isMFASetup: false, QRCode: generated.QRCode, credentials: values },
+      });
       return;
     }
 
     if (mfa.IsMFA === 1 && mfa.IsMFAEnabled === 1) {
-      navigate('/mfa-setup', { state: { isMFASetup: true } });
+      navigate('/mfa-setup', { state: { isMFASetup: true, credentials: values } });
       return;
     }
 
