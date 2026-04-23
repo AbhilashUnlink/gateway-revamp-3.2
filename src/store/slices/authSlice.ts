@@ -1,20 +1,37 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { loginUser, logoutUser } from '../thunks/authThunks';
 import type { SignInData } from '@/types/login/auth.types';
 
 interface AuthState {
-  accessToken: string | null;
-  refreshToken: string | null;
-  user: SignInData | null;
+  signInData: SignInData;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
 }
 
+const initialSignInData = {
+  token: {
+    accessToken: '',
+    idToken: '',
+    refreshToken: '',
+  },
+  email: '',
+  exp: 0,
+  uid: '',
+  auth_time: 0,
+  Groups: [],
+  subsidiaries: [],
+  name: '',
+  appLevel: '',
+  contactNo: '',
+  referralCode: '',
+  accessLevel: '',
+  signInAsMerchant: false,
+  passwordExpiry: '',
+};
+
 const initialState: AuthState = {
-  accessToken: null,
-  refreshToken: null,
-  user: null,
+  signInData: initialSignInData,
   isAuthenticated: false,
   loading: false,
   error: null,
@@ -23,26 +40,7 @@ const initialState: AuthState = {
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {
-    setTokens(state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) {
-      state.accessToken = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken;
-      state.isAuthenticated = true;
-    },
-    setAuthData(state, action: PayloadAction<SignInData>) {
-      state.user = action.payload;
-      state.accessToken = action.payload.token.accessToken;
-      state.refreshToken = action.payload.token.refreshToken;
-      state.isAuthenticated = true;
-      state.error = null;
-    },
-    resetTokens(state) {
-      state.accessToken = null;
-      state.refreshToken = null;
-      state.isAuthenticated = false;
-      state.user = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.pending, (state) => {
@@ -52,23 +50,19 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.accessToken = action.payload.token?.accessToken ?? null;
-        state.refreshToken = action.payload.token?.refreshToken ?? null;
-        state.user = action.payload;
+        state.signInData = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
       .addCase(logoutUser.fulfilled, (state) => {
-        state.accessToken = null;
-        state.refreshToken = null;
+        state.signInData = initialSignInData;
         state.isAuthenticated = false;
-        state.user = null;
         state.error = null;
       });
   },
 });
 
-export const { setTokens, setAuthData, resetTokens } = authSlice.actions;
+// export const { } = authSlice.actions;
 export default authSlice.reducer;

@@ -28,6 +28,16 @@ export const SUBSIDIARIES = {
 
 export type Subsidiary = (typeof SUBSIDIARIES)[keyof typeof SUBSIDIARIES];
 
+export interface SignInPayload {
+  username: string;
+  password: string;
+}
+export interface MfaGeneratePayload {
+  Email: string;
+  Password: string;
+  path: 'DASPOS' | string;
+}
+
 export interface AuthToken {
   accessToken: string;
   idToken: string;

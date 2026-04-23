@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { LoginForm, type LoginFormValues } from '@/components/forms/login';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginUser } from '@/store/thunks/authThunks';
-import { setAuthData } from '@/store/slices/authSlice';
 import { apiService } from '@/utils/apiService';
 import { getRedirectPath } from '@/utils/redirectByRole';
 import type { ApiResponse, SignInData } from '@/types/login/auth.types';
@@ -76,7 +75,6 @@ function LoginPage() {
 
     if (loginUser.fulfilled.match(result)) {
       const userData = result.payload as SignInData;
-      dispatch(setAuthData(userData));
       const redirectPath = getRedirectPath(userData.Groups);
       navigate(redirectPath);
     } else {
