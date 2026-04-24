@@ -29,14 +29,6 @@ function LoginPage() {
             </span>
           </AuthHeading.Title>
         </AuthHeading>
-        <AuthHeading>
-          <AuthHeading.Title>
-            {t('login.sign_in_to')}{' '}
-            <span className="font-bold text-[28px] text-[var(--btn-primary)]">
-              {t('login.payment_options')}
-            </span>
-          </AuthHeading.Title>
-        </AuthHeading>
 
         <LoginForm onSubmit={handleSubmit} loading={loading} error={error} />
       </div>
