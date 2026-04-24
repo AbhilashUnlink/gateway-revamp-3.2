@@ -45,9 +45,9 @@ export function ResetPasswordOtpForm({ onSubmit, onResend, error }: ResetPasswor
   const isComplete = digits.every((d) => d !== '');
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-[40px]">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
       {/* 6 OTP digit boxes */}
-      <div className="grid w-full grid-cols-6 gap-[14px]">
+      <div className="grid w-full grid-cols-6 gap-3.5">
         {digits.map((digit, i) => (
           <input
             key={i}
@@ -61,13 +61,12 @@ export function ResetPasswordOtpForm({ onSubmit, onResend, error }: ResetPasswor
             onChange={(e) => handleChange(i, e.target.value)}
             onKeyDown={(e) => handleKeyDown(i, e)}
             onPaste={handlePaste}
-            style={{ fontFamily: 'Inter, sans-serif' }}
-            className="h-[63px] w-full rounded-[8px] border border-[#e5e5e5] bg-white text-center text-[24px] font-semibold text-[#1a1a1a] outline-none focus:ring-2 focus:ring-[#f7941d]/40"
+            className="h-[63px] w-full rounded-lg border border-[#e5e5e5] bg-white text-center text-2xl font-semibold text-[#1a1a1a] outline-none focus:ring-2 focus:ring-[#f7941d]/40"
           />
         ))}
       </div>
 
-      {error ? <p className="text-center text-[14px] text-red-400">{error}</p> : null}
+      {error ? <p className="text-center text-sm text-red-400">{error}</p> : null}
 
       <Button type="submit" disabled={!isComplete} variant={'primary'} size={'default'}>
         {t('reset_password_otp.submit')}
@@ -75,8 +74,8 @@ export function ResetPasswordOtpForm({ onSubmit, onResend, error }: ResetPasswor
 
       {/* Resend */}
       <div className="flex items-center justify-center">
-        <p className="text-[14px] text-[#ccc]" style={{ fontFamily: 'Inter, sans-serif' }}>
-          <span className="mr-[4px]">{t('reset_password_otp.didnt_receive')}</span>{' '}
+        <p className="text-sm text-[#ccc]">
+          <span className="mr-1">{t('reset_password_otp.didnt_receive')}</span>{' '}
           <Button
             type="button"
             variant={'link'}

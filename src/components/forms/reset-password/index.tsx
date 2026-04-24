@@ -29,12 +29,12 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
   } = useForm<ResetPasswordFormValues>();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-[40px]">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-10">
       {/* New Password */}
       <div className="flex flex-col gap-2">
         <div className="relative flex items-center">
           <Lock
-            className="pointer-events-none absolute left-[16px] h-5 w-5 shrink-0 text-[#f7941d]"
+            className="pointer-events-none absolute left-4 h-5 w-5 shrink-0 text-[#f7941d]"
             aria-hidden="true"
           />
           <Input
@@ -42,8 +42,7 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
             type={showPassword ? 'text' : 'password'}
             autoComplete="new-password"
             placeholder={t('reset_password_form.new_password_placeholder')}
-            style={{ fontFamily: 'Inter, sans-serif' }}
-            className="h-[52px] w-full rounded-[8px] border border-[#e5e5e5] bg-white pl-[48px] pr-[48px] text-[14px] leading-[20px] text-neutral-800 placeholder:text-[#808080] outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border"
+            className="h-[52px] w-full rounded-lg border border-[#e5e5e5] bg-white pl-12 pr-12 text-sm leading-5 text-neutral-800 placeholder:text-[#808080] outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border"
             {...register('Password', {
               required: t('reset_password_form.password_required'),
               minLength: {
@@ -60,7 +59,7 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
             type="button"
             variant={'link'}
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-[16px]"
+            className="absolute right-4"
             aria-label={
               showPassword
                 ? t('reset_password_form.hide_password')
@@ -70,16 +69,14 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </Button>
         </div>
-        {errors.Password ? (
-          <p className="text-[12px] text-red-400">{errors.Password.message}</p>
-        ) : null}
+        {errors.Password ? <p className="text-xs text-red-400">{errors.Password.message}</p> : null}
       </div>
 
       {/* Confirm Password */}
       <div className="flex flex-col gap-2">
         <div className="relative flex items-center">
           <Lock
-            className="pointer-events-none absolute left-[16px] h-5 w-5 shrink-0 text-[#f7941d]"
+            className="pointer-events-none absolute left-4 h-5 w-5 shrink-0 text-[#f7941d]"
             aria-hidden="true"
           />
           <Input
@@ -87,8 +84,7 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
             type={showConfirm ? 'text' : 'password'}
             autoComplete="new-password"
             placeholder={t('reset_password_form.confirm_password_placeholder')}
-            style={{ fontFamily: 'Inter, sans-serif' }}
-            className="h-[52px] w-full rounded-[8px] border border-[#e5e5e5] bg-white pl-[48px] pr-[48px] text-[14px] leading-[20px] text-neutral-800 placeholder:text-[#808080] outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border"
+            className="h-[52px] w-full rounded-lg border border-[#e5e5e5] bg-white pl-12 pr-12 text-sm leading-5 text-neutral-800 placeholder:text-[#808080] outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border"
             {...register('ConfirmPassword', {
               required: t('reset_password_form.password_required'),
               validate: (val) =>
@@ -99,7 +95,7 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
             type="button"
             variant={'link'}
             onClick={() => setShowConfirm((v) => !v)}
-            className="absolute right-[16px]"
+            className="absolute right-4"
             aria-label={
               showConfirm
                 ? t('reset_password_form.hide_password')
@@ -110,11 +106,11 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
           </Button>
         </div>
         {errors.ConfirmPassword ? (
-          <p className="text-right text-[12px] text-[#ff6363]">{errors.ConfirmPassword.message}</p>
+          <p className="text-right text-xs text-[#ff6363]">{errors.ConfirmPassword.message}</p>
         ) : null}
       </div>
 
-      {error ? <p className="text-center text-[14px] text-red-400">{error}</p> : null}
+      {error ? <p className="text-center text-sm text-red-400">{error}</p> : null}
 
       <Button type="submit" disabled={loading} variant={'primary'} size={'default'}>
         {loading ? t('reset_password_form.submitting') : t('reset_password_form.submit')}

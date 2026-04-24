@@ -26,11 +26,11 @@ export function ForgotPasswordForm({ onSubmit, loading, error }: ForgotPasswordF
   } = useForm<ForgotPasswordFormValues>();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-[40px]">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-10">
       <div className="flex flex-col gap-2">
         <div className="relative flex items-center">
           <Mail
-            className="pointer-events-none absolute left-[16px] h-5 w-5 shrink-0 text-[#f7941d]"
+            className="pointer-events-none absolute left-4 h-5 w-5 shrink-0 text-[#f7941d]"
             aria-hidden="true"
           />
           <Input
@@ -38,8 +38,7 @@ export function ForgotPasswordForm({ onSubmit, loading, error }: ForgotPasswordF
             type="text"
             autoComplete="email"
             placeholder={t('forgot_password_form.email_placeholder')}
-            style={{ fontFamily: 'Inter, sans-serif' }}
-            className="h-[52px] w-full rounded-[8px] border border-[#e5e5e5] bg-white pl-[48px] pr-[16px] text-[14px] leading-[20px] text-neutral-800 placeholder:text-[#808080] outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border"
+            className="h-[52px] w-full rounded-lg border border-[#e5e5e5] bg-white pl-12 pr-4 text-sm leading-5 text-neutral-800 placeholder:text-[#808080] outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border"
             {...register('username', {
               required: t('forgot_password_form.email_required'),
               validate: (val) =>
@@ -48,12 +47,10 @@ export function ForgotPasswordForm({ onSubmit, loading, error }: ForgotPasswordF
             })}
           />
         </div>
-        {errors.username ? (
-          <p className="text-[12px] text-red-400">{errors.username.message}</p>
-        ) : null}
+        {errors.username ? <p className="text-xs text-red-400">{errors.username.message}</p> : null}
       </div>
 
-      {error ? <p className="text-center text-[14px] text-red-400">{error}</p> : null}
+      {error ? <p className="text-center text-sm text-red-400">{error}</p> : null}
 
       <Button type="submit" disabled={loading} variant={'primary'} size={'default'}>
         {loading ? t('forgot_password_form.submitting') : t('forgot_password_form.submit')}

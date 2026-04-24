@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import useLogin from '@/hooks/login/useLogin';
 import { apiService } from '@/utils/apiService';
 import { getRedirectPath } from '@/utils/redirectByRole';
+import { AxiosHeaders } from 'axios';
 
 const mockNavigate = vi.fn();
 const mockDispatch = vi.fn();
@@ -111,6 +112,12 @@ describe('useLogin', () => {
   it('checks MFA for internal user (@paymentoptions.com)', async () => {
     vi.mocked(apiService.auth.checkMfaExist).mockResolvedValue({
       data: { data: { IsMFA: 1, IsMFAEnabled: 1 } },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {
+        headers: new AxiosHeaders(),
+      },
     });
 
     const { result } = renderHook(() => useLogin());
@@ -130,6 +137,12 @@ describe('useLogin', () => {
   it('navigates to /mfa-setup with isMFASetup=true when IsMFA=1 and IsMFAEnabled=1', async () => {
     vi.mocked(apiService.auth.checkMfaExist).mockResolvedValue({
       data: { data: { IsMFA: 1, IsMFAEnabled: 1 } },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {
+        headers: new AxiosHeaders(),
+      },
     });
     const creds = { username: 'internal@paymentoptions.com', password: 'pass' };
 
@@ -146,9 +159,21 @@ describe('useLogin', () => {
   it('calls mfaGenerate and navigates to /mfa-setup with isMFASetup=false when IsMFA=0', async () => {
     vi.mocked(apiService.auth.checkMfaExist).mockResolvedValue({
       data: { data: { IsMFA: 0, IsMFAEnabled: 0 } },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {
+        headers: new AxiosHeaders(),
+      },
     });
     vi.mocked(apiService.auth.mfaGenerate).mockResolvedValue({
       data: { data: { QRCode: 'qr123', PrivateKey: 'pk123' } },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {
+        headers: new AxiosHeaders(),
+      },
     });
     const creds = { username: 'internal@paymentoptions.com', password: 'pass' };
 
