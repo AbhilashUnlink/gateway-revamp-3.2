@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import AuthLayout from '@/components/ui/auth-layout';
-import { AuthHeading } from '@/components/ui/auth-heading';
+import AuthHeading from '@/components/ui/auth-heading';
 import { DasLink } from '@/components/ui/das-link';
 import LanguageSelect from '@/components/language-select/language-select';
 import { LoginForm } from '@/components/forms/login';
@@ -21,12 +21,22 @@ function LoginPage() {
 
       {/* Heading + form */}
       <div className="flex flex-col gap-10">
-        <AuthHeading.Title>
-          {t('login.sign_in_to')}{' '}
-          <span className="font-bold text-[28px] text-[var(--btn-primary)]">
-            {t('login.payment_options')}
-          </span>
-        </AuthHeading.Title>
+        <AuthHeading>
+          <AuthHeading.Title>
+            {t('login.sign_in_to')}{' '}
+            <span className="font-bold text-[28px] text-[var(--btn-primary)]">
+              {t('login.payment_options')}
+            </span>
+          </AuthHeading.Title>
+        </AuthHeading>
+        <AuthHeading>
+          <AuthHeading.Title>
+            {t('login.sign_in_to')}{' '}
+            <span className="font-bold text-[28px] text-[var(--btn-primary)]">
+              {t('login.payment_options')}
+            </span>
+          </AuthHeading.Title>
+        </AuthHeading>
 
         <LoginForm onSubmit={handleSubmit} loading={loading} error={error} />
       </div>

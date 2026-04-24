@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import useForgotPassword from '@/hooks/forgot-password/useForgotPassword';
 import { apiService } from '@/utils/apiService';
 import { RESET_EMAIL_STORAGE_KEY } from '@/constants/forgot-password';
+import { AxiosHeaders, type AxiosResponse } from 'axios';
 
 const mockNavigate = vi.fn();
 
@@ -31,7 +32,15 @@ describe('useForgotPassword', () => {
   });
 
   it('calls postForgotPassword with the provided username', async () => {
-    vi.mocked(apiService.auth.postForgotPassword).mockResolvedValue({});
+    vi.mocked(apiService.auth.postForgotPassword).mockResolvedValue({
+      data: {},
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {
+        headers: new AxiosHeaders(),
+      },
+    });
     const { result } = renderHook(() => useForgotPassword());
 
     await act(async () => {
@@ -44,7 +53,15 @@ describe('useForgotPassword', () => {
   });
 
   it('stores email in sessionStorage on success', async () => {
-    vi.mocked(apiService.auth.postForgotPassword).mockResolvedValue({});
+    vi.mocked(apiService.auth.postForgotPassword).mockResolvedValue({
+      data: {},
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {
+        headers: new AxiosHeaders(),
+      },
+    });
     const { result } = renderHook(() => useForgotPassword());
 
     await act(async () => {
@@ -55,7 +72,15 @@ describe('useForgotPassword', () => {
   });
 
   it('navigates to /reset-password on success', async () => {
-    vi.mocked(apiService.auth.postForgotPassword).mockResolvedValue({});
+    vi.mocked(apiService.auth.postForgotPassword).mockResolvedValue({
+      data: {},
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {
+        headers: new AxiosHeaders(),
+      },
+    });
     const { result } = renderHook(() => useForgotPassword());
 
     await act(async () => {
@@ -66,7 +91,7 @@ describe('useForgotPassword', () => {
   });
 
   it('sets loading=true while the request is in flight', async () => {
-    let resolve!: (v: unknown) => void;
+    let resolve!: (v: AxiosResponse<unknown>) => void;
     vi.mocked(apiService.auth.postForgotPassword).mockReturnValue(
       new Promise((res) => {
         resolve = res;
@@ -81,7 +106,15 @@ describe('useForgotPassword', () => {
     expect(result.current.loading).toBe(true);
 
     await act(async () => {
-      resolve({});
+      resolve({
+        data: {},
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {
+          headers: new AxiosHeaders(),
+        },
+      });
     });
     expect(result.current.loading).toBe(false);
   });
@@ -113,7 +146,15 @@ describe('useForgotPassword', () => {
   it('clears previous error on a new submit', async () => {
     vi.mocked(apiService.auth.postForgotPassword)
       .mockRejectedValueOnce(new Error('First error'))
-      .mockResolvedValueOnce({});
+      .mockResolvedValueOnce({
+        data: {},
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {
+          headers: new AxiosHeaders(),
+        },
+      });
 
     const { result } = renderHook(() => useForgotPassword());
 

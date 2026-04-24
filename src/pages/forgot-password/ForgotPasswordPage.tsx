@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import AuthLayout from '@/components/ui/auth-layout';
-import { AuthHeading } from '@/components/ui/auth-heading';
+import AuthHeading from '@/components/ui/auth-heading';
 import { DasLink } from '@/components/ui/das-link';
 import LanguageSelect from '@/components/language-select/language-select';
 import { ForgotPasswordForm } from '@/components/forms/forgot-password';
@@ -22,10 +22,10 @@ function ForgotPasswordPage() {
 
       {/* Heading + description + form */}
       <div className="flex flex-col gap-10">
-        <AuthHeading.Root>
+        <AuthHeading>
           <AuthHeading.Title>{t('forgot_password.heading')}</AuthHeading.Title>
           <AuthHeading.Description>{t('forgot_password.description')}</AuthHeading.Description>
-        </AuthHeading.Root>
+        </AuthHeading>
 
         <ForgotPasswordForm onSubmit={handleSubmit} loading={loading} error={error} />
       </div>

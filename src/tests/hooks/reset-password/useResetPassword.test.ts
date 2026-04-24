@@ -4,6 +4,7 @@ import useResetPassword from '@/hooks/reset-password/useResetPassword';
 import { apiService } from '@/utils/apiService';
 import { RESET_EMAIL_STORAGE_KEY } from '@/constants/forgot-password';
 import { RESET_SUCCESSFUL_ROUTE } from '@/constants/reset-password';
+import { AxiosHeaders, type AxiosResponse } from 'axios';
 
 const mockNavigate = vi.fn();
 
@@ -72,7 +73,15 @@ describe('useResetPassword', () => {
 
   describe('handleResendOtp', () => {
     it('calls postForgotPassword with email from sessionStorage', async () => {
-      vi.mocked(apiService.auth.postForgotPassword).mockResolvedValue({});
+      vi.mocked(apiService.auth.postForgotPassword).mockResolvedValue({
+        data: {},
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {
+          headers: new AxiosHeaders(),
+        },
+      });
       const { result } = renderHook(() => useResetPassword());
 
       await act(async () => {
@@ -100,7 +109,15 @@ describe('useResetPassword', () => {
 
   describe('handlePasswordSubmit', () => {
     it('calls postForgotPasswordVerify with the OTP submitted in the previous step', async () => {
-      vi.mocked(apiService.auth.postForgotPasswordVerify).mockResolvedValue({});
+      vi.mocked(apiService.auth.postForgotPasswordVerify).mockResolvedValue({
+        data: {},
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {
+          headers: new AxiosHeaders(),
+        },
+      });
       const { result } = renderHook(() => useResetPassword());
 
       act(() => {
@@ -122,7 +139,15 @@ describe('useResetPassword', () => {
     });
 
     it('navigates to reset-successful on success', async () => {
-      vi.mocked(apiService.auth.postForgotPasswordVerify).mockResolvedValue({});
+      vi.mocked(apiService.auth.postForgotPasswordVerify).mockResolvedValue({
+        data: {},
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {
+          headers: new AxiosHeaders(),
+        },
+      });
       const { result } = renderHook(() => useResetPassword());
 
       act(() => {
@@ -139,7 +164,15 @@ describe('useResetPassword', () => {
     });
 
     it('removes email from sessionStorage on success', async () => {
-      vi.mocked(apiService.auth.postForgotPasswordVerify).mockResolvedValue({});
+      vi.mocked(apiService.auth.postForgotPasswordVerify).mockResolvedValue({
+        data: {},
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {
+          headers: new AxiosHeaders(),
+        },
+      });
       const { result } = renderHook(() => useResetPassword());
 
       act(() => {
@@ -193,7 +226,7 @@ describe('useResetPassword', () => {
     });
 
     it('sets loading=true during request and false after', async () => {
-      let resolve!: (v: unknown) => void;
+      let resolve!: (v: AxiosResponse<unknown>) => void;
       vi.mocked(apiService.auth.postForgotPasswordVerify).mockReturnValue(
         new Promise((res) => {
           resolve = res;
@@ -215,7 +248,15 @@ describe('useResetPassword', () => {
       expect(result.current.loading).toBe(true);
 
       await act(async () => {
-        resolve({});
+        resolve({
+          data: {},
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: {
+            headers: new AxiosHeaders(),
+          },
+        });
       });
       expect(result.current.loading).toBe(false);
     });

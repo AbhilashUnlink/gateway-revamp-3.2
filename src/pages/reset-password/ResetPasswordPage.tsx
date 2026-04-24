@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import AuthLayout from '@/components/ui/auth-layout';
-import { AuthHeading } from '@/components/ui/auth-heading';
+import AuthHeading from '@/components/ui/auth-heading';
 import { DasLink } from '@/components/ui/das-link';
 import LanguageSelect from '@/components/language-select/language-select';
 import { ResetPasswordOtpForm } from '@/components/forms/reset-password-otp';
@@ -24,10 +24,10 @@ function ResetPasswordPage() {
 
       {step === 'otp' ? (
         <div className="flex flex-col gap-10">
-          <AuthHeading.Root>
+          <AuthHeading>
             <AuthHeading.Title>{t('reset_password_otp.heading')}</AuthHeading.Title>
             <AuthHeading.Description>{t('reset_password_otp.description')}</AuthHeading.Description>
-          </AuthHeading.Root>
+          </AuthHeading>
           <ResetPasswordOtpForm
             onSubmit={handleOtpSubmit}
             onResend={handleResendOtp}

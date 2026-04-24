@@ -89,7 +89,7 @@ describe('ResetPasswordPage', () => {
     it('auto-advances focus to next input on digit entry', async () => {
       renderPage();
       const inputs = screen.getAllByRole('textbox');
-      await userEvent.type(inputs[0], '5');
+      await userEvent.type(inputs?.[0] as Element, '5');
       await waitFor(() => {
         expect(document.activeElement).toBe(inputs[1]);
       });
@@ -99,9 +99,9 @@ describe('ResetPasswordPage', () => {
       renderPage();
       const inputs = screen.getAllByRole('textbox');
       // Type a digit into index 1, then clear it and press Backspace
-      await userEvent.type(inputs[1], '3');
-      await userEvent.clear(inputs[1]);
-      inputs[1].focus();
+      await userEvent.type(inputs?.[1] as Element, '3');
+      await userEvent.clear(inputs?.[1] as Element);
+      inputs?.[1]?.focus();
       await userEvent.keyboard('{Backspace}');
       await waitFor(() => {
         expect(document.activeElement).toBe(inputs[0]);
@@ -111,7 +111,7 @@ describe('ResetPasswordPage', () => {
     it('fills all 6 digits on paste', async () => {
       renderPage();
       const inputs = screen.getAllByRole('textbox');
-      fireEvent.paste(inputs[0], {
+      fireEvent.paste(inputs?.[0] as Element, {
         clipboardData: { getData: () => '123456' },
       });
       await waitFor(() => {
@@ -124,7 +124,7 @@ describe('ResetPasswordPage', () => {
       renderPage();
       const inputs = screen.getAllByRole('textbox');
       for (let i = 0; i < 6; i++) {
-        await userEvent.type(inputs[i], String(i + 1));
+        await userEvent.type(inputs?.[i] as Element, String(i + 1));
       }
       await userEvent.click(screen.getByRole('button', { name: 'reset_password_otp.submit' }));
       await waitFor(() => {
