@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import i18n from '@/i18n';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginUser } from '@/store/thunks/authThunks';
 import { apiService } from '@/utils/apiService';
@@ -28,7 +29,7 @@ const useLogin = () => {
         await handleExternalUser(values);
       }
     } catch (err) {
-      setError((err as Error).message ?? 'Something went wrong');
+      setError((err as Error).message ?? i18n.t('login.something_went_wrong'));
     }
   };
 
@@ -75,7 +76,7 @@ const useLogin = () => {
       const redirectPath = getRedirectPath(userData.Groups);
       navigate(redirectPath);
     } else {
-      setError((result.payload as string) ?? 'Login failed');
+      setError((result.payload as string) ?? i18n.t('login.login_failed'));
     }
   };
   return {
