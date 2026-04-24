@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import AuthLayout from '@/components/ui/auth-layout';
+import { AuthHeading } from '@/components/ui/auth-heading';
 import { DasLink } from '@/components/ui/das-link';
 import LanguageSelect from '@/components/language-select/language-select';
 import { ResetPasswordOtpForm } from '@/components/forms/reset-password-otp';
@@ -14,7 +15,7 @@ function ResetPasswordPage() {
   return (
     <AuthLayout>
       {/* Header row: back link + language selector */}
-      <div className="flex h-[44px] items-center justify-between">
+      <div className="flex h-11 items-center justify-between">
         <DasLink to="/login">{t('reset_password.back_to_sign_in')}</DasLink>
         <div className="relative inline-flex items-center">
           <LanguageSelect />
@@ -22,21 +23,11 @@ function ResetPasswordPage() {
       </div>
 
       {step === 'otp' ? (
-        <div className="flex flex-col gap-[40px]">
-          <div className="flex flex-col gap-[12px]">
-            <p
-              className="font-semibold text-[24px] leading-normal text-white"
-              style={{ fontFamily: 'Inter, sans-serif' }}
-            >
-              {t('reset_password_otp.heading')}
-            </p>
-            <p
-              className="text-[14px] leading-[20px] text-white"
-              style={{ fontFamily: 'Inter, sans-serif' }}
-            >
-              {t('reset_password_otp.description')}
-            </p>
-          </div>
+        <div className="flex flex-col gap-10">
+          <AuthHeading.Root>
+            <AuthHeading.Title>{t('reset_password_otp.heading')}</AuthHeading.Title>
+            <AuthHeading.Description>{t('reset_password_otp.description')}</AuthHeading.Description>
+          </AuthHeading.Root>
           <ResetPasswordOtpForm
             onSubmit={handleOtpSubmit}
             onResend={handleResendOtp}
@@ -44,13 +35,10 @@ function ResetPasswordPage() {
           />
         </div>
       ) : (
-        <div className="flex flex-col gap-[40px]">
-          <p
-            className="font-medium text-[24px] leading-normal text-white"
-            style={{ fontFamily: 'Inter, sans-serif' }}
-          >
+        <div className="flex flex-col gap-10">
+          <AuthHeading.Title className="font-medium">
             {t('reset_password.heading')}
-          </p>
+          </AuthHeading.Title>
           <ResetPasswordForm onSubmit={handlePasswordSubmit} loading={loading} error={error} />
         </div>
       )}
