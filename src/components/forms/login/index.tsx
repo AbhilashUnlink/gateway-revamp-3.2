@@ -1,11 +1,9 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
-export interface LoginFormValues {
-  username: string;
-  password: string;
-}
+import type { LoginFormValues } from '@/types/login/auth.types';
 
 interface LoginFormProps {
   onSubmit: (values: LoginFormValues) => void | Promise<void>;
@@ -17,6 +15,7 @@ const emailRegex =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -24,41 +23,71 @@ export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
   } = useForm<LoginFormValues>();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full max-w-sm">
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-neutral-700" htmlFor="username">
-          Email
-        </label>
-        <Input
-          id="username"
-          type="text"
-          placeholder="Enter your email"
-          {...register('username', {
-            required: 'Email is required',
-            validate: (val) => emailRegex.test(String(val).toLowerCase()) || 'Invalid email',
-          })}
-        />
-        {errors.username && <p className="text-xs text-red-500">{errors.username.message}</p>}
-      </div>
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-[40px]">
+        {/* Email */}
+        <div className="flex flex-col gap-2">
+          <div className="relative flex items-center">
+            <Mail
+              className="pointer-events-none absolute left-[16px] h-5 w-5 shrink-0 text-[#f7941d]"
+              aria-hidden="true"
+            />
+            <Input
+              id="username"
+              type="text"
+              autoComplete="email"
+              placeholder="Enter your registered Email Address*"
+              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="h-[52px] w-full rounded-[8px] border border-[#e5e5e5] bg-white pl-[48px] pr-[16px] text-[14px] leading-[20px] text-neutral-800 placeholder:text-[#808080] outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border"
+              {...register('username', {
+                required: 'Email is required',
+                validate: (val) => emailRegex.test(String(val).toLowerCase()) || 'Invalid email',
+              })}
+            />
+          </div>
+          {errors.username ? (
+            <p className="text-[12px] text-red-400">{errors.username.message}</p>
+          ) : null}
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-neutral-700" htmlFor="password">
-          Password
-        </label>
-        <Input
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          {...register('password', { required: 'Password is required' })}
-        />
-        {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
-      </div>
+        {/* Password */}
+        <div className="flex flex-col gap-2">
+          <div className="relative flex items-center">
+            <Lock
+              className="pointer-events-none absolute left-[16px] h-5 w-5 shrink-0 text-[#f7941d]"
+              aria-hidden="true"
+            />
+            <Input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="Enter Password*"
+              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="h-[52px] w-full rounded-[8px] border border-[#e5e5e5] bg-white pl-[48px] pr-[48px] text-[14px] leading-[20px] text-neutral-800 placeholder:text-[#808080] outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border"
+              {...register('password', { required: 'Password is required' })}
+            />
+            <Button
+              type="button"
+              variant={'link'}
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-[16px]"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </Button>
+          </div>
+          {errors.password ? (
+            <p className="text-[12px] text-red-400">{errors.password.message}</p>
+          ) : null}
+        </div>
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+        {error ? <p className="text-center text-[14px] text-red-400">{error}</p> : null}
 
-      <Button type="submit" disabled={loading}>
-        {loading ? 'Signing in…' : 'Sign In'}
-      </Button>
-    </form>
+        {/* Submit */}
+        <Button type="submit" disabled={loading} variant={'primary'} size={'default'}>
+          {loading ? 'Signing in…' : 'Sign in'}
+        </Button>
+      </form>
+    </>
   );
 }

@@ -1,92 +1,83 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LoginForm, type LoginFormValues } from '@/components/forms/login';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loginUser } from '@/store/thunks/authThunks';
-import { apiService } from '@/utils/apiService';
-import { getRedirectPath } from '@/utils/redirectByRole';
-import type { ApiResponse, SignInData } from '@/types/login/auth.types';
+import loginHero from '@/assets/login-hero.png';
+import poLogoSvg from '@/assets/po-logo-white.svg';
+import { DasLink } from '@/components/ui/das-link';
+import LanguageSelect from '@/components/language-select/language-select';
+import { LoginForm } from '@/components/forms/login';
+import useLogin from '@/hooks/login/useLogin';
 
-interface MfaCheckResponse {
-  IsMFA: number;
-  IsMFAEnabled: number;
-  QRCode?: string;
-  PrivateKey?: string;
+function PaymentOptionsLogo() {
+  return (
+    <div className="flex items-center gap-3 pr-[15px]">
+      <img
+        src={poLogoSvg}
+        alt="payment-options"
+        aria-hidden
+        className="h-[90px] w-auto object-contain"
+      />
+    </div>
+  );
 }
 
 function LoginPage() {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const loading = useAppSelector((s) => s.auth.loading);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (values: LoginFormValues) => {
-    setError(null);
-    const isInternalUser = values.username?.includes('@paymentoptions.com');
-
-    try {
-      if (isInternalUser) {
-        await handleInternalUser(values);
-      } else {
-        await handleExternalUser(values);
-      }
-    } catch (err) {
-      setError((err as Error).message ?? 'Something went wrong');
-    }
-  };
-
-  const handleInternalUser = async (values: LoginFormValues) => {
-    const mfaRes = await apiService.auth.checkMfaExist({
-      username: values.username,
-      password: values.password,
-    });
-    const mfa = (mfaRes.data as ApiResponse<MfaCheckResponse>).data;
-
-    if (mfa.IsMFA === 0) {
-      const genRes = await apiService.auth.mfaGenerate({
-        Email: values.username,
-        Password: values.password,
-        path: 'DASPOS',
-      });
-      const generated = (genRes.data as ApiResponse<{ QRCode: string; PrivateKey: string }>).data;
-      localStorage.setItem('PrivateKey', generated.PrivateKey);
-      navigate('/mfa-setup', {
-        state: { isMFASetup: false, QRCode: generated.QRCode, credentials: values },
-      });
-      return;
-    }
-
-    if (mfa.IsMFA === 1 && mfa.IsMFAEnabled === 1) {
-      navigate('/mfa-setup', { state: { isMFASetup: true, credentials: values } });
-      return;
-    }
-
-    await performSignIn(values);
-  };
-
-  const handleExternalUser = async (values: LoginFormValues) => {
-    await performSignIn(values);
-  };
-
-  const performSignIn = async (values: LoginFormValues) => {
-    const result = await dispatch(
-      loginUser({ username: values.username, password: values.password })
-    );
-
-    if (loginUser.fulfilled.match(result)) {
-      const userData = result.payload as SignInData;
-      const redirectPath = getRedirectPath(userData.Groups);
-      navigate(redirectPath);
-    } else {
-      setError((result.payload as string) ?? 'Login failed');
-    }
-  };
-
+  const { handleSubmit, error, loading } = useLogin();
   return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="flex flex-col items-center gap-6">
-        <h1 className="text-xl font-semibold text-neutral-700">Sign In</h1>
-        <LoginForm onSubmit={handleSubmit} loading={loading} error={error} />
+    <div className="flex min-h-screen w-full bg-[#333]">
+      {/* Left: Hero Panel */}
+      <div className="relative w-1/2 shrink-0 overflow-hidden">
+        <img
+          src={loginHero}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+        {/* Gradient overlay matching Figma — rotated bottom-to-top white fade */}
+        <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-transparent to-transparent" />
+      </div>
+
+      {/* Right: Sign-in Panel */}
+      <div className="flex w-1/2 shrink-0 flex-col items-center justify-center gap-[62px] px-6 py-10">
+        {/* Logo */}
+        <PaymentOptionsLogo />
+
+        {/* Glassmorphism sign-in card — exact Figma values */}
+        <div
+          className="flex w-full max-w-[584px] flex-col gap-[30px] rounded-[24px] p-[40px] backdrop-blur-[7.5px]"
+          style={{
+            border: '1px solid rgba(255,255,255,0.2)',
+            background: 'linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0))',
+            boxShadow: '0px 0px 20px 0px rgba(0,0,0,0.2)',
+          }}
+        >
+          {/* Language selector */}
+          <div className="flex h-[44px] items-center justify-end gap-[10px]">
+            <div className="relative inline-flex items-center">
+              <LanguageSelect />
+            </div>
+          </div>
+
+          {/* Sign-in details: heading + inputs + button */}
+          <div className="flex flex-col gap-[40px]">
+            <p
+              className="font-semibold text-[24px] leading-normal"
+              style={{ color: '#ffffff', fontFamily: 'Inter, sans-serif' }}
+            >
+              Sign in to{' '}
+              <span
+                className="font-bold text-[28px]"
+                style={{ color: '#f7941d', fontFamily: 'Inter, sans-serif' }}
+              >
+                Payment Options
+              </span>
+            </p>
+
+            <LoginForm onSubmit={handleSubmit} loading={loading} error={error} />
+          </div>
+
+          {/* Footer links */}
+          <div className="flex items-center justify-between">
+            <DasLink to="/forgot-password">Forgot Password?</DasLink>
+            <DasLink to="/choose-account-type">Create a new account</DasLink>
+          </div>
+        </div>
       </div>
     </div>
   );
