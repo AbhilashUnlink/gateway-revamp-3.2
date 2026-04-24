@@ -33,6 +33,31 @@ const jp = {
     submit: '送信',
     submitting: '送信中...',
   },
+  reset_password: {
+    heading: 'パスワードをリセット',
+    back_to_sign_in: 'ログインに戻る',
+    something_went_wrong: '問題が発生しました',
+  },
+  reset_password_otp: {
+    heading: 'OTPを入力してアカウントを確認してください',
+    description: '登録済みのメールIDに送信された確認コードを以下に入力してください',
+    submit: '確認',
+    didnt_receive: 'コードが届きませんでしたか？',
+    resend_otp: 'OTPを再送信',
+  },
+  reset_password_form: {
+    new_password_placeholder: '新しいパスワードを入力',
+    confirm_password_placeholder: '確認用の新しいパスワードを入力',
+    password_required: 'パスワードを入力してください。',
+    password_too_short: 'パスワードが短すぎます - 最低14文字必要です。',
+    password_complexity:
+      'パスワードには数字、特殊文字、大文字、小文字を少なくとも1文字ずつ含める必要があります。',
+    passwords_must_match: 'パスワードが一致する必要があります',
+    submit: 'パスワードをリセット',
+    submitting: 'リセット中...',
+    show_password: 'パスワードを表示',
+    hide_password: 'パスワードを非表示',
+  },
 };
 
 export default jp;

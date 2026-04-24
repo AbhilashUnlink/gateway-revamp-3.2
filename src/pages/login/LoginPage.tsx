@@ -12,14 +12,14 @@ function LoginPage() {
   return (
     <AuthLayout>
       {/* Language selector row */}
-      <div className="flex h-[44px] items-center justify-end gap-[10px]">
+      <div className="flex h-11 items-center justify-end gap-2.5">
         <div className="relative inline-flex items-center">
           <LanguageSelect />
         </div>
       </div>
 
       {/* Heading + form */}
-      <div className="flex flex-col gap-[40px]">
+      <div className="flex flex-col gap-10">
         <p
           className="font-semibold text-[24px] leading-normal"
           style={{ color: '#ffffff', fontFamily: 'Inter, sans-serif' }}
