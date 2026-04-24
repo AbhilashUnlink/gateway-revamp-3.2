@@ -33,6 +33,31 @@ const en = {
     submit: 'Submit',
     submitting: 'Submitting',
   },
+  reset_password: {
+    heading: 'Reset Password',
+    back_to_sign_in: 'Back to Sign In',
+    something_went_wrong: 'Something went wrong',
+  },
+  reset_password_otp: {
+    heading: 'Enter OTP to verify your account',
+    description: 'Please enter below the verification code sent to your registered email ID',
+    submit: 'Verify',
+    didnt_receive: "Didn't receive a code?",
+    resend_otp: 'Resend OTP',
+  },
+  reset_password_form: {
+    new_password_placeholder: 'Enter New Password',
+    confirm_password_placeholder: 'Confirm New Password',
+    password_required: 'Password is required',
+    password_too_short: 'Password is too short - should be 14 characters minimum.',
+    password_complexity:
+      'Your password must include at least one number, one special character, one uppercase letter, and one lowercase letter.',
+    passwords_must_match: 'Passwords must match',
+    submit: 'Reset Password',
+    submitting: 'Resetting...',
+    show_password: 'Show password',
+    hide_password: 'Hide password',
+  },
 };
 
 export default en;
