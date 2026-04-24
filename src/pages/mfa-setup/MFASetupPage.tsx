@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/store/hooks';
 import { loginUser } from '@/store/thunks/authThunks';
 import { getRedirectPath } from '@/utils/redirectByRole';
-import type { LoginFormValues } from '@/components/forms/login';
-import type { SignInData } from '@/types/login/auth.types';
+import type { LoginFormValues, SignInData } from '@/types/login/auth.types';
 
 interface MFASetupState {
   isMFASetup: boolean;
@@ -46,7 +45,7 @@ function MFASetupPage() {
       <div className="flex flex-col items-center gap-6">
         <h1 className="text-xl font-semibold text-neutral-700">MFA Setup</h1>
         {error && <p className="text-xs text-red-500">{error}</p>}
-        <Button variant="outline" onClick={handleSkip} disabled={loading}>
+        <Button variant="link" onClick={handleSkip} disabled={loading}>
           {loading ? 'Signing in…' : 'Skip'}
         </Button>
       </div>

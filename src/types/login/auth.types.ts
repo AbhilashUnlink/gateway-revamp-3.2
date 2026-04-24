@@ -76,3 +76,15 @@ export type ApiResponse<T> = {
   success: boolean;
   data: T;
 };
+
+export interface LoginFormValues {
+  username: string;
+  password: string;
+}
+
+export interface MfaCheckResponse {
+  IsMFA: number;
+  IsMFAEnabled: number;
+  QRCode?: string;
+  PrivateKey?: string;
+}
