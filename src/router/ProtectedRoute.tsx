@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import NotFoundPage from '@/pages/not-found/NotFoundPage';
+import { ProtectedLayout } from '@/layouts/ProtectedLayout';
 
 interface ProtectedRouteProps {
   component: React.LazyExoticComponent<React.ComponentType>;
@@ -20,5 +21,9 @@ export function ProtectedRoute({
   const isAllowed = !allowedGroups || allowedGroups.some((g) => userGroups.includes(g));
   if (!isAllowed) return <NotFoundPage />;
 
-  return <Component />;
+  return (
+    <ProtectedLayout>
+      <Component />
+    </ProtectedLayout>
+  );
 }

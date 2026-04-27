@@ -58,6 +58,25 @@ const jp = {
     show_password: 'パスワードを表示',
     hide_password: 'パスワードを非表示',
   },
+  sidebar: {
+    dashboard: 'ダッシュボード',
+    transactions: '取引',
+    merchants: '加盟店',
+    products: 'Products',
+    risk_management: 'リスク管理',
+    acquirers: 'アクワイアラ',
+    statements: '明細書',
+    dispute_management: '異議申し立て管理',
+    hash_card: 'ハッシュカード',
+    sales_lead: 'セールスリード',
+    help_and_support: 'ヘルプ＆サポート',
+    privacy_and_policy: 'Privacy & Policy',
+    terms_and_conditions: 'Terms & Conditions',
+    expand_sidebar: 'Expand sidebar',
+    collapse_sidebar: 'Collapse sidebar',
+    toggle_sidebar: 'Toggle sidebar',
+    close_sidebar: 'Close sidebar',
+  },
 };
 
 export default jp;

@@ -58,6 +58,25 @@ const en = {
     show_password: 'Show password',
     hide_password: 'Hide password',
   },
+  sidebar: {
+    dashboard: 'Dashboard',
+    transactions: 'Transactions',
+    merchants: 'Merchants',
+    products: 'Products',
+    risk_management: 'Risk Management',
+    acquirers: 'Acquirers',
+    statements: 'Statements',
+    dispute_management: 'Dispute Management',
+    hash_card: 'Hash Card',
+    sales_lead: 'Sales Lead',
+    help_and_support: 'Help & Support',
+    privacy_and_policy: 'Privacy & Policy',
+    terms_and_conditions: 'Terms & Conditions',
+    expand_sidebar: 'Expand sidebar',
+    collapse_sidebar: 'Collapse sidebar',
+    toggle_sidebar: 'Toggle sidebar',
+    close_sidebar: 'Close sidebar',
+  },
 };
 
 export default en;
