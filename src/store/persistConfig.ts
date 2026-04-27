@@ -15,7 +15,7 @@ const storage = {
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth', 'user', 'permissions', 'settings'],
+  whitelist: ['auth', 'user', 'permissions', 'settings', 'ui'],
 };
 
 export default persistConfig;

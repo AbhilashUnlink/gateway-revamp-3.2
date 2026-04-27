@@ -15,7 +15,10 @@
       "Bash(npx tsc *)",
       "Bash(npm test *)",
       "Bash(git add *)",
-      "Bash(gh pr create --title 'UI-12: Login Form with Conditional MFA & Redux Integration' --body ' *)"
+      "Bash(gh pr create --title 'UI-12: Login Form with Conditional MFA & Redux Integration' --body ' *)",
+      "mcp__claude_ai_Linear__get_issue",
+      "mcp__claude_ai_Linear__save_issue",
+      "mcp__claude_ai_Figma__get_design_context"
     ]
   }
 }
