@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import type { SignInData } from '@/types/login/auth.types';
 import { apiService } from '.';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
@@ -6,18 +7,23 @@ const X_API_KEY = import.meta.env.VITE_API_X_API_KEY ?? '';
 
 const PUBLIC_ROUTES = ['/auth/signIn', '/auth/checkMfaExist'];
 
+// Shared promise — all concurrent requests that arrive while a refresh is in
+// progress await the same promise instead of each triggering their own refresh.
+let refreshPromise: Promise<string> | null = null;
+
 // ==============================
 // AUTH HELPERS
 // ==============================
 
-function getAuthData() {
+function getAuthData(): SignInData | null {
   try {
-    const raw = localStorage.getItem('persist:auth');
+    const raw = localStorage.getItem('persist:root');
     if (!raw) return null;
-
-    const parsed = JSON.parse(raw);
-
-    return parsed?.signInData ? JSON.parse(parsed.signInData) : null;
+    const parsed = JSON.parse(raw) as Record<string, string>;
+    const parsedAuth = JSON.parse(parsed.auth ?? '{}') as {
+      signInData?: SignInData;
+    };
+    return parsedAuth.signInData ?? null;
   } catch {
     return null;
   }
@@ -28,8 +34,8 @@ function isTokenExpired(exp?: number): boolean {
   return Date.now() >= exp * 1000;
 }
 
-function getAccessToken(): string | null {
-  return getAuthData()?.token?.accessToken ?? null;
+function getIdToken(): string | null {
+  return getAuthData()?.token?.idToken ?? null;
 }
 
 function getRefreshToken(): string | null {
@@ -41,49 +47,63 @@ function getUsername(): string | null {
 }
 
 // ==============================
-// REFRESH STATE (singleton)
-// ==============================
-
-let isRefreshing = false;
-let refreshQueue: Array<(token: string) => void> = [];
-
-// ==============================
 // UPDATE STORAGE
 // ==============================
 
-function updateAuthStorage(tokens: { accessToken: string; refreshToken: string }) {
-  const raw = localStorage.getItem('persist:auth');
-  if (!raw) return;
+function updateAuthStorage(tokens: {
+  accessToken?: string;
+  idToken?: string;
+  refreshToken?: string;
+}) {
+  try {
+    const raw = localStorage.getItem('persist:root');
+    if (!raw) return;
 
-  const parsed = JSON.parse(raw);
+    const persistRoot = JSON.parse(raw) as Record<string, string>;
+    const authState = JSON.parse(persistRoot.auth ?? '{}') as {
+      signInData?: SignInData;
+    };
 
-  const signInData = parsed?.signInData ? JSON.parse(parsed.signInData) : {};
+    if (!authState.signInData) return;
 
-  const updated = {
-    ...signInData,
-    token: {
-      ...signInData.token,
-      ...tokens,
-    },
-  };
+    authState.signInData = {
+      ...authState.signInData,
+      token: {
+        ...authState.signInData.token,
+        ...tokens,
+      },
+    };
 
-  parsed.signInData = JSON.stringify(updated);
-
-  localStorage.setItem('persist:auth', JSON.stringify(parsed));
+    persistRoot.auth = JSON.stringify(authState);
+    localStorage.setItem('persist:root', JSON.stringify(persistRoot));
+  } catch {
+    // storage update failure is non-fatal — next request will re-attempt
+  }
 }
 
 // ==============================
 // REFRESH API CALL
 // ==============================
 
-async function refreshTokenApi(refreshToken: string) {
-  const payload = {
+async function doRefresh(): Promise<string> {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) throw new Error('No refresh token available');
+
+  const res = await apiService.auth.postRefreshToken({
     username: getUsername(),
     refreshToken,
+  });
+
+  const newTokens = res.data as {
+    accessToken?: string;
+    idToken?: string;
+    refreshToken?: string;
   };
 
-  const res = await apiService.auth.postRefreshToken(payload);
-  return res.data;
+  updateAuthStorage(newTokens);
+
+  // idToken is used as the Authorization header (matches getIdToken())
+  return newTokens.idToken ?? newTokens.accessToken ?? '';
 }
 
 // ==============================
@@ -91,70 +111,63 @@ async function refreshTokenApi(refreshToken: string) {
 // ==============================
 
 export function useFetchWrapper(): AxiosInstance {
-  const instance = axios.create({
-    baseURL: BASE_URL,
-  });
+  const instance = axios.create({ baseURL: BASE_URL });
 
-  instance.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-    const url = config.url || '';
+  // ----- REQUEST interceptor — attach token / trigger refresh -----
+  instance.interceptors.request.use(
+    async (config: InternalAxiosRequestConfig) => {
+      const url = config.url ?? '';
+      const isPublicRoute = PUBLIC_ROUTES.some((route) => url.includes(route));
 
-    const isPublicRoute = PUBLIC_ROUTES.some((route) => url.includes(route));
+      config.headers = config.headers ?? {};
+      config.headers['X-Api-Key'] = X_API_KEY;
 
-    // Always attach API key
-    config.headers?.set?.('X-Api-Key', X_API_KEY);
+      if (isPublicRoute) return config;
 
-    // Skip auth for public APIs
-    if (isPublicRoute) return config;
+      const exp = getAuthData()?.exp;
+      const refreshToken = getRefreshToken();
 
-    const accessToken = getAccessToken();
-    const refreshToken = getRefreshToken();
-    const exp = getAuthData()?.exp;
-
-    // =========================
-    // REFRESH TOKEN FLOW
-    // =========================
-    if (isTokenExpired(exp) && refreshToken) {
-      if (!isRefreshing) {
-        isRefreshing = true;
+      if (isTokenExpired(exp) && refreshToken) {
+        // All concurrent expired requests share the same refresh promise.
+        // Only the first creates it; the rest just await it.
+        if (!refreshPromise) {
+          refreshPromise = doRefresh().finally(() => {
+            refreshPromise = null;
+          });
+        }
 
         try {
-          const newTokens = await refreshTokenApi(refreshToken);
-
-          const updated = {
-            accessToken: newTokens.accessToken,
-            refreshToken: newTokens.refreshToken,
-          };
-
-          updateAuthStorage(updated);
-
-          isRefreshing = false;
-
-          refreshQueue.forEach((cb) => cb(updated.accessToken));
-          refreshQueue = [];
-        } catch (err) {
-          isRefreshing = false;
-          refreshQueue = [];
-          return Promise.reject(err);
+          const newToken = await refreshPromise;
+          config.headers['Authorization'] = newToken;
+        } catch {
+          return Promise.reject(new Error('Session expired. Please sign in again.'));
         }
+
+        return config;
       }
 
-      return new Promise((resolve) => {
-        refreshQueue.push((token: string) => {
-          config.headers?.set?.('Authorization', `Bearer ${token}`);
-          resolve(config);
-        });
-      });
-    }
+      const idToken = getIdToken();
+      if (idToken) {
+        config.headers['Authorization'] = idToken;
+      }
 
-    // =========================
-    // NORMAL TOKEN ATTACHMENT
-    // =========================
-    if (accessToken) {
-      config.headers?.set?.('Authorization', `Bearer ${accessToken}`);
-    }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
-    return config;
-  });
+  // ----- RESPONSE interceptor — handle hard 401 (refresh token invalid) -----
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error?.response?.status === 401) {
+        // Clear persisted session and redirect to login
+        localStorage.removeItem('persist:root');
+        window.location.href = '/login';
+      }
+      return Promise.reject(error);
+    }
+  );
 
   return instance;
 }

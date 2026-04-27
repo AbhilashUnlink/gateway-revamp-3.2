@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import i18n from '@/i18n';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginUser } from '@/store/thunks/authThunks';
 import { apiService } from '@/utils/apiService';
 import { getRedirectPath } from '@/utils/redirectByRole';
+import { useToast } from '@/hooks/useToast';
 import type {
   ApiResponse,
   LoginFormValues,
@@ -16,10 +16,9 @@ const useLogin = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const loading = useAppSelector((s) => s.auth.loading);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   const handleSubmit = async (values: LoginFormValues) => {
-    setError(null);
     const isInternalUser = values.username?.includes('@paymentoptions.com');
 
     try {
@@ -29,7 +28,7 @@ const useLogin = () => {
         await handleExternalUser(values);
       }
     } catch (err) {
-      setError((err as Error).message ?? i18n.t('login.something_went_wrong'));
+      toast.error((err as Error).message ?? i18n.t('login.something_went_wrong'));
     }
   };
 
@@ -76,14 +75,11 @@ const useLogin = () => {
       const redirectPath = getRedirectPath(userData.Groups);
       navigate(redirectPath);
     } else {
-      setError((result.payload as string) ?? i18n.t('login.login_failed'));
+      toast.error((result.payload as string) ?? i18n.t('login.login_failed'));
     }
   };
-  return {
-    loading,
-    error,
-    handleSubmit,
-  };
+
+  return { loading, handleSubmit };
 };
 
 export default useLogin;

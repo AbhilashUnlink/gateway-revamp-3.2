@@ -23,7 +23,7 @@ const solutions = [
   },
 ];
 
-export default function Example() {
+export default function DasPopover() {
   return (
     <div className="fixed top-16 w-full max-w-sm px-4">
       <Popover className="relative">
