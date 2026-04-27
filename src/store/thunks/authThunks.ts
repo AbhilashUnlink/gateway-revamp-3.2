@@ -2,7 +2,13 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiService } from '@/utils/apiService';
 import { clearPermissions } from '../slices/permissionSlice';
 import { clearProfile } from '../slices/userSlice';
-import type { SignInData, SignInPayload, SignInResponse } from '@/types/login/auth.types';
+import type { RootState } from '@/store';
+import type {
+  SignInData,
+  SignInPayload,
+  SignInResponse,
+  SignoutPayload,
+} from '@/types/login/auth.types';
 
 export const loginUser = createAsyncThunk<SignInData, SignInPayload>(
   'auth/loginUser',
@@ -17,8 +23,15 @@ export const loginUser = createAsyncThunk<SignInData, SignInPayload>(
 );
 
 export const logoutUser = createAsyncThunk('auth/logoutUser', async (_, thunkAPI) => {
+  const { signInData } = (thunkAPI.getState() as RootState).auth;
+
+  const payload: SignoutPayload = {
+    username: signInData.email,
+    token: signInData.token,
+  };
+
   try {
-    await apiService.auth.postSignOut();
+    await apiService.auth.signOut(payload);
   } catch {
     // proceed with local cleanup even if API call fails
   }

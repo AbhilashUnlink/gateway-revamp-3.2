@@ -32,6 +32,11 @@ export interface SignInPayload {
   username: string;
   password: string;
 }
+
+export interface SignoutPayload {
+  username: string;
+  token: AuthToken;
+}
 export interface MfaGeneratePayload {
   Email: string;
   Password: string;

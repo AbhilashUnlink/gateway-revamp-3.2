@@ -8,7 +8,7 @@ import useLogin from '@/hooks/login/useLogin';
 
 function LoginPage() {
   const { t } = useTranslation();
-  const { handleSubmit, error, loading } = useLogin();
+  const { handleSubmit, loading } = useLogin();
 
   return (
     <AuthLayout>
@@ -24,13 +24,13 @@ function LoginPage() {
         <AuthHeading>
           <AuthHeading.Title>
             {t('login.sign_in_to')}{' '}
-            <span className="font-bold text-[28px] text-[var(--btn-primary)]">
+            <span className="font-bold text-[28px] text-(--btn-primary)">
               {t('login.payment_options')}
             </span>
           </AuthHeading.Title>
         </AuthHeading>
 
-        <LoginForm onSubmit={handleSubmit} loading={loading} error={error} />
+        <LoginForm onSubmit={handleSubmit} loading={loading} />
       </div>
 
       {/* Footer links */}

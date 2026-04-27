@@ -1,4 +1,4 @@
-import type { MfaGeneratePayload, SignInPayload } from '@/types/login/auth.types';
+import type { MfaGeneratePayload, SignInPayload, SignoutPayload } from '@/types/login/auth.types';
 import { useFetchWrapper as Api } from '@/utils';
 
 export const apiService = {
@@ -35,7 +35,7 @@ export const apiService = {
     signIn: (data: SignInPayload) => Api().post(`auth/signIn`, data),
     mfaGenerate: (data: MfaGeneratePayload) => Api().post(`auth/mfa/generate`, data),
     postRefreshToken: (data?: unknown) => Api().post(`auth/refreshToken`, data),
-    postSignOut: () => Api().post(`auth/signOut`),
+    signOut: (payload: SignoutPayload) => Api().post(`auth/signOut`, payload),
     postMfaEmailVerify: (data?: unknown) => Api().post(`auth/mfa/email/verify`, data),
     postForgotPassword: (data?: unknown) => Api().post(`auth/forgotPassword`, data),
     postMfaVerifyGatewayOtp: (data?: unknown) => Api().post(`auth/mfa/verify/gateway/otp`, data),
@@ -76,7 +76,8 @@ export const apiService = {
   },
 
   transactions: {
-    getEndpoint: (params: { id: string }) => Api().get(`transactions/${params.id}`),
+    listV2: (payload: unknown) => Api().post(`transactions/listv2`, payload),
+    getById: (params: { id: string }) => Api().get(`transactions/${params.id}`),
     postTransactionReportDownload: (data?: unknown) =>
       Api().post(`transactions/transaction-report/download`, data),
     postTransactionPresetFilterCreate: (data?: unknown) =>

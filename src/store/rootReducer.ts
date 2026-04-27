@@ -4,6 +4,7 @@ import userReducer from './slices/userSlice';
 import uiReducer from './slices/uiSlice';
 import permissionReducer from './slices/permissionSlice';
 import settingsReducer from './slices/settingsSlice';
+import transactionsReducer from './slices/transactionsSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   ui: uiReducer,
   permissions: permissionReducer,
   settings: settingsReducer,
+  transactions: transactionsReducer,
 });
 
 export default rootReducer;
