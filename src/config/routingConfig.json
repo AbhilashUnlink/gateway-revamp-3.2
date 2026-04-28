@@ -48,6 +48,21 @@
       ]
     },
     {
+      "path": "/transactions/:id",
+      "component": "transactions/details",
+      "allowedGroups": [
+        "SALES",
+        "SALESOPS",
+        "FRAUD",
+        "RISK",
+        "COMPLIANCE",
+        "SUPPORT",
+        "SETTLEMENT",
+        "FINANCE",
+        "CUSTOMER"
+      ]
+    },
+    {
       "path": "/accounts/merchants",
       "component": "accounts/merchants",
       "allowedGroups": [

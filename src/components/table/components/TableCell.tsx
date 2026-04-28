@@ -7,15 +7,16 @@ interface TableCellProps {
   cellType: CellType;
   width: number;
   className?: string;
+  onPrimaryClick?: () => void;
 }
 
-export function TableCell({ data, cellType, width, className }: TableCellProps) {
+export function TableCell({ data, cellType, width, className, onPrimaryClick }: TableCellProps) {
   return (
     <td
       style={{ width, minWidth: width }}
       className={cn('px-6 py-4 align-top border-b border-[#f0f0f0]', className)}
     >
-      {cellRendererMap[cellType](data)}
+      {cellRendererMap[cellType](data, onPrimaryClick)}
     </td>
   );
 }

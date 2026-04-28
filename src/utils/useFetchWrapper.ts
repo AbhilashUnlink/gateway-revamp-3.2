@@ -1,15 +1,17 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
-import type { SignInData } from '@/types/login/auth.types';
-import { apiService } from '.';
+import type { AuthToken, SignInData, SignInResponse } from '@/types/login/auth.types';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 const X_API_KEY = import.meta.env.VITE_API_X_API_KEY ?? '';
 
-const PUBLIC_ROUTES = ['/auth/signIn', '/auth/checkMfaExist'];
+const PUBLIC_ROUTES = ['/auth/signIn', '/auth/checkMfaExist', '/auth/refreshToken'];
 
 // Shared promise — all concurrent requests that arrive while a refresh is in
 // progress await the same promise instead of each triggering their own refresh.
 let refreshPromise: Promise<string> | null = null;
+
+// Separate axios instance for refresh calls to avoid circular dependency
+const refreshApiClient = axios.create({ baseURL: BASE_URL });
 
 // ==============================
 // AUTH HELPERS
@@ -87,23 +89,40 @@ function updateAuthStorage(tokens: {
 
 async function doRefresh(): Promise<string> {
   const refreshToken = getRefreshToken();
+  const username = getUsername();
+
   if (!refreshToken) throw new Error('No refresh token available');
+  if (!username) throw new Error('No username available for refresh');
 
-  const res = await apiService.auth.postRefreshToken({
-    username: getUsername(),
-    refreshToken,
-  });
+  // Direct API call instead of going through apiService
+  const res = await refreshApiClient.post<SignInResponse>(
+    '/auth/refreshToken',
+    {
+      username,
+      refreshToken,
+    },
+    {
+      headers: {
+        'X-Api-Key': X_API_KEY,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
 
-  const newTokens = res.data as {
-    accessToken?: string;
-    idToken?: string;
-    refreshToken?: string;
-  };
+  const newTokens = res.data?.data?.token as AuthToken;
 
   updateAuthStorage(newTokens);
 
   // idToken is used as the Authorization header (matches getIdToken())
-  return newTokens.idToken ?? newTokens.accessToken ?? '';
+  localStorage.setItem(
+    'persist:root',
+    JSON.stringify({
+      auth: JSON.stringify({
+        signInData: res.data?.data as SignInData,
+      }),
+    })
+  );
+  return newTokens.idToken ?? '';
 }
 
 // ==============================
@@ -135,7 +154,6 @@ export function useFetchWrapper(): AxiosInstance {
             refreshPromise = null;
           });
         }
-
         try {
           const newToken = await refreshPromise;
           config.headers['Authorization'] = newToken;

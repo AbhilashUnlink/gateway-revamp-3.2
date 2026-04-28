@@ -8,14 +8,16 @@ import { ActionCell } from '../cells/ActionCell';
 import { DateCell } from '../cells/DateCell';
 import { PaymentCell } from '../cells/PaymentCell';
 
-type CellRenderer = (data: CellData) => ReactNode;
+type CellRenderer = (data: CellData, onPrimaryClick?: () => void) => ReactNode;
 
 export const cellRendererMap: Record<CellType, CellRenderer> = {
   text: (data) => <TextCell data={data} />,
   multi: (data) => <MultiLineCell data={data} />,
   status: (data) => <StatusCell data={data} />,
   copy: (data) => <CopyCell data={data} />,
-  'link-copy': (data) => <CopyCell data={data} underline />,
+  'link-copy': (data, onPrimaryClick) => (
+    <CopyCell data={data} underline onPrimaryClick={onPrimaryClick} />
+  ),
   action: (data) => <ActionCell data={data} />,
   date: (data) => <DateCell data={data} />,
   payment: (data) => <PaymentCell data={data} />,

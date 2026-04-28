@@ -5,6 +5,7 @@ import { loadComponent } from './resolver';
 import { ProtectedRoute } from './ProtectedRoute';
 import NotFoundPage from '@/pages/not-found/NotFoundPage';
 import { useAppSelector } from '@/store/hooks';
+import { DrawerManager } from '@/components/drawer/DrawerManager';
 
 const useAuth = () => {
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
@@ -56,6 +57,7 @@ export function AppRouter() {
   return (
     <BrowserRouter>
       <Router />
+      <DrawerManager />
     </BrowserRouter>
   );
 }

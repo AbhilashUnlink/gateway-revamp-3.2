@@ -5,4 +5,10 @@ export type {
   FieldSchema,
   ActionSchema,
   InputFieldSchema,
+  TextareaFieldSchema,
+  CheckboxFieldSchema,
+  DisplayFieldSchema,
+  SelectFieldSchema,
+  DateFieldSchema,
+  SelectOption,
 } from '@/types/form/form.types';

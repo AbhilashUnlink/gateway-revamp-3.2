@@ -1,0 +1,172 @@
+import { Copy, Share2, ExternalLink, Pencil, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
+import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
+import { useTransactionActions } from '@/hooks/useTransactionActions';
+
+export type DrawerTab = 'details' | 'refund' | 'capture' | 'void' | 'dispute';
+
+const TAB_TO_DRAWER_TYPE: Record<DrawerTab, string> = {
+  details: 'details',
+  refund: 'refund',
+  capture: 'capture',
+  void: 'void',
+  dispute: 'dispute',
+};
+
+interface DrawerTransactionHeaderProps {
+  activeTab: DrawerTab;
+  type: string;
+  data?: Record<string, unknown>;
+  showRefund?: boolean;
+  showCapture?: boolean;
+  showVoid?: boolean;
+  showDispute?: boolean;
+}
+
+export function DrawerTransactionHeader({
+  activeTab,
+  type,
+  data,
+  showRefund: showRefundOverride,
+  showCapture: showCaptureOverride,
+  showVoid: showVoidOverride,
+  showDispute: showDisputeOverride,
+}: DrawerTransactionHeaderProps) {
+  const { t } = useTranslation();
+  const { transactionRefId, handleClose, handleCopy, navigateTo } = useDrawerTransaction({
+    type,
+    data,
+  });
+  const {
+    showRefund: apiShowRefund,
+    showCapture: apiShowCapture,
+    showVoid: apiShowVoid,
+    showDispute: apiShowDispute,
+    showEditStatus,
+  } = useTransactionActions();
+
+  const showRefund = showRefundOverride ?? apiShowRefund;
+  const showCapture = showCaptureOverride ?? apiShowCapture;
+  const showVoid = showVoidOverride ?? apiShowVoid;
+  const showDispute = showDisputeOverride ?? apiShowDispute;
+
+  const goTo = (tab: DrawerTab) => navigateTo(TAB_TO_DRAWER_TYPE[tab]);
+
+  return (
+    <>
+      <div className="flex h-18 items-center border-l border-r border-t border-white bg-white px-6 py-1.5 rounded-tl-2xl rounded-tr-2xl">
+        <div className="flex flex-1 items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-normal text-[#1a1a1a]">
+              {t('drawer.transaction_ref_id')}
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold underline text-[#1a1a1a]">
+                {transactionRefId}
+              </span>
+              <Button
+                variant="icon"
+                size="icon"
+                type="button"
+                onClick={handleCopy}
+                aria-label={t('drawer.copy')}
+              >
+                <Copy size={16} />
+              </Button>
+              <Button variant="icon" size="icon" type="button" aria-label={t('drawer.share')}>
+                <Share2 size={16} />
+              </Button>
+              <Button
+                variant="icon"
+                size="icon"
+                type="button"
+                aria-label={t('drawer.open_new_window')}
+              >
+                <ExternalLink size={16} />
+              </Button>
+            </div>
+          </div>
+          <Button
+            variant="icon"
+            size="icon"
+            type="button"
+            onClick={handleClose}
+            aria-label={t('drawer.close')}
+          >
+            <XCircle size={24} />
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between px-6">
+        <div className="flex gap-3">
+          <Button
+            type="button"
+            variant={activeTab === 'details' ? 'outline' : 'ghost'}
+            className="w-22.5"
+            onClick={activeTab !== 'details' ? () => goTo('details') : undefined}
+          >
+            {t('drawer.details')}
+          </Button>
+
+          {showRefund && (
+            <Button
+              type="button"
+              variant={activeTab === 'refund' ? 'outline' : 'ghost'}
+              className="w-22.5"
+              onClick={activeTab !== 'refund' ? () => goTo('refund') : undefined}
+            >
+              {t('drawer.refund')}
+            </Button>
+          )}
+
+          {showVoid && (
+            <Button
+              type="button"
+              variant={activeTab === 'void' ? 'outline' : 'ghost'}
+              className="w-22.5"
+              onClick={activeTab !== 'void' ? () => goTo('void') : undefined}
+            >
+              {t('drawer.void')}
+            </Button>
+          )}
+
+          {showCapture && (
+            <Button
+              type="button"
+              variant={activeTab === 'capture' ? 'outline' : 'ghost'}
+              className="w-22.5"
+              onClick={activeTab !== 'capture' ? () => goTo('capture') : undefined}
+            >
+              {t('drawer.capture')}
+            </Button>
+          )}
+
+          {showDispute && (
+            <Button
+              type="button"
+              variant={activeTab === 'dispute' ? 'outline' : 'ghost'}
+              className="w-22.5"
+              onClick={activeTab !== 'dispute' ? () => goTo('dispute') : undefined}
+            >
+              {t('drawer.dispute')}
+            </Button>
+          )}
+        </div>
+
+        {showEditStatus && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="gap-2 shadow-none drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.1)]"
+            onClick={() => navigateTo('edit-status')}
+          >
+            <Pencil size={20} />
+            {t('drawer.edit_status')}
+          </Button>
+        )}
+      </div>
+    </>
+  );
+}

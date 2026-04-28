@@ -9,6 +9,7 @@ import { DasFormActions } from './DasFormActions';
 // ── Root ──────────────────────────────────────────────────────────────────
 
 interface DasFormRootProps<T extends FieldValues = FieldValues> {
+  id?: string;
   schema: FormSchema;
   onSubmit: SubmitHandler<T>;
   onCancel?: () => void;
@@ -19,6 +20,7 @@ interface DasFormRootProps<T extends FieldValues = FieldValues> {
 }
 
 function DasFormRoot<T extends FieldValues = FieldValues>({
+  id,
   schema,
   onSubmit,
   onCancel,
@@ -36,6 +38,7 @@ function DasFormRoot<T extends FieldValues = FieldValues>({
     <DasFormContext.Provider value={{ schema, loading, onCancel }}>
       <FormProvider {...methods}>
         <form
+          id={id}
           onSubmit={methods.handleSubmit(onSubmit)}
           className={cn('flex w-full flex-col gap-10', className)}
           noValidate

@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
+import 'react-datepicker/dist/react-datepicker.css';
 import { useAppSelector } from '@/store/hooks';
 import i18n from '@/i18n';
 import { AppRouter } from '@/router/AppRouter';
-
 function App() {
   const language = useAppSelector((s) => s.settings.language);
 

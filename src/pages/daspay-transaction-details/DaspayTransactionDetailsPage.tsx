@@ -1,8 +1,26 @@
-function DaspayTransactionDetailsPage() {
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useAppDispatch } from '@/store/hooks';
+import { fetchTransactionDetails } from '@/store/thunks/transactionDetailsThunks';
+import { useTransactionActions } from '@/hooks/useTransactionActions';
+import TransactionDetails from '@/drawers/TransactionDetailsDrawer/components/TransactionDetails';
+
+const DaspayTransactionDetailsPage = () => {
+  const dispatch = useAppDispatch();
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get('id');
+  const { data, loading, error } = useTransactionActions();
+
+  useEffect(() => {
+    if (!id) return;
+    void dispatch(fetchTransactionDetails({ id }));
+  }, [id, dispatch]);
+
   return (
-    <div className="flex h-screen items-center justify-center">
-      <h1 className="text-xl font-semibold text-neutral-700">Daspay Transaction Details</h1>
+    <div className="flex h-full flex-col bg-white">
+      <TransactionDetails data={data} loading={loading} error={error} />
     </div>
   );
-}
+};
+
 export default DaspayTransactionDetailsPage;

@@ -22,7 +22,9 @@ const LANGUAGES: {
 
 // ── Component ─────────────────────────────────────────────────────────────
 
-function LanguageSelect() {
+type Variant = 'dark' | 'light';
+
+function LanguageSelect({ variant = 'dark' }: { variant?: Variant }) {
   const dispatch = useAppDispatch();
   const { i18n } = useTranslation();
   const currentLang = (useAppSelector((s) => s.settings.language) || 'en') as LangCode;
@@ -36,8 +38,13 @@ function LanguageSelect() {
 
   return (
     <DasPopover>
-      <DasPopover.Trigger className="flex items-center gap-2.5 text-[#1a1a1a] transition-opacity hover:opacity-70">
-        <span className="text-xs font-medium whitespace-nowrap">{current?.triggerLabel}</span>
+      <DasPopover.Trigger
+        className={cn(
+          'flex items-center gap-2.5 transition-opacity hover:opacity-70',
+          variant === 'light' ? 'text-white' : 'text-[#1a1a1a]'
+        )}
+      >
+        <span className="text-xs font-medium whitespace-nowrap ">{current?.triggerLabel}</span>
         <ChevronDown size={12} className="shrink-0" />
       </DasPopover.Trigger>
 
