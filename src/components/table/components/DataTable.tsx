@@ -15,6 +15,7 @@ interface DataTableProps {
   hasMore: boolean;
   onLoadMore: () => void;
   className?: string;
+  onRowClick?: (row: TransactionRow) => void;
 }
 
 export function DataTable({
@@ -24,6 +25,7 @@ export function DataTable({
   hasMore,
   onLoadMore,
   className,
+  onRowClick,
 }: DataTableProps) {
   const { t } = useTranslation();
 
@@ -54,7 +56,12 @@ export function DataTable({
         <TableHeader columnConfigs={columnConfigs} />
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id} row={row} columnConfigs={columnConfigs} />
+            <TableRow
+              key={row.id}
+              row={row}
+              columnConfigs={columnConfigs}
+              onRowClick={onRowClick}
+            />
           ))}
 
           {loading &&

@@ -30,12 +30,22 @@ export function CopyCell({ data, underline = false, className, onPrimaryClick }:
               underline && 'underline decoration-solid',
               onPrimaryClick && 'cursor-pointer hover:text-[#f7941d]'
             )}
-            onClick={onPrimaryClick}
+            onClick={
+              onPrimaryClick
+                ? (e) => {
+                    e.stopPropagation();
+                    onPrimaryClick();
+                  }
+                : undefined
+            }
           >
             {data.primary}
           </span>
           <button
-            onClick={() => handleCopy(data.primary!)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCopy(data.primary!);
+            }}
             aria-label="Copy"
             className="shrink-0 text-neutral-400 hover:text-[#f7941d] transition-colors focus-visible:outline-none"
           >
@@ -49,7 +59,10 @@ export function CopyCell({ data, underline = false, className, onPrimaryClick }:
             {data.secondary}
           </span>
           <button
-            onClick={() => handleCopy(data.secondary!)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCopy(data.secondary!);
+            }}
             aria-label="Copy"
             className="shrink-0 text-neutral-400 hover:text-[#f7941d] transition-colors focus-visible:outline-none"
           >
