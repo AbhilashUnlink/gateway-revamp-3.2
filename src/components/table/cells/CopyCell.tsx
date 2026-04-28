@@ -7,9 +7,10 @@ interface CopyCellProps {
   data: CellData;
   underline?: boolean;
   className?: string;
+  onPrimaryClick?: () => void;
 }
 
-export function CopyCell({ data, underline = false, className }: CopyCellProps) {
+export function CopyCell({ data, underline = false, className, onPrimaryClick }: CopyCellProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = (value: string) => {
@@ -26,8 +27,10 @@ export function CopyCell({ data, underline = false, className }: CopyCellProps) 
           <span
             className={cn(
               'text-[14px] font-semibold leading-5 text-[#1a1a1a] truncate max-w-[136px]',
-              underline && 'underline decoration-solid'
+              underline && 'underline decoration-solid',
+              onPrimaryClick && 'cursor-pointer hover:text-[#f7941d]'
             )}
+            onClick={onPrimaryClick}
           >
             {data.primary}
           </span>

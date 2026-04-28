@@ -104,7 +104,7 @@ function PageBarFilterButton({ count = 0, label, className, ...props }: PageBarF
     <button
       type="button"
       className={cn(
-        'flex h-[48px] items-center gap-2 px-4',
+        'flex h-12 items-center gap-2 px-4',
         'bg-white rounded-2xl drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.04)]',
         'transition-opacity hover:opacity-80',
         className
@@ -114,7 +114,7 @@ function PageBarFilterButton({ count = 0, label, className, ...props }: PageBarF
       <div className="relative shrink-0">
         <SlidersHorizontal size={20} className="text-[#1a1a1a]" />
         {count > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 flex h-[14px] min-w-[14px] items-center justify-center rounded-[4px] bg-[#1a1a1a] px-[2px] text-[10px] font-semibold leading-none text-white">
+          <span className="absolute -top-1.5 -right-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-sm bg-[#1a1a1a] px-0.5 text-[10px] font-semibold leading-none text-white">
             {count}
           </span>
         )}

@@ -17,6 +17,7 @@ const registry: Record<string, PageLoader> = {
   // Protected pages
   dashboard: () => import('@/pages/dashboard'),
   transactions: () => import('@/pages/transactions'),
+  'transactions/details': () => import('@/pages/transactions/[id]'),
   'accounts/merchants': () => import('@/pages/accounts/merchants'),
   'accounts/merchants/merchant-details': () =>
     import('@/pages/accounts/merchants/merchant-details'),

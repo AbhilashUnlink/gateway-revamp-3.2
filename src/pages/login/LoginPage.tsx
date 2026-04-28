@@ -15,7 +15,7 @@ function LoginPage() {
       {/* Language selector row */}
       <div className="flex h-11 items-center justify-end gap-2.5">
         <div className="relative inline-flex items-center">
-          <LanguageSelect />
+          <LanguageSelect variant="light" />
         </div>
       </div>
 

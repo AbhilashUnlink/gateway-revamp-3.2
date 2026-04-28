@@ -23,6 +23,8 @@ export function DasFormActions({ className }: DasFormActionsProps) {
     if (action.type === 'cancel') onCancel?.();
   };
 
+  if (!schema.actions?.length) return null;
+
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       {schema.actions.map((action) => {

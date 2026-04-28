@@ -5,6 +5,8 @@ import uiReducer from './slices/uiSlice';
 import permissionReducer from './slices/permissionSlice';
 import settingsReducer from './slices/settingsSlice';
 import transactionsReducer from './slices/transactionsSlice';
+import transactionDetailsReducer from './slices/transactionDetailsSlice';
+import drawersReducer from './slices/drawerSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -13,6 +15,8 @@ const rootReducer = combineReducers({
   permissions: permissionReducer,
   settings: settingsReducer,
   transactions: transactionsReducer,
+  transactionDetails: transactionDetailsReducer,
+  drawers: drawersReducer,
 });
 
 export default rootReducer;

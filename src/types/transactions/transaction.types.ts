@@ -57,6 +57,7 @@ export interface ColumnConfig {
   cellType: CellType;
   width: number;
   accessorFn: (row: TransactionRow) => CellData;
+  onPrimaryClick?: (row: TransactionRow) => void;
 }
 
 export type TableFilter = {

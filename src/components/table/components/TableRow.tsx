@@ -31,6 +31,9 @@ export function TableRow({ row, columnConfigs, className }: TableRowProps) {
             data={cell.getValue() as CellData}
             cellType={config.cellType}
             width={config.width}
+            onPrimaryClick={
+              config.onPrimaryClick ? () => config.onPrimaryClick!(row.original) : undefined
+            }
           />
         );
       })}

@@ -34,7 +34,7 @@ export const apiService = {
     checkMfaExist: (data: SignInPayload) => Api().post(`auth/check-mfa-exist`, data),
     signIn: (data: SignInPayload) => Api().post(`auth/signIn`, data),
     mfaGenerate: (data: MfaGeneratePayload) => Api().post(`auth/mfa/generate`, data),
-    postRefreshToken: (data?: unknown) => Api().post(`auth/refreshToken`, data),
+    refreshToken: (data?: unknown) => Api().post(`auth/refreshToken`, data),
     signOut: (payload: SignoutPayload) => Api().post(`auth/signOut`, payload),
     postMfaEmailVerify: (data?: unknown) => Api().post(`auth/mfa/email/verify`, data),
     postForgotPassword: (data?: unknown) => Api().post(`auth/forgotPassword`, data),
@@ -65,7 +65,7 @@ export const apiService = {
 
   chargeback: {
     postUploadFile: (data?: unknown) => Api().post(`chargeback/uploadFile`, data),
-    postAdd: (data?: unknown) => Api().post(`chargeback/add`, data),
+    add: (data?: unknown) => Api().post(`chargeback/add`, data),
     postUpdateChargebackStatus: (data?: unknown) =>
       Api().post(`chargeback/updateChargebackStatus`, data),
     postMessage: (data?: unknown) => Api().post(`chargeback/message`, data),
@@ -78,6 +78,8 @@ export const apiService = {
   transactions: {
     listV2: (payload: unknown) => Api().post(`transactions/listv2`, payload),
     getById: (params: { id: string }) => Api().get(`transactions/${params.id}`),
+    getChargebackByTransactionId: (params: { transactionId: string }) =>
+      Api().get(`chargeback/transactionId/${params.transactionId}`),
     postTransactionReportDownload: (data?: unknown) =>
       Api().post(`transactions/transaction-report/download`, data),
     postTransactionPresetFilterCreate: (data?: unknown) =>
@@ -87,7 +89,8 @@ export const apiService = {
     postTransactionColumnPreferenceCreate: (data?: unknown) =>
       Api().post(`transactions/transaction-column-preference/create`, data),
     postVoid: (data?: unknown) => Api().post(`transactions/void`, data),
-    postCapture: (data?: unknown) => Api().post(`transactions/capture`, data),
+    capture: (data?: unknown) => Api().post(`transactions/capture`, data),
+    refund: (data?: unknown) => Api().post(`transactions/refund`, data),
     postUpdateStatus: (data?: unknown) => Api().post(`transactions/update-status`, data),
     postTransactionDownloadingScheduleCreate: (data?: unknown) =>
       Api().post(`transactions/transaction-downloading-schedule/create`, data),
