@@ -1,12 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 import DasTooltip from '@/components/ui/tooltip';
+import type { SidebarIconComponent } from './SidebarMenu';
 
 interface SidebarMenuItemProps {
   tKey: string;
-  icon: LucideIcon;
+  icon: SidebarIconComponent;
   path: string;
   collapsed: boolean;
 }
@@ -30,7 +30,7 @@ export function SidebarMenuItem({ tKey, icon: Icon, path, collapsed }: SidebarMe
         const iconEl = (
           <div
             className={cn(
-              'flex shrink-0 items-center justify-center rounded-[18px] p-3 size-9 transition-colors duration-200',
+              'flex shrink-0 items-center justify-center rounded-[18px] p-1 size-9 transition-colors duration-200',
               isActive ? 'bg-[rgba(247,148,29,0.1)]' : 'bg-transparent group-hover:bg-white'
             )}
           >

@@ -1,9 +1,11 @@
-import { type LucideIcon } from 'lucide-react';
+import type { ComponentType } from 'react';
 import { SidebarMenuItem } from './SidebarMenuItem';
+
+export type SidebarIconComponent = ComponentType<{ size?: number; className?: string }>;
 
 export interface MenuItemConfig {
   tKey: string;
-  icon: LucideIcon;
+  icon: SidebarIconComponent;
   path: string;
 }
 

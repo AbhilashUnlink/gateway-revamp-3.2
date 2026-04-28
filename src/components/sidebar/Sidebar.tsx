@@ -1,41 +1,45 @@
-import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  Users,
-  Package,
-  ShieldAlert,
-  Building2,
-  FileText,
-  Scale,
-  CreditCard,
-  TrendingUp,
-  MessageCircle,
-  Info,
-} from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { toggleSidebar } from '@/store/slices/uiSlice';
+import {
+  AcquirersIcon,
+  DashboardIcon,
+  DisputeManagementIcon,
+  HashCardIcon,
+  HelpSupportIcon,
+  MerchantsIcon,
+  PrivacyPolicyIcon,
+  ProductsIcon,
+  RiskManagementIcon,
+  SalesLeadIcon,
+  StatementsIcon,
+  TransactionsIcon,
+} from '@/assets/icons/sidebar';
 import { SidebarMenu, type MenuItemConfig } from './SidebarMenu';
 import { SidebarFooter } from './SidebarFooter';
 import { SidebarToggleButton } from './SidebarToggleButton';
 
 const mainMenuItems: MenuItemConfig[] = [
-  { tKey: 'sidebar.dashboard', icon: LayoutDashboard, path: '/dashboard' },
-  { tKey: 'sidebar.transactions', icon: ArrowLeftRight, path: '/transactions' },
-  { tKey: 'sidebar.merchants', icon: Users, path: '/accounts/merchants' },
-  { tKey: 'sidebar.products', icon: Package, path: '/products' },
-  { tKey: 'sidebar.risk_management', icon: ShieldAlert, path: '/risk-management' },
-  { tKey: 'sidebar.acquirers', icon: Building2, path: '/acquirers' },
-  { tKey: 'sidebar.statements', icon: FileText, path: '/finance/statements' },
-  { tKey: 'sidebar.dispute_management', icon: Scale, path: '/dispute-management/list' },
-  { tKey: 'sidebar.hash_card', icon: CreditCard, path: '/hashcard' },
-  { tKey: 'sidebar.sales_lead', icon: TrendingUp, path: '/partner' },
+  { tKey: 'sidebar.dashboard', icon: DashboardIcon, path: '/dashboard' },
+  { tKey: 'sidebar.transactions', icon: TransactionsIcon, path: '/transactions' },
+  { tKey: 'sidebar.merchants', icon: MerchantsIcon, path: '/accounts/merchants' },
+  { tKey: 'sidebar.products', icon: ProductsIcon, path: '/products' },
+  { tKey: 'sidebar.risk_management', icon: RiskManagementIcon, path: '/risk-management' },
+  { tKey: 'sidebar.acquirers', icon: AcquirersIcon, path: '/acquirers' },
+  { tKey: 'sidebar.statements', icon: StatementsIcon, path: '/finance/statements' },
+  {
+    tKey: 'sidebar.dispute_management',
+    icon: DisputeManagementIcon,
+    path: '/dispute-management/list',
+  },
+  { tKey: 'sidebar.hash_card', icon: HashCardIcon, path: '/hashcard' },
+  { tKey: 'sidebar.sales_lead', icon: SalesLeadIcon, path: '/partner' },
 ];
 
 const footerItems: MenuItemConfig[] = [
-  { tKey: 'sidebar.help_and_support', icon: MessageCircle, path: '/contact-us' },
-  { tKey: 'sidebar.privacy_and_policy', icon: Info, path: '/privacy-policy' },
-  { tKey: 'sidebar.terms_and_conditions', icon: Info, path: '/terms-condition' },
+  { tKey: 'sidebar.help_and_support', icon: HelpSupportIcon, path: '/contact-us' },
+  { tKey: 'sidebar.privacy_and_policy', icon: PrivacyPolicyIcon, path: '/privacy-policy' },
+  { tKey: 'sidebar.terms_and_conditions', icon: PrivacyPolicyIcon, path: '/terms-condition' },
 ];
 
 export function Sidebar() {
