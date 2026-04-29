@@ -1,0 +1,17 @@
+interface Props {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}
+
+export function TextValue({ value, onChange, placeholder }: Props) {
+  return (
+    <input
+      type="text"
+      className="h-10 w-full rounded-lg border border-[#e5e5e5] bg-white px-3 text-sm text-[#1a1a1a] outline-none focus:border-[#1a1a1a]"
+      value={value ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+    />
+  );
+}

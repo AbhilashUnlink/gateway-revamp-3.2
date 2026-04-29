@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
@@ -99,32 +99,35 @@ interface PageBarFilterButtonProps extends Omit<
   label: string;
 }
 
-function PageBarFilterButton({ count = 0, label, className, ...props }: PageBarFilterButtonProps) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        'flex h-12 items-center gap-2 px-4',
-        'bg-white rounded-2xl drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.04)]',
-        'transition-opacity hover:opacity-80',
-        className
-      )}
-      {...props}
-    >
-      <div className="relative shrink-0">
-        <SlidersHorizontal size={20} className="text-[#1a1a1a]" />
-        {count > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-sm bg-[#1a1a1a] px-0.5 text-[10px] font-semibold leading-none text-white">
-            {count}
-          </span>
+const PageBarFilterButton = forwardRef<HTMLButtonElement, PageBarFilterButtonProps>(
+  function PageBarFilterButton({ count = 0, label, className, ...props }, ref) {
+    return (
+      <button
+        ref={ref}
+        type="button"
+        className={cn(
+          'flex h-12 items-center gap-2 px-4',
+          'bg-white rounded-2xl drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.04)]',
+          'transition-opacity hover:opacity-80',
+          className
         )}
-      </div>
-      <span className="text-[14px] font-semibold uppercase text-[#1a1a1a] whitespace-nowrap">
-        {label}
-      </span>
-    </button>
-  );
-}
+        {...props}
+      >
+        <div className="relative shrink-0">
+          <SlidersHorizontal size={20} className="text-[#1a1a1a]" />
+          {count > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-sm bg-[#1a1a1a] px-0.5 text-[10px] font-semibold leading-none text-white">
+              {count}
+            </span>
+          )}
+        </div>
+        <span className="text-[14px] font-semibold uppercase text-[#1a1a1a] whitespace-nowrap">
+          {label}
+        </span>
+      </button>
+    );
+  }
+);
 
 // ── ActionButton ──────────────────────────────────────────────────────────
 

@@ -20,6 +20,7 @@ const EXP_SKEW_SECONDS = 30;
 // Shared promise — all concurrent requests that arrive while a refresh is in
 // progress await the same promise instead of each triggering their own refresh.
 let refreshPromise: Promise<string> | null = null;
+let isRefreshing = false;
 
 // Separate axios instance for refresh calls to avoid interceptor recursion.
 const refreshApiClient = axios.create({ baseURL: BASE_URL });
@@ -81,6 +82,10 @@ function extractApiMessage(err: unknown): string | undefined {
 // ==============================
 
 async function doRefresh(): Promise<string> {
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise; // reuse ongoing refresh
+  }
+  isRefreshing = true;
   const refreshToken = getRefreshTokenValue();
   const username = getUsername();
 
@@ -170,6 +175,10 @@ export function useFetchWrapper(): AxiosInstance {
   instance.interceptors.response.use(
     (response) => response,
     (error: AxiosError<ApiErrorBody>) => {
+      // ❌ DO NOT refresh on 429
+      if (error?.response?.status && error?.response?.status === 429) {
+        return Promise.reject(error);
+      }
       if (error?.response?.status === 401) {
         forceLogout(extractApiMessage(error));
       }
