@@ -24,3 +24,11 @@ dist-ssr
 *.sw?
 tsconfig.app.tsbuildinfo
 .env
+
+# Playwright
+playwright-report/
+test-results/
+playwright/reports/
+playwright/test-results/
+playwright/playwright-report/
+playwright/.env
