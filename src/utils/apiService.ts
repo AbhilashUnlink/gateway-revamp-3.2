@@ -85,6 +85,10 @@ export const apiService = {
       Api().post(`transactions/transaction-report/download`, data),
     postTransactionPresetFilterCreate: (data?: unknown) =>
       Api().post(`transactions/transaction-preset/filter/create`, data),
+    getAllTransactionPresetFilters: () =>
+      Api().get(`transactions/transaction-preset/filter/user/getAll`),
+    deleteTransactionPresetFilter: (params: { uuid: string }) =>
+      Api().post(`transactions/transaction-preset/filter/delete/${params.uuid}`),
     postTransactionReportPreferenceCreate: (data?: unknown) =>
       Api().post(`transactions/transaction-report-preference/create`, data),
     postTransactionColumnPreferenceCreate: (data?: unknown) =>

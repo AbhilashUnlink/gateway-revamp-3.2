@@ -88,3 +88,57 @@ export type ScreenSerializer = 'transactions' | 'merchants';
 export function serializeFilters(rules: FilterRule[], screen: ScreenSerializer) {
   return screen === 'merchants' ? serializeForMerchants(rules) : serializeForTransactions(rules);
 }
+
+// ── Preset save / load ────────────────────────────────────────────────────
+
+/**
+ * Build the preset-save payload. Mirrors legacy backend contract:
+ *   filter_json:           [{HeaderColumn, Name}]   — original UI rule shape
+ *   raw_transformed_filter: [{field, operator, value}, ...] — server payload
+ */
+export function buildPresetSavePayload(rules: FilterRule[]): {
+  filter_json: string;
+  raw_transformed_filter: string;
+} {
+  const filterJsonEntries = rules.map((r) => ({ HeaderColumn: r.field, Name: r.value }));
+  return {
+    filter_json: JSON.stringify(filterJsonEntries),
+    raw_transformed_filter: JSON.stringify(serializeForTransactions(rules)),
+  };
+}
+
+const newRuleId = () => `r_${Math.random().toString(36).slice(2, 10)}`;
+
+/**
+ * Restore FilterRule[] from a preset's `filter_json` string.
+ * Each entry has shape { HeaderColumn: <fieldId>, Name: <value> }.
+ * Operator is re-derived from the caller-provided operator-by-field map so the
+ * rule round-trips even if the saved operator drifts from current schema rules.
+ * Unknown fields (no entry in `operatorByField`) are dropped silently.
+ */
+export function deserializeFromPreset(
+  filterJson: string,
+  operatorByField: Record<string, string>
+): FilterRule[] {
+  let entries: Array<{ HeaderColumn: string; Name: unknown }> = [];
+  try {
+    const parsed = JSON.parse(filterJson);
+    if (Array.isArray(parsed)) entries = parsed;
+  } catch {
+    return [];
+  }
+
+  return entries
+    .map<FilterRule | null>((e) => {
+      if (!e || typeof e !== 'object' || !('HeaderColumn' in e)) return null;
+      const operator = operatorByField[e.HeaderColumn];
+      if (!operator) return null;
+      return {
+        id: newRuleId(),
+        field: e.HeaderColumn,
+        operator,
+        value: e.Name as FilterRule['value'],
+      };
+    })
+    .filter((r): r is FilterRule => r !== null);
+}

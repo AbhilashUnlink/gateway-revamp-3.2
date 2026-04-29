@@ -28,7 +28,10 @@ export function MultiSelectValue({ value, onChange, options, placeholder }: Prop
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const selected = useMemo(() => value ?? [], [value]);
+  // Defensive: persisted state from a previous schema (e.g. when this field
+  // was `text` before the change to `multiSelect`) can leave a non-array value
+  // here, which would crash on `.map`. Coerce to [] in that case.
+  const selected = useMemo(() => (Array.isArray(value) ? value : []), [value]);
 
   const closeMenu = () => {
     setOpen(false);

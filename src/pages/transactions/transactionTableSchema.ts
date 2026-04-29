@@ -73,7 +73,7 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       }),
       filterAttributes: [
         { id: 'amount', labelKey: 'table.amount', type: 'number' },
-        { id: 'fee', labelKey: 'table.fee', type: 'number' },
+        // { id: 'fee', labelKey: 'table.fee', type: 'number' },
       ],
     },
     {
@@ -101,16 +101,55 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       }),
       filterAttributes: [
         {
-          id: 'paymentScheme',
+          id: 'Scheme',
           labelKey: 'transaction_details_page.scheme',
           type: 'multiSelect',
-          optionsFromConfig: 'paymentSchemes',
+          options: [
+            { label: 'VISA', value: 'VISA' },
+            { label: 'MASTERCARD', value: 'MASTERCARD' },
+            { label: 'AMEX', value: 'AMEX' },
+            { label: 'JCB', value: 'JCB' },
+            { label: 'DINERSCLUB', value: 'DINERS' },
+          ],
         },
         {
           id: 'paymentType',
           labelKey: 'table.payment_type',
-          type: 'multiSelect',
-          optionsFromConfig: 'paymentTypes',
+          type: 'select',
+          options: [
+            {
+              label: 'CARDPAYMENT',
+              value: 'CARDPAYMENT',
+            },
+            {
+              label: 'GCASH',
+              value: 'gcash',
+            },
+            {
+              label: 'PAYPAY',
+              value: 'paypay',
+            },
+            {
+              label: 'PAYEASY',
+              value: 'payeasy',
+            },
+            {
+              label: 'KONBINI',
+              value: 'konbini',
+            },
+            {
+              label: 'APPLEPAY',
+              value: 'applepay',
+            },
+            {
+              label: 'GOOGLEPAY',
+              value: 'googlepay',
+            },
+            {
+              label: 'DASPAY',
+              value: 'daspay',
+            },
+          ],
         },
         { id: 'cardNumber', labelKey: 'transaction_details_page.card_number', type: 'text' },
       ],
@@ -192,7 +231,22 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       cellType: 'text',
       width: 152,
       accessorFn: (row) => ({ primary: row.productType }),
-      filterAttributes: [{ id: 'productType', labelKey: 'table.product_type', type: 'text' }],
+      filterAttributes: [
+        {
+          id: 'ProductType',
+          labelKey: 'table.product_type',
+          type: 'multiSelect',
+          options: [
+            { label: 'ECOM', value: 'ECOM' },
+            { label: 'MOTO', value: 'MOTO' },
+            { label: 'QR', value: 'QR' },
+            { label: 'PBL', value: 'PBL' },
+            { label: 'SUBSCRIPTION', value: 'SUBSCRIPTION' },
+            { label: 'SCHEDULER', value: 'SCHEDULER' },
+            { label: 'SOFTPOS', value: 'SOFTPOS' },
+          ],
+        },
+      ],
     },
     {
       id: 'integrationMethod',

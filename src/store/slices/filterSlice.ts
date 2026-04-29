@@ -73,6 +73,13 @@ const filterSlice = createSlice({
       s.draftRules = [];
       s.appliedRules = [];
     },
+    /** Replace draft + applied rules wholesale (used when loading a saved preset). */
+    loadRules(state, action: PayloadAction<{ screen: FilterScreen; rules: FilterRule[] }>) {
+      const s = state.byScreen[action.payload.screen];
+      s.draftRules = action.payload.rules;
+      s.appliedRules = action.payload.rules;
+      s.isOpen = false;
+    },
   },
 });
 
@@ -84,6 +91,7 @@ export const {
   removeRule,
   applyFilters,
   resetFilters,
+  loadRules,
 } = filterSlice.actions;
 
 export default filterSlice.reducer;
