@@ -11,7 +11,6 @@ export interface DrawerComponentProps {
   data?: Record<string, unknown>;
   width?: number;
   topOffset?: number;
-  isExiting?: boolean;
 }
 
 export interface DrawerRegistryEntry {

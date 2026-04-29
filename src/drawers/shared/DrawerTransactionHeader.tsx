@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
 import { useTransactionActions } from '@/hooks/useTransactionActions';
 
-export type DrawerTab = 'details' | 'refund' | 'capture' | 'void' | 'dispute';
+export type DrawerTab = 'details' | 'refund' | 'capture' | 'void' | 'dispute' | 'edit-status';
 
 const TAB_TO_DRAWER_TYPE: Record<DrawerTab, string> = {
   details: 'details',
@@ -12,6 +12,7 @@ const TAB_TO_DRAWER_TYPE: Record<DrawerTab, string> = {
   capture: 'capture',
   void: 'void',
   dispute: 'dispute',
+  'edit-status': 'edit-status',
 };
 
 interface DrawerTransactionHeaderProps {
@@ -158,9 +159,9 @@ export function DrawerTransactionHeader({
         {showEditStatus && (
           <Button
             type="button"
-            variant="ghost"
+            variant={activeTab === 'edit-status' ? 'outline' : 'ghost'}
+            onClick={activeTab !== 'edit-status' ? () => navigateTo('edit-status') : undefined}
             className="gap-2 shadow-none drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.1)]"
-            onClick={() => navigateTo('edit-status')}
           >
             <Pencil size={20} />
             {t('drawer.edit_status')}

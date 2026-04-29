@@ -5,18 +5,12 @@ import { useTransactionActions } from '@/hooks/useTransactionActions';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
 import TransactionDetails from './components/TransactionDetails';
 
-export function TransactionDetailsDrawer({
-  type,
-  data,
-  width,
-  topOffset,
-  isExiting,
-}: DrawerComponentProps) {
+export function TransactionDetailsDrawer({ type, data, width, topOffset }: DrawerComponentProps) {
   const { handleClose } = useDrawerTransaction({ type, data });
   const { data: transactionDetailsData, loading, error } = useTransactionActions();
 
   return (
-    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose} isExiting={isExiting}>
+    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose}>
       <DasDrawer.Content>
         <DasDrawer.Header>
           <DrawerTransactionHeader activeTab="details" type={type} data={data} />

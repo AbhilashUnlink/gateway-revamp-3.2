@@ -7,7 +7,7 @@ import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
 import { useVoid } from '@/hooks/useVoid';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
 
-export function VoidDrawer({ type, data, width, topOffset, isExiting }: DrawerComponentProps) {
+export function VoidDrawer({ type, data, width, topOffset }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitVoid, loading } = useVoid(handleClose);
@@ -19,7 +19,7 @@ export function VoidDrawer({ type, data, width, topOffset, isExiting }: DrawerCo
     });
 
   return (
-    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose} isExiting={isExiting}>
+    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose}>
       <DasDrawer.Content>
         <DasDrawer.Header>
           <DrawerTransactionHeader activeTab="void" type={type} data={data} />

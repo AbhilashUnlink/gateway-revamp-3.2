@@ -17,7 +17,7 @@ interface RefundFormValues {
   consent: boolean;
 }
 
-export function RefundDrawer({ type, data, width, topOffset, isExiting }: DrawerComponentProps) {
+export function RefundDrawer({ type, data, width, topOffset }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitRefund, loading } = useRefund(handleClose);
@@ -80,7 +80,7 @@ export function RefundDrawer({ type, data, width, topOffset, isExiting }: Drawer
     });
 
   return (
-    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose} isExiting={isExiting}>
+    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose}>
       <DasDrawer.Content>
         <DasDrawer.Header>
           <DrawerTransactionHeader activeTab="refund" type={type} data={data} />

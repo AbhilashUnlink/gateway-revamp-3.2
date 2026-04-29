@@ -18,7 +18,7 @@ interface DisputeFormValues {
   DueDate: string;
 }
 
-export function DisputeDrawer({ type, data, width, topOffset, isExiting }: DrawerComponentProps) {
+export function DisputeDrawer({ type, data, width, topOffset }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitDispute, loading } = useDispute(handleClose);
@@ -102,7 +102,7 @@ export function DisputeDrawer({ type, data, width, topOffset, isExiting }: Drawe
     });
 
   return (
-    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose} isExiting={isExiting}>
+    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose}>
       <DasDrawer.Content>
         <DasDrawer.Header>
           <DrawerTransactionHeader activeTab="dispute" type={type} data={data} />

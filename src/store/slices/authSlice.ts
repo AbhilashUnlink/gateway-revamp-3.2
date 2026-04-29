@@ -1,6 +1,11 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { loginUser, logoutUser } from '../thunks/authThunks';
-import type { SignInData } from '@/types/login/auth.types';
+import type { AuthToken, SignInData } from '@/types/login/auth.types';
+
+export interface TokensRefreshedPayload {
+  token: Partial<AuthToken>;
+  exp?: number;
+}
 
 interface AuthState {
   signInData: SignInData;
@@ -40,7 +45,17 @@ const initialState: AuthState = {
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    tokensRefreshed: (state, action: PayloadAction<TokensRefreshedPayload>) => {
+      state.signInData.token = {
+        ...state.signInData.token,
+        ...action.payload.token,
+      };
+      if (typeof action.payload.exp === 'number') {
+        state.signInData.exp = action.payload.exp;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.pending, (state) => {
@@ -64,5 +79,5 @@ const authSlice = createSlice({
   },
 });
 
-// export const { } = authSlice.actions;
+export const { tokensRefreshed } = authSlice.actions;
 export default authSlice.reducer;

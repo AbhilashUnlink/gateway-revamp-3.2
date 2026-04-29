@@ -6,10 +6,9 @@ interface DasDrawerProps {
   onClose?: () => void;
   width?: number;
   topOffset?: number;
-  isExiting?: boolean;
 }
 
-function DasDrawer({ children, width = 420, topOffset = 200, isExiting = false }: DasDrawerProps) {
+function DasDrawer({ children, width = 420, topOffset = 200 }: DasDrawerProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -17,7 +16,7 @@ function DasDrawer({ children, width = 420, topOffset = 200, isExiting = false }
     return () => cancelAnimationFrame(id);
   }, []);
 
-  const open = mounted && !isExiting;
+  const open = mounted;
 
   return (
     <div className="absolute inset-0 pointer-events-none right-2">

@@ -17,7 +17,7 @@ interface CaptureFormValues {
   consent: boolean;
 }
 
-export function CaptureDrawer({ type, data, width, topOffset, isExiting }: DrawerComponentProps) {
+export function CaptureDrawer({ type, data, width, topOffset }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitCapture, loading } = useCapture(handleClose);
@@ -80,7 +80,7 @@ export function CaptureDrawer({ type, data, width, topOffset, isExiting }: Drawe
     });
 
   return (
-    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose} isExiting={isExiting}>
+    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose}>
       <DasDrawer.Content>
         <DasDrawer.Header>
           <DrawerTransactionHeader activeTab="capture" type={type} data={data} />
