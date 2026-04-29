@@ -4,11 +4,12 @@ import type {
   TransactionDetailsData,
   TransactionDetailsResponse,
 } from '@/types/transactions/transactionDetails.types';
+import type { ChargebackStageGroup } from '@/types/transactions/chargeback.types';
 
 interface FetchResult {
   id: string;
   data: TransactionDetailsData;
-  chargebackExists: boolean;
+  chargebackGroups: ChargebackStageGroup[];
 }
 
 export const fetchTransactionDetails = createAsyncThunk<
@@ -23,11 +24,10 @@ export const fetchTransactionDetails = createAsyncThunk<
     ]);
 
     const txData = (txRes as { data: TransactionDetailsResponse }).data.data;
-    const cbData = cbRes as { data: { data?: unknown[] } } | null;
-    const cbList = cbData?.data?.data;
-    const chargebackExists = Array.isArray(cbList) && cbList.length > 0;
+    const cbData = cbRes as { data: { data?: ChargebackStageGroup[] } } | null;
+    const chargebackGroups = Array.isArray(cbData?.data?.data) ? cbData!.data!.data! : [];
 
-    return { id, data: txData, chargebackExists };
+    return { id, data: txData, chargebackGroups };
   } catch (err) {
     return thunkAPI.rejectWithValue((err as Error).message || 'Failed to load transaction details');
   }

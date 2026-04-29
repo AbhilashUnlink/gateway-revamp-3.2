@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
 import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { useNavigate } from 'react-router-dom';
 
 export type DrawerTab = 'details' | 'refund' | 'capture' | 'void' | 'dispute' | 'edit-status';
 
@@ -53,6 +54,11 @@ export function DrawerTransactionHeader({
   const showDispute = showDisputeOverride ?? apiShowDispute;
 
   const goTo = (tab: DrawerTab) => navigateTo(TAB_TO_DRAWER_TYPE[tab]);
+  const navigate = useNavigate();
+  const handleOpenTransactionDetailsWithDrawer = () => {
+    // ?drawer=${activeTab}&id=${transactionRefId}
+    navigate(`/transactions/${transactionRefId}`);
+  };
 
   return (
     <>
@@ -83,6 +89,7 @@ export function DrawerTransactionHeader({
                 size="icon"
                 type="button"
                 aria-label={t('drawer.open_new_window')}
+                onClick={handleOpenTransactionDetailsWithDrawer}
               >
                 <ExternalLink size={16} />
               </Button>

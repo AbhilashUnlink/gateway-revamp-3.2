@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import DasDrawer from '@/components/ui/DasDrawer';
@@ -7,6 +8,8 @@ import type { FormSchema } from '@/components/DasForm';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
 import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
 import { useRefund } from '@/hooks/useRefund';
+import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { calculateTransactionAmounts } from '@/utils/calculateTransactionAmounts';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
 
 const FORM_ID = 'refund-form';
@@ -17,14 +20,20 @@ interface RefundFormValues {
   consent: boolean;
 }
 
-export function RefundDrawer({ type, data, width, topOffset }: DrawerComponentProps) {
+export default function RefundDrawer({ type, data }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitRefund, loading } = useRefund(handleClose);
+  const { data: transactionDetail } = useTransactionActions();
 
-  const originalAmount = (data?.originalAmount as string) ?? '0.00';
-  const remainingAmount = (data?.remainingAmount as string) ?? '0.00';
-  const currency = (data?.currency as string) ?? 'USD';
+  const { amount, remainingAmount } = useMemo(
+    () => calculateTransactionAmounts(transactionDetail, 'REFUND'),
+    [transactionDetail]
+  );
+
+  const originalAmount = amount.toFixed(2);
+  const remainingAmountDisplay = remainingAmount.toFixed(2);
+  const currency = (data?.currency as string) ?? transactionDetail?.CurrencyCode ?? 'USD';
 
   const schema: FormSchema = {
     fieldGap: 4,
@@ -41,7 +50,7 @@ export function RefundDrawer({ type, data, width, topOffset }: DrawerComponentPr
         type: 'display',
         name: 'remainingAmountDisplay',
         label: t('drawer.remaining'),
-        value: remainingAmount,
+        value: remainingAmountDisplay,
         suffix: currency,
         required: true,
       },
@@ -80,56 +89,58 @@ export function RefundDrawer({ type, data, width, topOffset }: DrawerComponentPr
     });
 
   return (
-    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose}>
-      <DasDrawer.Content>
-        <DasDrawer.Header>
-          <DrawerTransactionHeader activeTab="refund" type={type} data={data} />
-        </DasDrawer.Header>
+    <>
+      <DasDrawer.Header>
+        <DrawerTransactionHeader activeTab="refund" type={type} data={data} />
+      </DasDrawer.Header>
 
-        <DasDrawer.Body>
-          <div className="flex flex-col gap-3 p-6">
-            <h2 className="text-base font-semibold text-[#1a1a1a]">{t('drawer.issue_a_refund')}</h2>
-            <DasForm
-              id={FORM_ID}
-              schema={schema}
-              onSubmit={onSubmit}
-              className="gap-0"
-              defaultValues={{ refundAmount: '', reference: '', consent: false }}
-            >
-              <DasForm.Fields />
-            </DasForm>
-          </div>
-        </DasDrawer.Body>
+      <DasDrawer.Body>
+        <div className="flex flex-col gap-3 p-6">
+          <h2 className="text-base font-semibold text-[#1a1a1a]">{t('drawer.issue_a_refund')}</h2>
+          <DasForm
+            id={FORM_ID}
+            schema={schema}
+            onSubmit={onSubmit}
+            className="gap-0"
+            defaultValues={{
+              refundAmount: remainingAmount > 0 ? remainingAmountDisplay : '',
+              reference: '',
+              consent: false,
+            }}
+          >
+            <DasForm.Fields />
+          </DasForm>
+        </div>
+      </DasDrawer.Body>
 
-        <DasDrawer.Footer>
-          <div className="flex gap-3">
-            <Button
-              type="submit"
-              form={FORM_ID}
-              disabled={loading}
-              className="flex-1 shadow-[0px_4px_9px_0px_rgba(0,0,0,0.1)]"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t('drawer.submit')}
-                </span>
-              ) : (
-                t('drawer.submit')
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="flex-1"
-              disabled={loading}
-              onClick={handleClose}
-            >
-              {t('drawer.cancel')}
-            </Button>
-          </div>
-        </DasDrawer.Footer>
-      </DasDrawer.Content>
-    </DasDrawer>
+      <DasDrawer.Footer>
+        <div className="flex gap-3">
+          <Button
+            type="submit"
+            form={FORM_ID}
+            disabled={loading}
+            className="flex-1 shadow-[0px_4px_9px_0px_rgba(0,0,0,0.1)]"
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t('drawer.submit')}
+              </span>
+            ) : (
+              t('drawer.submit')
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="flex-1"
+            disabled={loading}
+            onClick={handleClose}
+          >
+            {t('drawer.cancel')}
+          </Button>
+        </div>
+      </DasDrawer.Footer>
+    </>
   );
 }

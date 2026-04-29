@@ -1,16 +1,14 @@
-import type { ComponentType } from 'react';
-import { TransactionDetailsDrawer } from '@/drawers/TransactionDetailsDrawer';
-import { RefundDrawer } from '@/drawers/RefundDrawer';
-import { CaptureDrawer } from '@/drawers/CaptureDrawer';
-import { VoidDrawer } from '@/drawers/VoidDrawer';
-import { DisputeDrawer } from '@/drawers/DisputeDrawer';
-import { EditStatusDrawer } from '@/drawers/EditStatusDrawer';
+import { lazy, type ComponentType } from 'react';
+const TransactionDetailsDrawer = lazy(() => import('@/drawers/TransactionDetailsDrawer'));
+const RefundDrawer = lazy(() => import('@/drawers/RefundDrawer'));
+const CaptureDrawer = lazy(() => import('@/drawers/CaptureDrawer'));
+const VoidDrawer = lazy(() => import('@/drawers/VoidDrawer'));
+const DisputeDrawer = lazy(() => import('@/drawers/DisputeDrawer'));
+const EditStatusDrawer = lazy(() => import('@/drawers/EditStatusDrawer'));
 
 export interface DrawerComponentProps {
   type: string;
   data?: Record<string, unknown>;
-  width?: number;
-  topOffset?: number;
 }
 
 export interface DrawerRegistryEntry {
