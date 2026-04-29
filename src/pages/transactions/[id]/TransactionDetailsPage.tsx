@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { TabGroup, TabPanel, TabPanels } from '@headlessui/react';
@@ -67,7 +67,6 @@ function deriveVisibility(data: TransactionDetailsData | null): ActionVisibility
 function TransactionDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { open } = useDrawerControl();
   const { data, loading, error } = useTransactionDetails(id ?? null);
   const {
@@ -128,7 +127,6 @@ function TransactionDetailsPage() {
         balanceLabel={lifecycle.balanceLabel}
         showEditStatus={visibility.showEditStatus}
         onEditStatus={() => onAction('edit-status')}
-        onTransactionXray={() => navigate('/transaction-xray')}
       />
 
       <TabGroup
