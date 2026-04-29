@@ -69,6 +69,8 @@ const en = {
     update_date: 'Update Date',
     payment_type: 'Payment Type',
     scheme_card_number: 'Scheme | Card Number',
+    scheme: 'Scheme',
+    card_number: 'Card Number',
     track_id: 'Track ID',
     statement_id: 'Statement ID',
     acquirer: 'Acquirer',

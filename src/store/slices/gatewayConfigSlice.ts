@@ -226,8 +226,13 @@ export const selectCurrencyOptions = createSelector([selectGatewayConfig], (conf
 
 import type { GatewayConfigKey } from '@/components/filter/types';
 
+// Stable empty array — using a fresh `[]` literal each call would make
+// useSelector emit "returned a different result" warnings for every field
+// that has no `optionsFromConfig`.
+const EMPTY_OPTIONS: FilterOption[] = [];
+
 export const selectOptionsByKey = (key: GatewayConfigKey | undefined) => (state: RootState) => {
-  if (!key) return [] as FilterOption[];
+  if (!key) return EMPTY_OPTIONS;
   switch (key) {
     case 'dasmidOptions':
       return selectDasmidOptions(state);
@@ -252,6 +257,6 @@ export const selectOptionsByKey = (key: GatewayConfigKey | undefined) => (state:
     case 'currencies':
       return selectCurrencyOptions(state);
     default:
-      return [] as FilterOption[];
+      return EMPTY_OPTIONS;
   }
 };
