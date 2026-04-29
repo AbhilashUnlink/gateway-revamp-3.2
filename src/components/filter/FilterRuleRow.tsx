@@ -5,7 +5,6 @@ import { useAppSelector } from '@/store/hooks';
 import { selectOptionsByKey } from '@/store/slices/gatewayConfigSlice';
 import { TextValue } from './controls/TextValue';
 import { NumberValue } from './controls/NumberValue';
-import { SelectValue } from './controls/SelectValue';
 import { MultiSelectValue } from './controls/MultiSelectValue';
 import { DateRangeValue } from './controls/DateRangeValue';
 import { SearchableSelect } from './controls/SearchableSelect';
@@ -96,10 +95,11 @@ export function FilterRuleRow({ rule, fields, takenFieldIds, onChange, onRemove 
           <NumberValue value={rule.value as string} onChange={(v) => handleValue(v)} />
         )}
         {field?.type === 'select' && (
-          <SelectValue
+          <SearchableSelect
             value={rule.value as string}
             onChange={(v) => handleValue(v)}
             options={fieldOptions ?? []}
+            placeholder={t('filter.value', 'Select…')}
           />
         )}
         {field?.type === 'multiSelect' && (

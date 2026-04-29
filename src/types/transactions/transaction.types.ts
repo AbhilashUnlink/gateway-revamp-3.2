@@ -104,6 +104,7 @@ export type TableFilter = {
   field: string;
   operator: string;
   value: string | number | boolean | string[];
+  operand?: 'AND' | 'OR';
 };
 
 export interface TableApiPayload {

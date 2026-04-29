@@ -84,8 +84,8 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       width: 240,
       accessorFn: (row) => ({ primary: row.transactionDate, secondary: row.updateDate }),
       filterAttributes: [
-        { id: 'transactionDate', labelKey: 'table.transaction_date', type: 'dateRange' },
-        { id: 'updatedDate', labelKey: 'table.update_date', type: 'dateRange' },
+        { id: 'Date', labelKey: 'table.transaction_date', type: 'dateRange' },
+        { id: 'UpdatedDate', labelKey: 'table.update_date', type: 'dateRange' },
       ],
     },
     {
@@ -102,7 +102,7 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       filterAttributes: [
         {
           id: 'paymentScheme',
-          labelKey: 'table.scheme',
+          labelKey: 'transaction_details_page.scheme',
           type: 'multiSelect',
           optionsFromConfig: 'paymentSchemes',
         },
@@ -112,7 +112,7 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
           type: 'multiSelect',
           optionsFromConfig: 'paymentTypes',
         },
-        { id: 'cardNumber', labelKey: 'table.card_number', type: 'text' },
+        { id: 'cardNumber', labelKey: 'transaction_details_page.card_number', type: 'text' },
       ],
     },
     {
@@ -201,7 +201,15 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       width: 200,
       accessorFn: (row) => ({ primary: row.integrationMethod }),
       filterAttributes: [
-        { id: 'integrationMethod', labelKey: 'table.integration_method', type: 'text' },
+        {
+          id: 'has3DS',
+          labelKey: 'table.integration_method',
+          type: 'select',
+          options: [
+            { label: '3DS', value: 'true' },
+            { label: 'Non 3DS', value: 'false' },
+          ],
+        },
       ],
     },
     {
@@ -211,7 +219,15 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       width: 200,
       accessorFn: (row) => ({ primary: row.integrationType }),
       filterAttributes: [
-        { id: 'integrationType', labelKey: 'table.integration_type', type: 'text' },
+        {
+          id: 'integrationType',
+          labelKey: 'table.integration_type',
+          type: 'select',
+          options: [
+            { label: 'HOSTED PAYMENTS PAGE', value: 'HPP' },
+            { label: 'SERVER TO SERVER', value: 'SERVERTOSERVERAPI' },
+          ],
+        },
       ],
     },
     {

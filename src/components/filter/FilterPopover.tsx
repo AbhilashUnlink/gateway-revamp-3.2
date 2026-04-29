@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Plus, X } from 'lucide-react';
@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 import { FilterRuleRow } from './FilterRuleRow';
 import { inferOperator } from './operators';
-import type { FilterField } from './types';
+import type { FilterField, FilterRule, FilterValue } from './types';
 
 interface Props {
   screen: FilterScreen;
@@ -28,6 +28,30 @@ interface Props {
 }
 
 const newId = () => `r_${Math.random().toString(36).slice(2, 10)}`;
+
+const blankValueFor = (type: FilterField['type']): FilterValue =>
+  type === 'multiSelect' ? [] : type === 'dateRange' ? {} : '';
+
+/** A rule is "complete" when its value is non-empty for its type. */
+function isRuleComplete(rule: FilterRule, fields: FilterField[]): boolean {
+  if (!rule.field) return false;
+  const field = fields.find((f) => f.id === rule.field);
+  if (!field) return false;
+  const v = rule.value;
+  switch (field.type) {
+    case 'text':
+    case 'select':
+      return typeof v === 'string' && v.trim().length > 0;
+    case 'number':
+      return v !== '' && v !== null && v !== undefined;
+    case 'multiSelect':
+      return Array.isArray(v) && v.length > 0;
+    case 'dateRange':
+      return !!v && typeof v === 'object' && !Array.isArray(v) && !!v.from && !!v.to;
+    default:
+      return false;
+  }
+}
 
 export function FilterPopover({ screen, fields, anchorRef }: Props) {
   const { t } = useTranslation();
@@ -61,6 +85,25 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
     };
   }, [isOpen, anchorRef]);
 
+  // Seed an initial blank rule the first time the popover opens with no draft rules.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (draftRules.length > 0) return;
+    const firstField = fields[0];
+    if (!firstField) return;
+    dispatch(
+      addRule({
+        screen,
+        rule: {
+          id: newId(),
+          field: firstField.id,
+          operator: inferOperator(firstField.type),
+          value: blankValueFor(firstField.type),
+        },
+      })
+    );
+  }, [isOpen, draftRules.length, fields, dispatch, screen]);
+
   // Close on outside click / Escape
   useEffect(() => {
     if (!isOpen) return;
@@ -84,12 +127,22 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
     };
   }, [isOpen, anchorRef, dispatch, screen]);
 
+  const allRulesComplete = useMemo(
+    () => draftRules.every((r) => isRuleComplete(r, fields)),
+    [draftRules, fields]
+  );
+
+  const hasFreeField = useMemo(
+    () => fields.some((f) => !draftRules.some((r) => r.field === f.id)),
+    [fields, draftRules]
+  );
+
   if (!isOpen || !position) return null;
 
   const handleAdd = () => {
+    if (!allRulesComplete) return;
     const firstFree = fields.find((f) => !draftRules.some((r) => r.field === f.id));
     if (!firstFree) return;
-    const blank = firstFree.type === 'multiSelect' ? [] : firstFree.type === 'dateRange' ? {} : '';
     dispatch(
       addRule({
         screen,
@@ -97,7 +150,7 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
           id: newId(),
           field: firstFree.id,
           operator: inferOperator(firstFree.type),
-          value: blank,
+          value: blankValueFor(firstFree.type),
         },
       })
     );
@@ -105,10 +158,15 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
 
   // Apply commits draft → applied in redux. The page-side effect keyed on
   // `appliedRules` triggers exactly one fetch with the new filters.
-  const handleApply = () => dispatch(applyFilters(screen));
+  const handleApply = () => {
+    if (!allRulesComplete) return;
+    dispatch(applyFilters(screen));
+  };
   const handleReset = () => dispatch(resetFilters(screen));
 
   const takenFieldIds = draftRules.map((r) => r.field).filter(Boolean);
+  const canApply = draftRules.length > 0 && allRulesComplete;
+  const canAdd = allRulesComplete && hasFreeField;
 
   return createPortal(
     <div
@@ -131,11 +189,6 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
       </div>
 
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-5 py-4">
-        {draftRules.length === 0 && (
-          <div className="rounded-lg bg-[#fafafa] px-4 py-6 text-center text-sm text-[#808080]">
-            {t('filter.empty', 'No filters yet — add one to start.')}
-          </div>
-        )}
         {draftRules.map((rule) => (
           <FilterRuleRow
             key={rule.id}
@@ -150,7 +203,15 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-1 inline-flex items-center gap-2 self-start rounded-lg border border-dashed border-[#bdbdbd] px-3 py-2 text-sm font-medium text-[#1a1a1a] hover:bg-[#fafafa]"
+          disabled={!canAdd}
+          title={
+            !allRulesComplete
+              ? t('filter.fill_value_first', 'Fill in the current filter value first')
+              : !hasFreeField
+                ? t('filter.no_more_fields', 'All fields are already in use')
+                : undefined
+          }
+          className="mt-1 inline-flex items-center gap-2 self-start rounded-lg border border-dashed border-[#bdbdbd] px-3 py-2 text-sm font-medium text-[#1a1a1a] hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
         >
           <Plus size={16} />
           {t('filter.add_rule', 'Add filter')}
@@ -161,7 +222,7 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
         <Button type="button" variant="ghost" onClick={handleReset}>
           {t('filter.reset', 'Reset')}
         </Button>
-        <Button type="button" onClick={handleApply}>
+        <Button type="button" onClick={handleApply} disabled={!canApply}>
           {t('filter.apply', 'Apply')}
         </Button>
       </div>
