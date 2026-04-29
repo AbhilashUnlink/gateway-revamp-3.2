@@ -50,6 +50,41 @@ export type CellType =
   | 'payment'
   | 'link-copy';
 
+export type FilterAttributeType = 'text' | 'select' | 'multiSelect' | 'number' | 'dateRange';
+
+export type GatewayConfigOptionKey =
+  | 'merchantData'
+  | 'dasmidOptions'
+  | 'acquirers'
+  | 'acquirerMIDData'
+  | 'chargebackReasonCode'
+  | 'businessLocations'
+  | 'transactionTypes'
+  | 'statuses'
+  | 'paymentSchemes'
+  | 'paymentTypes'
+  | 'currencies';
+
+/**
+ * Per-attribute filter metadata. For columns that produce multiple values
+ * (e.g. payment cell with `scheme`, `primary`, `secondary`), one entry per
+ * accessor key. Each becomes its own flat filter field.
+ */
+export interface ColumnFilterAttribute {
+  /** Backend field name AND filter id. */
+  id: string;
+  /** i18n key for the field label in the filter picker. */
+  labelKey: string;
+  /** Type of value control. */
+  type: FilterAttributeType;
+  /** Hide this attribute from the filter UI entirely. */
+  hideFromFilter?: boolean;
+  /** Pull options from a gatewayConfig key. */
+  optionsFromConfig?: GatewayConfigOptionKey;
+  /** Static options. */
+  options?: { label: string; value: string }[];
+}
+
 export interface ColumnConfig {
   id: string;
   headerPrimaryKey: string;
@@ -58,6 +93,11 @@ export interface ColumnConfig {
   width: number;
   accessorFn: (row: TransactionRow) => CellData;
   onPrimaryClick?: (row: TransactionRow) => void;
+  /**
+   * Filter attributes derived from this column. Always one per logical attribute
+   * — no grouping. For a payment cell with three accessor keys, three entries.
+   */
+  filterAttributes?: ColumnFilterAttribute[];
 }
 
 export type TableFilter = {

@@ -7,6 +7,8 @@ import settingsReducer from './slices/settingsSlice';
 import transactionsReducer from './slices/transactionsSlice';
 import transactionDetailsReducer from './slices/transactionDetailsSlice';
 import drawersReducer from './slices/drawerSlice';
+import gatewayConfigReducer from './slices/gatewayConfigSlice';
+import filtersReducer from './slices/filterSlice';
 import { SESSION_EXPIRED_ACTION } from '@/utils/forceLogout';
 
 const appReducer = combineReducers({
@@ -18,6 +20,8 @@ const appReducer = combineReducers({
   transactions: transactionsReducer,
   transactionDetails: transactionDetailsReducer,
   drawers: drawersReducer,
+  gatewayConfig: gatewayConfigReducer,
+  filters: filtersReducer,
 });
 
 const rootReducer: typeof appReducer = (state, action: Action) => {

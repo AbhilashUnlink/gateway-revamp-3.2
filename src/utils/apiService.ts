@@ -26,6 +26,7 @@ export const apiService = {
 
   dasconfig: {
     userPreferences: () => Api().get(`dasconfig/user-preferences`),
+    gatewayConfiguration: () => Api().get(`dasconfig/gateway-configuration`),
     getSubsidiaryList: () => Api().get(`dasconfig/subsidiary-list`),
     postRulesUpsert: (data?: unknown) => Api().post(`dasconfig/rules/upsert`, data),
   },
