@@ -154,7 +154,7 @@ export function TokenizationHistory({ items }: TokenizationHistoryProps) {
 
   return (
     <div className="flex gap-6 overflow-x-auto pb-2">
-      {list.map((item, idx) => (
+      {list?.map((item, idx) => (
         <TokenCard
           key={`${item.uuid ?? item.trackid ?? idx}-${idx}`}
           item={item}

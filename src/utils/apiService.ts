@@ -83,6 +83,14 @@ export const apiService = {
       Api().get(`chargeback/transactionId/${params.transactionId}`),
     postTransactionReportDownload: (data?: unknown) =>
       Api().post(`transactions/transaction-report/download`, data),
+    getTransactionReportDownloadList: (params: { take: number; skip: number; TimeZone: string }) =>
+      Api().get(
+        `transactions/transaction-report/download-list?take=${params.take}&skip=${params.skip}&TimeZone=${encodeURIComponent(params.TimeZone)}`
+      ),
+    getTransactionReportDownloadByJobId: (params: { jobID: string }) =>
+      Api().get(
+        `transactions/transaction-report/download-report?jobID=${encodeURIComponent(params.jobID)}`
+      ),
     postTransactionPresetFilterCreate: (data?: unknown) =>
       Api().post(`transactions/transaction-preset/filter/create`, data),
     getAllTransactionPresetFilters: () =>
@@ -93,6 +101,14 @@ export const apiService = {
       Api().post(`transactions/transaction-report-preference/create`, data),
     postTransactionColumnPreferenceCreate: (data?: unknown) =>
       Api().post(`transactions/transaction-column-preference/create`, data),
+    postTransactionColumnPreferenceUpdate: (params: { uuid: string }, data?: unknown) =>
+      Api().post(`transactions/transaction-column-preference/update/${params.uuid}`, data),
+    postTransactionColumnPreferenceDelete: (params: { uuid: string }) =>
+      Api().post(`transactions/transaction-column-preference/delete/${params.uuid}`),
+    getAllTransactionColumnPreferences: () =>
+      Api().get(`transactions/transaction-column-preference/user/getAll`),
+    getTransactionColumnPreferenceById: (params: { uuid: string }) =>
+      Api().get(`transactions/transaction-column-preference/${params.uuid}`),
     postVoid: (data?: unknown) => Api().post(`transactions/void`, data),
     capture: (data?: unknown) => Api().post(`transactions/capture`, data),
     refund: (data?: unknown) => Api().post(`transactions/refund`, data),

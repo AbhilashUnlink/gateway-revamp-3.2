@@ -1,6 +1,44 @@
 import type { ColumnConfig, TransactionRow } from '@/types/transactions/transaction.types';
 import { STATUS } from '@/constants/transactions';
 
+/**
+ * Map between column `id` (camelCase, what the table uses) and the backend
+ * display name in the saved-preference `columns_json` array.
+ */
+export const TRANSACTION_COLUMN_DISPLAY_NAMES: Record<string, string> = {
+  transactionRefId: 'Transaction Ref ID',
+  typeStatus: 'Transaction Type',
+  amountFee: 'Amount',
+  dates: 'Transaction Date',
+  paymentMethod: 'Payment Type',
+  trackId: 'Track ID',
+  statementId: 'Statement ID',
+  acquirer: 'Acquirer',
+  acquirerMid: 'Acquirer MID',
+  dasMid: 'DASMID',
+  authCode: 'Auth Code',
+  productType: 'Product Type',
+  integrationMethod: 'Integration Method',
+  integrationType: 'Integration Type',
+  merchantAccount: 'Merchant Account',
+  merchantAccountEn: 'Merchant Account (English)',
+  merchantRefId: 'Merchant Ref ID',
+  subscriptionId: 'Subscription ID',
+  terminalId: 'Terminal ID',
+  terminalName: 'Terminal Name',
+  linkName: 'Link Name',
+};
+
+const ID_BY_DISPLAY_NAME = Object.fromEntries(
+  Object.entries(TRANSACTION_COLUMN_DISPLAY_NAMES).map(([id, name]) => [name, id])
+);
+
+export const transactionColumnIdToDisplayName = (id: string): string =>
+  TRANSACTION_COLUMN_DISPLAY_NAMES[id] ?? id;
+
+export const transactionDisplayNameToColumnId = (name: string): string | undefined =>
+  ID_BY_DISPLAY_NAME[name];
+
 export interface SchemaContext {
   onRefIdClick?: (row: TransactionRow) => void;
 }

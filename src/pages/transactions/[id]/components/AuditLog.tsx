@@ -119,7 +119,7 @@ export function AuditLog({ items }: AuditLogProps) {
 
   return (
     <div className="flex gap-6 overflow-x-auto pb-2">
-      {list.map((entry, idx) => (
+      {list?.map((entry, idx) => (
         <AuditCard key={idx} entry={entry} />
       ))}
     </div>
