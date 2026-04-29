@@ -117,9 +117,21 @@ const pickKey = (config: GatewayConfig, key: string): unknown => {
   return (config as Record<string, unknown>)[key] ?? null;
 };
 
-export const selectDasmidOptions = createSelector([selectGatewayConfig], (config) =>
-  toStringOptions(pickKey(config, 'dasmidOptions'))
-);
+export const selectDasmidOptions = createSelector([selectGatewayConfig], (config) => {
+  // Old UI logic: derive from merchantData[].DASMID (can be nested), flatten,
+  // dedupe, sort, then map to { label, value }.
+  const merchantData = pickKey(config, 'merchantData');
+  if (Array.isArray(merchantData) && merchantData.length > 0) {
+    const flat = merchantData
+      .map((m) => (m && typeof m === 'object' ? (m as Record<string, unknown>).DASMID : null))
+      .flat()
+      .filter((v): v is string => typeof v === 'string' && v.length > 0);
+    const unique = Array.from(new Set(flat)).sort((a, b) => a.localeCompare(b));
+    return unique.map((v) => ({ label: v, value: v }));
+  }
+  // Fallback: a flat dasmidOptions array on the config root.
+  return toStringOptions(pickKey(config, 'dasmidOptions'));
+});
 
 export const selectAcquirerOptions = createSelector([selectGatewayConfig], (config) =>
   toStringOptions(pickKey(config, 'acquirers'))

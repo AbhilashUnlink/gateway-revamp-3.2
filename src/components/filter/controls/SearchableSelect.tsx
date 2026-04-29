@@ -20,7 +20,6 @@ interface MenuPosition {
 
 const MENU_MAX_HEIGHT = 280;
 const MENU_GAP = 4;
-const SEARCH_THRESHOLD = 6;
 
 export function SearchableSelect({
   value,
@@ -55,7 +54,7 @@ export function SearchableSelect({
     );
   }, [options, query]);
 
-  const showSearch = options.length > SEARCH_THRESHOLD;
+  const showSearch = options.length > 0;
   const disabledSet = useMemo(() => new Set(disabledValues), [disabledValues]);
 
   useLayoutEffect(() => {

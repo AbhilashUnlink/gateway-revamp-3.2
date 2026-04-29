@@ -50,4 +50,5 @@ export interface SerializedFilterEntry {
   field: string;
   operator: string;
   value: unknown;
+  operand?: 'AND' | 'OR';
 }
