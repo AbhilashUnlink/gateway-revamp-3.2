@@ -1,86 +1,79 @@
-import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
-import type { AuthToken, SignInData, SignInResponse } from '@/types/login/auth.types';
+import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import type { AuthToken, SignInResponse } from '@/types/login/auth.types';
+import { store } from '@/store';
+import { tokensRefreshed } from '@/store/slices/authSlice';
+import { forceLogout } from './forceLogout';
+
+interface ApiErrorBody {
+  message?: string;
+  messageCode?: string;
+}
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 const X_API_KEY = import.meta.env.VITE_API_X_API_KEY ?? '';
 
 const PUBLIC_ROUTES = ['/auth/signIn', '/auth/checkMfaExist', '/auth/refreshToken'];
 
+// Refresh slightly before actual expiry to absorb network/clock skew.
+const EXP_SKEW_SECONDS = 30;
+
 // Shared promise — all concurrent requests that arrive while a refresh is in
 // progress await the same promise instead of each triggering their own refresh.
 let refreshPromise: Promise<string> | null = null;
 
-// Separate axios instance for refresh calls to avoid circular dependency
+// Separate axios instance for refresh calls to avoid interceptor recursion.
 const refreshApiClient = axios.create({ baseURL: BASE_URL });
 
 // ==============================
-// AUTH HELPERS
+// AUTH READERS — single source of truth is the Redux store.
 // ==============================
 
-function getAuthData(): SignInData | null {
-  try {
-    const raw = localStorage.getItem('persist:root');
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Record<string, string>;
-    const parsedAuth = JSON.parse(parsed.auth ?? '{}') as {
-      signInData?: SignInData;
-    };
-    return parsedAuth.signInData ?? null;
-  } catch {
-    return null;
-  }
+function getSignInData() {
+  return store.getState().auth.signInData;
 }
 
-function isTokenExpired(exp?: number): boolean {
+function getIdToken(): string {
+  return getSignInData().token?.idToken ?? '';
+}
+
+function getRefreshTokenValue(): string {
+  return getSignInData().token?.refreshToken ?? '';
+}
+
+function getUsername(): string {
+  return getSignInData().email ?? '';
+}
+
+function getExp(): number {
+  return getSignInData().exp ?? 0;
+}
+
+function isTokenExpired(): boolean {
+  const exp = getExp();
   if (!exp) return true;
-  return Date.now() >= exp * 1000;
-}
-
-function getIdToken(): string | null {
-  return getAuthData()?.token?.idToken ?? null;
-}
-
-function getRefreshToken(): string | null {
-  return getAuthData()?.token?.refreshToken ?? null;
-}
-
-function getUsername(): string | null {
-  return getAuthData()?.email ?? null;
+  return Date.now() >= (exp - EXP_SKEW_SECONDS) * 1000;
 }
 
 // ==============================
-// UPDATE STORAGE
+// JWT EXP — derive expiry from the new idToken so it can never go stale.
 // ==============================
 
-function updateAuthStorage(tokens: {
-  accessToken?: string;
-  idToken?: string;
-  refreshToken?: string;
-}) {
+function decodeJwtExp(jwt: string): number | undefined {
   try {
-    const raw = localStorage.getItem('persist:root');
-    if (!raw) return;
-
-    const persistRoot = JSON.parse(raw) as Record<string, string>;
-    const authState = JSON.parse(persistRoot.auth ?? '{}') as {
-      signInData?: SignInData;
-    };
-
-    if (!authState.signInData) return;
-
-    authState.signInData = {
-      ...authState.signInData,
-      token: {
-        ...authState.signInData.token,
-        ...tokens,
-      },
-    };
-
-    persistRoot.auth = JSON.stringify(authState);
-    localStorage.setItem('persist:root', JSON.stringify(persistRoot));
+    const [, payload] = jwt.split('.');
+    if (!payload) return undefined;
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = atob(normalized);
+    const parsed = JSON.parse(json) as { exp?: number };
+    return typeof parsed.exp === 'number' ? parsed.exp : undefined;
   } catch {
-    // storage update failure is non-fatal — next request will re-attempt
+    return undefined;
   }
+}
+
+function extractApiMessage(err: unknown): string | undefined {
+  const axiosErr = err as AxiosError<ApiErrorBody>;
+  return axiosErr?.response?.data?.message;
 }
 
 // ==============================
@@ -88,41 +81,43 @@ function updateAuthStorage(tokens: {
 // ==============================
 
 async function doRefresh(): Promise<string> {
-  const refreshToken = getRefreshToken();
+  const refreshToken = getRefreshTokenValue();
   const username = getUsername();
 
-  if (!refreshToken) throw new Error('No refresh token available');
-  if (!username) throw new Error('No username available for refresh');
+  if (!refreshToken || !username) {
+    forceLogout();
+    throw new Error('No refresh token available');
+  }
 
-  // Direct API call instead of going through apiService
-  const res = await refreshApiClient.post<SignInResponse>(
-    '/auth/refreshToken',
-    {
-      username,
-      refreshToken,
-    },
-    {
-      headers: {
-        'X-Api-Key': X_API_KEY,
-        'Content-Type': 'application/json',
-      },
+  try {
+    const res = await refreshApiClient.post<SignInResponse>(
+      '/auth/refreshToken',
+      { username, refreshToken },
+      {
+        headers: {
+          'X-Api-Key': X_API_KEY,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const newData = res.data?.data;
+    const newTokens = newData?.token as AuthToken;
+    if (!newTokens?.idToken) {
+      throw new Error('Refresh response missing idToken');
     }
-  );
 
-  const newTokens = res.data?.data?.token as AuthToken;
+    // Derive exp from the JWT itself (authoritative). Fall back to backend's
+    // exp on the response if present.
+    const exp = decodeJwtExp(newTokens.idToken) ?? newData?.exp;
 
-  updateAuthStorage(newTokens);
+    store.dispatch(tokensRefreshed({ token: newTokens, exp }));
 
-  // idToken is used as the Authorization header (matches getIdToken())
-  localStorage.setItem(
-    'persist:root',
-    JSON.stringify({
-      auth: JSON.stringify({
-        signInData: res.data?.data as SignInData,
-      }),
-    })
-  );
-  return newTokens.idToken ?? '';
+    return newTokens.idToken;
+  } catch (err) {
+    forceLogout(extractApiMessage(err));
+    throw err;
+  }
 }
 
 // ==============================
@@ -132,7 +127,7 @@ async function doRefresh(): Promise<string> {
 export function useFetchWrapper(): AxiosInstance {
   const instance = axios.create({ baseURL: BASE_URL });
 
-  // ----- REQUEST interceptor — attach token / trigger refresh -----
+  // ----- REQUEST interceptor — read latest token on every call -----
   instance.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
       const url = config.url ?? '';
@@ -143,12 +138,9 @@ export function useFetchWrapper(): AxiosInstance {
 
       if (isPublicRoute) return config;
 
-      const exp = getAuthData()?.exp;
-      const refreshToken = getRefreshToken();
+      const refreshToken = getRefreshTokenValue();
 
-      if (isTokenExpired(exp) && refreshToken) {
-        // All concurrent expired requests share the same refresh promise.
-        // Only the first creates it; the rest just await it.
+      if (isTokenExpired() && refreshToken) {
         if (!refreshPromise) {
           refreshPromise = doRefresh().finally(() => {
             refreshPromise = null;
@@ -157,13 +149,13 @@ export function useFetchWrapper(): AxiosInstance {
         try {
           const newToken = await refreshPromise;
           config.headers['Authorization'] = newToken;
-        } catch {
-          return Promise.reject(new Error('Session expired. Please sign in again.'));
+        } catch (err) {
+          return Promise.reject(err instanceof Error ? err : new Error('Session expired'));
         }
-
         return config;
       }
 
+      // Always pull the freshest token from the store at request time.
       const idToken = getIdToken();
       if (idToken) {
         config.headers['Authorization'] = idToken;
@@ -177,11 +169,9 @@ export function useFetchWrapper(): AxiosInstance {
   // ----- RESPONSE interceptor — handle hard 401 (refresh token invalid) -----
   instance.interceptors.response.use(
     (response) => response,
-    (error) => {
+    (error: AxiosError<ApiErrorBody>) => {
       if (error?.response?.status === 401) {
-        // Clear persisted session and redirect to login
-        localStorage.removeItem('persist:root');
-        window.location.href = '/login';
+        forceLogout(extractApiMessage(error));
       }
       return Promise.reject(error);
     }

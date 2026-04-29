@@ -17,7 +17,7 @@ export function StatusCell({ data, className }: StatusCellProps) {
       {label && (
         <span
           className={cn(
-            'inline-flex items-center px-1 py-0.5 rounded text-[12px] font-medium uppercase whitespace-nowrap',
+            'inline-flex items-center px-1 py-0.5 rounded text-[12px] font-medium uppercase whitespace-nowrap max-w-max',
             style.bg,
             style.text
           )}

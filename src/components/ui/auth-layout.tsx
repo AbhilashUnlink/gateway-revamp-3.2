@@ -10,7 +10,7 @@ function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="flex min-h-screen w-full bg-neutral-800">
       {/* Left: Hero Panel */}
-      <div className="relative w-1/2 shrink-0 overflow-hidden">
+      <div className="relative w-1/2 shrink-0 overflow-hidden hidden md:block">
         <img
           src={loginHero}
           alt=""
@@ -22,7 +22,7 @@ function AuthLayout({ children }: AuthLayoutProps) {
       </div>
 
       {/* Right: Panel */}
-      <div className="flex w-1/2 shrink-0 flex-col items-center justify-center gap-16 px-6 py-10">
+      <div className="flex w-full md:w-1/2 shrink-0 flex-col items-center justify-center gap-16 px-6 py-10">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <img src={poLogoSvg} alt="payment-options" className="h-20 w-auto object-contain" />

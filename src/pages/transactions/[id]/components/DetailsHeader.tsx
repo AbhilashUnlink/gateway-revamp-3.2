@@ -8,7 +8,6 @@ interface DetailsHeaderProps {
   lifecycleLabel: string;
   balanceLabel: string | null;
   onEditStatus: () => void;
-  onTransactionXray: () => void;
   showEditStatus: boolean;
 }
 
@@ -17,7 +16,6 @@ export function DetailsHeader({
   lifecycleLabel,
   balanceLabel,
   onEditStatus,
-  onTransactionXray,
   showEditStatus,
 }: DetailsHeaderProps) {
   const { t } = useTranslation();
@@ -69,10 +67,6 @@ export function DetailsHeader({
           </>
         )}
       </div>
-
-      <Button type="button" variant="ghost" onClick={onTransactionXray} className="gap-2">
-        {t('transaction_details_page.transaction_xray')}
-      </Button>
 
       {showEditStatus && (
         <Button type="button" variant="ghost" onClick={onEditStatus} className="gap-2">

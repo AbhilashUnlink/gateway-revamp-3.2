@@ -6,11 +6,11 @@ export interface DrawerEntry {
 }
 
 interface DrawersState {
-  drawers: DrawerEntry[];
+  current: DrawerEntry | null;
 }
 
 const initialState: DrawersState = {
-  drawers: [],
+  current: null,
 };
 
 const drawerSlice = createSlice({
@@ -18,16 +18,13 @@ const drawerSlice = createSlice({
   initialState,
   reducers: {
     openDrawer(state, action: PayloadAction<DrawerEntry>) {
-      state.drawers = [action.payload];
+      state.current = action.payload;
     },
-    closeDrawer(state, action: PayloadAction<string>) {
-      state.drawers = state.drawers.filter((d) => d.type !== action.payload);
-    },
-    closeAllDrawers(state) {
-      state.drawers = [];
+    closeDrawer(state) {
+      state.current = null;
     },
   },
 });
 
-export const { openDrawer, closeDrawer, closeAllDrawers } = drawerSlice.actions;
+export const { openDrawer, closeDrawer } = drawerSlice.actions;
 export default drawerSlice.reducer;

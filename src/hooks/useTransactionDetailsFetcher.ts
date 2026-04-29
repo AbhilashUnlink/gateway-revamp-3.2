@@ -16,8 +16,8 @@ export function useTransactionDetailsFetcher() {
   const loading = useAppSelector(selectTransactionDetailsLoading);
 
   const id = searchParams.get('id');
-  const drawerList = (searchParams.get('drawer') ?? '').split(',').filter(Boolean);
-  const shouldFetch = !!id && drawerList.some((d) => TRIGGER_DRAWERS.has(d));
+  const drawer = searchParams.get('drawer') ?? '';
+  const shouldFetch = !!id && TRIGGER_DRAWERS.has(drawer);
 
   useEffect(() => {
     if (!shouldFetch || !id) return;

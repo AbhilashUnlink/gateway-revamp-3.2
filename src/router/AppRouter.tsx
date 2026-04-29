@@ -1,11 +1,11 @@
-import { Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import routingConfig from '@/config/routingConfig.json';
 import { loadComponent } from './resolver';
 import { ProtectedRoute } from './ProtectedRoute';
 import NotFoundPage from '@/pages/not-found/NotFoundPage';
 import { useAppSelector } from '@/store/hooks';
-import { DrawerManager } from '@/components/drawer/DrawerManager';
+const DrawerManager = lazy(() => import('@/components/drawer/DrawerManager'));
 
 const useAuth = () => {
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
@@ -57,7 +57,9 @@ export function AppRouter() {
   return (
     <BrowserRouter>
       <Router />
-      <DrawerManager />
+      <Suspense fallback={<div>Loading...</div>}>
+        <DrawerManager />
+      </Suspense>
     </BrowserRouter>
   );
 }

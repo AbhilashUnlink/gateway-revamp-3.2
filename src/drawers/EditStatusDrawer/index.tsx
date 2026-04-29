@@ -27,13 +27,7 @@ interface EditStatusFormValues {
   message: string;
 }
 
-export function EditStatusDrawer({
-  type,
-  data,
-  width,
-  topOffset,
-  isExiting,
-}: DrawerComponentProps) {
+export default function EditStatusDrawer({ type, data }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitEditStatus, loading } = useEditStatus(handleClose);
@@ -84,58 +78,56 @@ export function EditStatusDrawer({
     });
 
   return (
-    <DasDrawer width={width} topOffset={topOffset} onClose={handleClose} isExiting={isExiting}>
-      <DasDrawer.Content>
-        <DasDrawer.Header>
-          <DrawerTransactionHeader activeTab="details" type={type} data={data} />
-        </DasDrawer.Header>
+    <>
+      <DasDrawer.Header>
+        <DrawerTransactionHeader activeTab="edit-status" type={type} data={data} />
+      </DasDrawer.Header>
 
-        <DasDrawer.Body>
-          <div className="flex flex-col gap-3 p-6">
-            <h2 className="text-base font-semibold text-[#1a1a1a]">
-              {t('drawer.edit_status_title')}
-            </h2>
-            <DasForm
-              id={FORM_ID}
-              schema={schema}
-              onSubmit={onSubmit}
-              className="gap-0"
-              defaultValues={{ status: '', authCode: currentAuthCode ?? '', message: '' }}
-            >
-              <DasForm.Fields />
-            </DasForm>
-          </div>
-        </DasDrawer.Body>
+      <DasDrawer.Body>
+        <div className="flex flex-col gap-3 p-6">
+          <h2 className="text-base font-semibold text-[#1a1a1a]">
+            {t('drawer.edit_status_title')}
+          </h2>
+          <DasForm
+            id={FORM_ID}
+            schema={schema}
+            onSubmit={onSubmit}
+            className="gap-0"
+            defaultValues={{ status: '', authCode: currentAuthCode ?? '', message: '' }}
+          >
+            <DasForm.Fields />
+          </DasForm>
+        </div>
+      </DasDrawer.Body>
 
-        <DasDrawer.Footer>
-          <div className="flex gap-3">
-            <Button
-              type="submit"
-              form={FORM_ID}
-              disabled={loading}
-              className="flex-1 shadow-[0px_4px_9px_0px_rgba(0,0,0,0.1)]"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t('drawer.submit')}
-                </span>
-              ) : (
-                t('drawer.submit')
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="flex-1"
-              disabled={loading}
-              onClick={handleClose}
-            >
-              {t('drawer.cancel')}
-            </Button>
-          </div>
-        </DasDrawer.Footer>
-      </DasDrawer.Content>
-    </DasDrawer>
+      <DasDrawer.Footer>
+        <div className="flex gap-3">
+          <Button
+            type="submit"
+            form={FORM_ID}
+            disabled={loading}
+            className="flex-1 shadow-[0px_4px_9px_0px_rgba(0,0,0,0.1)]"
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t('drawer.submit')}
+              </span>
+            ) : (
+              t('drawer.submit')
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="flex-1"
+            disabled={loading}
+            onClick={handleClose}
+          >
+            {t('drawer.cancel')}
+          </Button>
+        </div>
+      </DasDrawer.Footer>
+    </>
   );
 }
