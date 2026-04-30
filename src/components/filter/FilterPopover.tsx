@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Bookmark, Loader2, Plus, Trash2, X } from 'lucide-react';
+import { Bookmark, CircleX, Filter, Loader2, Plus, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   addRule,
@@ -9,7 +9,6 @@ import {
   closeFilter,
   loadRules,
   removeRule,
-  resetFilters,
   selectDraftRules,
   selectFilterIsOpen,
   updateRule,
@@ -181,8 +180,9 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
     if (!allRulesComplete) return;
     dispatch(applyFilters(screen));
   };
-  const handleReset = () => {
-    dispatch(resetFilters(screen));
+
+  const handleClose = () => {
+    dispatch(closeFilter(screen));
     setSavingMode(false);
     setPresetName('');
   };
@@ -220,29 +220,53 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
   const canAdd = allRulesComplete && hasFreeField;
   const canSave = draftRules.length > 0 && allRulesComplete && !saving;
 
+  const activeCount = draftRules.filter((r) => isRuleComplete(r, fields)).length;
+
   return createPortal(
     <div
       ref={popRef}
       className={cn(
-        'fixed z-[60] flex max-h-[calc(100vh-120px)] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_12px_40px_rgba(0,0,0,0.18)]'
+        'fixed z-[60] flex max-h-[calc(100vh-120px)] flex-col overflow-hidden rounded-2xl bg-white drop-shadow-[0px_4px_10px_rgba(0,0,0,0.2)]'
       )}
       style={{ top: position.top, left: position.left, width: POPOVER_WIDTH }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#f0f0f0] px-5 py-4">
-        <h3 className="text-base font-semibold text-[#1a1a1a]">{t('filter.title', 'Filters')}</h3>
+      <div className="flex h-16 shrink-0 items-center gap-2 bg-gradient-to-r from-[#fce4cc] via-[#fef1e0] to-white px-4 py-1.5">
+        <div className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white">
+          <Filter size={14} className="text-[#1a1a1a]" />
+          <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded bg-[#1a1a1a] text-[8px] font-semibold leading-none text-white">
+            {activeCount}
+          </span>
+        </div>
+        <h3 className="flex-1 text-base font-semibold text-[#1a1a1a]">
+          {t('filter.title', 'Advanced Filters')}
+        </h3>
         <button
           type="button"
-          onClick={() => dispatch(closeFilter(screen))}
-          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#fafafa]"
-          aria-label="Close"
+          onClick={handleClose}
+          className="text-[#1a1a1a] transition-opacity hover:opacity-70"
+          aria-label={t('filter.close', 'Close')}
         >
-          <X size={18} />
+          <CircleX size={24} strokeWidth={1.5} />
         </button>
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-5 py-4">
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
+        {draftRules.length > 0 && (
+          <div className="grid grid-cols-[1fr_1fr_40px] gap-4">
+            <span className="text-sm font-semibold text-[#1a1a1a]">
+              {t('filter.field', 'Field')}
+              <span className="font-normal text-[#ff4343]">*</span>
+            </span>
+            <span className="text-sm font-semibold text-[#1a1a1a]">
+              {t('filter.value', 'Value')}
+              <span className="font-normal text-[#ff4343]">*</span>
+            </span>
+            <span />
+          </div>
+        )}
+
         {draftRules.map((rule) => (
           <FilterRuleRow
             key={rule.id}
@@ -254,31 +278,44 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
           />
         ))}
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={!canAdd}
-          title={
-            !allRulesComplete
-              ? t('filter.fill_value_first', 'Fill in the current filter value first')
-              : !hasFreeField
-                ? t('filter.no_more_fields', 'All fields are already in use')
-                : undefined
-          }
-          className="mt-1 inline-flex items-center gap-2 self-start rounded-lg border border-dashed border-[#bdbdbd] px-3 py-2 text-sm font-medium text-[#1a1a1a] hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
-        >
-          <Plus size={16} />
-          {t('filter.add_rule', 'Add filter')}
-        </button>
+        <div className="border-t border-[#e5e5e5] pt-3">
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={!canAdd}
+            title={
+              !allRulesComplete
+                ? t('filter.fill_value_first', 'Fill in the current filter value first')
+                : !hasFreeField
+                  ? t('filter.no_more_fields', 'All fields are already in use')
+                  : undefined
+            }
+            className="inline-flex items-center gap-2.5 text-sm font-semibold text-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {t('filter.add_new', 'Add New')}
+            <Plus size={20} strokeWidth={1.5} />
+          </button>
+        </div>
       </div>
 
       {/* Footer */}
-      <div className="flex justify-end gap-3 border-t border-[#f0f0f0] px-5 py-3">
-        <Button type="button" variant="ghost" onClick={handleReset}>
-          {t('filter.reset', 'Reset')}
-        </Button>
-        <Button type="button" onClick={handleApply} disabled={!canApply}>
+      <div className="flex gap-3 px-4 pb-4">
+        <Button
+          type="button"
+          variant="primary"
+          onClick={handleApply}
+          disabled={!canApply}
+          className="flex-1 rounded-2xl shadow-[0px_4px_9px_0px_rgba(0,0,0,0.1)]"
+        >
           {t('filter.apply', 'Apply')}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={handleClose}
+          className="flex-1 rounded-2xl uppercase"
+        >
+          {t('filter.cancel', 'Cancel')}
         </Button>
       </div>
 

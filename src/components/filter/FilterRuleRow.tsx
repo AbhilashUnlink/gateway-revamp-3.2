@@ -75,7 +75,7 @@ export function FilterRuleRow({ rule, fields, takenFieldIds, onChange, onRemove 
   );
 
   return (
-    <div className="grid grid-cols-[180px_minmax(0,1fr)_40px] items-center gap-3">
+    <div className="grid grid-cols-[1fr_1fr_40px] items-center gap-4">
       <SearchableSelect
         value={rule.field}
         onChange={handleField}
