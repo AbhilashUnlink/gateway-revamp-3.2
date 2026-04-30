@@ -111,7 +111,7 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       width: 160,
       accessorFn: (row) => ({
         primary: row.currency ? `${row.currency} ${row.amount}` : row.amount,
-        secondary: row.currency ? `${row.currency} ${row.fee}` : row.fee,
+        secondary: row.fee ? `${row.currency} ${row.fee}` : 'N/A',
       }),
       filterAttributes: [
         { id: 'amount', labelKey: 'table.amount', type: 'number' },
