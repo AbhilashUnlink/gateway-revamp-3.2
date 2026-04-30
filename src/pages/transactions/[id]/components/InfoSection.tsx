@@ -8,6 +8,29 @@ interface InfoSectionProps {
   layout: 'column' | 'grid';
 }
 
+export function InfoSectionHeader({ section }: { section: InfoSectionConfig }) {
+  const { t } = useTranslation();
+  return (
+    <div className="min-w-0 flex-1 border-b border-[#e5e5e5] pb-4">
+      <h3 className="text-base font-semibold leading-5 text-[#1a1a1a]">{t(section.titleKey)}</h3>
+    </div>
+  );
+}
+
+export function InfoSectionBody({ section, layout }: InfoSectionProps) {
+  return (
+    <div className="flex min-w-0 flex-1 flex-col">
+      <div
+        className={cn('gap-x-5 gap-y-5', layout === 'grid' ? 'grid grid-cols-5' : 'flex flex-col')}
+      >
+        {section.fields.map((field, idx) => (
+          <InfoFieldItem key={`${section.id}-${idx}`} field={field} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function InfoSection({ section, layout }: InfoSectionProps) {
   const { t } = useTranslation();
   return (
