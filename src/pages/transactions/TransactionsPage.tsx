@@ -18,14 +18,13 @@ import {
 } from './transactionTableSchema';
 import { ColumnPreferencePopover } from '@/components/transactions/ColumnPreferencePopover';
 import {
-  selectTransactionListMap,
-  selectTransactionListSelectedKey,
-} from '@/store/slices/gatewayConfigSlice';
+  fetchColumnPreferenceLists,
+  selectActiveColumnPreferenceList,
+} from '@/store/slices/columnPreferenceListsSlice';
 import { setColumnPreference, resetColumnPreference } from '@/store/slices/columnPreferencesSlice';
 import {
   filterHiddenColumns,
-  getTransactionColumnsConfig,
-  TRANSACTION_DEFAULT_KEY,
+  getColumnsConfigFromColumnsJson,
 } from '@/utils/transactionColumnsConfig';
 
 const SCREEN = 'transactions' as const;
@@ -88,20 +87,23 @@ function TransactionsPage() {
 
   const filterFields = useMemo(() => buildFilterFields(columnConfigs), [columnConfigs]);
 
-  // Sync the selected userPreference.transactionList entry into the local
-  // visibility/order slice so the table reflects it on load and whenever the
+  // Hydrate the saved column-preference lists once on mount.
+  useEffect(() => {
+    dispatch(fetchColumnPreferenceLists());
+  }, [dispatch]);
+
+  // Sync the active backend list's `columns_json` into the local visibility /
+  // order slice so the table reflects it on load and whenever the
   // backend-confirmed selection changes.
-  const transactionListMap = useAppSelector(selectTransactionListMap);
-  const transactionListSelectedKey = useAppSelector(selectTransactionListSelectedKey);
+  const activeColumnPreferenceList = useAppSelector(selectActiveColumnPreferenceList);
   const fallbackColumnIds = useMemo(() => columnConfigs.map((c) => c.id), [columnConfigs]);
   useEffect(() => {
-    if (transactionListSelectedKey === TRANSACTION_DEFAULT_KEY) {
+    if (!activeColumnPreferenceList) {
       dispatch(resetColumnPreference(SCREEN));
       return;
     }
-    const { orderedColumns, hiddenColumns } = getTransactionColumnsConfig(
-      { transactionList: { list: transactionListMap, selected: transactionListSelectedKey } },
-      transactionListSelectedKey,
+    const { orderedColumns, hiddenColumns } = getColumnsConfigFromColumnsJson(
+      activeColumnPreferenceList.columns_json,
       fallbackColumnIds
     );
     dispatch(
@@ -110,7 +112,7 @@ function TransactionsPage() {
         preference: { order: orderedColumns, hidden: hiddenColumns },
       })
     );
-  }, [dispatch, transactionListMap, transactionListSelectedKey, fallbackColumnIds]);
+  }, [dispatch, activeColumnPreferenceList, fallbackColumnIds]);
 
   // Apply user's saved column-preference (visibility + order) on top of defaults.
   const visibleColumnConfigs = useColumnPreferences(SCREEN, columnConfigs);

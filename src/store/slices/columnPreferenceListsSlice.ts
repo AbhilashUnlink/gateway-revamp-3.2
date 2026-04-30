@@ -37,6 +37,36 @@ function pickPreferenceFromCreate(raw: unknown): ColumnPreferenceList | null {
   }
   return null;
 }
+
+export const fetchColumnPreferenceLists = createAsyncThunk<
+  ColumnPreferenceList[],
+  void | { force?: boolean },
+  { rejectValue: string; state: RootState }
+>(
+  'columnPreferenceLists/fetchAll',
+  async (_, thunkAPI) => {
+    try {
+      const res = (await apiService.transactions.getAllTransactionColumnPreferences()) as {
+        data: { data?: { records?: ColumnPreferenceList[] } | ColumnPreferenceList[] };
+      };
+      const data = res.data?.data;
+      if (Array.isArray(data)) return data;
+      return data?.records ?? [];
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        (err as Error).message || 'Failed to load column preferences'
+      );
+    }
+  },
+  {
+    condition: (arg, { getState }) => {
+      const { loading, loaded } = getState().columnPreferenceLists;
+      if (loading) return false;
+      if (loaded && !(arg && typeof arg === 'object' && arg.force)) return false;
+      return true;
+    },
+  }
+);
 export interface CreateColumnPreferencePayload {
   name: string;
   columns_json: string[];
@@ -111,12 +141,33 @@ const slice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchColumnPreferenceLists.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchColumnPreferenceLists.fulfilled, (state, action) => {
+        state.loading = false;
+        state.loaded = true;
+        state.list = action.payload;
+      })
+      .addCase(fetchColumnPreferenceLists.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? 'Failed to load column preferences';
+      })
       .addCase(createColumnPreferenceList.pending, (state) => {
         state.saving = true;
         state.error = null;
       })
-      .addCase(createColumnPreferenceList.fulfilled, (state) => {
+      .addCase(createColumnPreferenceList.fulfilled, (state, action) => {
         state.saving = false;
+        const created = action.payload;
+        if (created) {
+          // The backend marks the new list as selected when currentSelectedList:true.
+          if (created.isSelected) {
+            for (const item of state.list) item.isSelected = false;
+          }
+          state.list.push(created);
+        }
       })
       .addCase(createColumnPreferenceList.rejected, (state, action) => {
         state.saving = false;
@@ -126,8 +177,16 @@ const slice = createSlice({
         state.saving = true;
         state.error = null;
       })
-      .addCase(updateColumnPreferenceList.fulfilled, (state) => {
+      .addCase(updateColumnPreferenceList.fulfilled, (state, action) => {
         state.saving = false;
+        const updated = action.payload;
+        if (!updated) return;
+        if (updated.isSelected) {
+          for (const item of state.list) item.isSelected = false;
+        }
+        const idx = state.list.findIndex((p) => p.uuid === updated.uuid);
+        if (idx >= 0) state.list[idx] = updated;
+        else state.list.push(updated);
       })
       .addCase(updateColumnPreferenceList.rejected, (state, action) => {
         state.saving = false;
@@ -137,8 +196,9 @@ const slice = createSlice({
         state.saving = true;
         state.error = null;
       })
-      .addCase(deleteColumnPreferenceList.fulfilled, (state) => {
+      .addCase(deleteColumnPreferenceList.fulfilled, (state, action) => {
         state.saving = false;
+        state.list = state.list.filter((p) => p.uuid !== action.payload);
       })
       .addCase(deleteColumnPreferenceList.rejected, (state, action) => {
         state.saving = false;

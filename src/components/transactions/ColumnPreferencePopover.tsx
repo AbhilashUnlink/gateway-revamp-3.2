@@ -13,22 +13,18 @@ import { Check, GripVertical, Loader2, Plus, Trash2, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setColumnPreference, resetColumnPreference } from '@/store/slices/columnPreferencesSlice';
 import {
-  removeTransactionListEntry,
-  selectTransactionListMap,
-  selectTransactionListSelectedKey,
-  setTransactionListEntry,
-  setTransactionListSelected,
-} from '@/store/slices/gatewayConfigSlice';
-import {
   createColumnPreferenceList,
   deleteColumnPreferenceList,
+  selectActiveColumnPreferenceList,
+  selectColumnPreferenceLists,
   selectColumnPreferenceListsSaving,
+  setSelectedListUuid,
   updateColumnPreferenceList,
 } from '@/store/slices/columnPreferenceListsSlice';
 import {
-  buildTransactionListEntry,
+  buildColumnsJsonFromDraft,
   filterHiddenColumns,
-  getTransactionColumnsConfig,
+  getColumnsConfigFromColumnsJson,
   HIDDEN_COLUMN_IDS,
   MANDATORY_COLUMN_IDS,
   MANDATORY_COLUMN_IDS_ORDERED,
@@ -101,8 +97,8 @@ function buildDraft(columns: ColumnDef[], orderedIds: string[], hiddenIds: strin
 export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, columns }: Props) {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const listMap = useAppSelector(selectTransactionListMap);
-  const selectedKey = useAppSelector(selectTransactionListSelectedKey);
+  const lists = useAppSelector(selectColumnPreferenceLists);
+  const activeBackendList = useAppSelector(selectActiveColumnPreferenceList);
   const saving = useAppSelector(selectColumnPreferenceListsSaving);
 
   const popRef = useRef<HTMLDivElement>(null);
@@ -110,7 +106,9 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
   const [position, setPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(
     null
   );
-  const [activeKey, setActiveKey] = useState<string>(selectedKey);
+  const [activeKey, setActiveKey] = useState<string>(
+    activeBackendList?.uuid ?? TRANSACTION_DEFAULT_KEY
+  );
   const [draft, setDraft] = useState<DraftItem[]>([]);
   const [newListName, setNewListName] = useState('');
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<string | null>(null);
@@ -119,15 +117,14 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
   const isDefault = activeKey === TRANSACTION_DEFAULT_KEY;
   const isReadOnly = isDefault;
   const fallbackIds = useMemo(() => columns.map((c) => c.id), [columns]);
-  const profileKeys = useMemo(() => {
-    const keys = Object.keys(listMap);
-    // Always surface the default option even if backend hasn't sent it yet.
-    return keys.includes(TRANSACTION_DEFAULT_KEY) ? keys : [TRANSACTION_DEFAULT_KEY, ...keys];
-  }, [listMap]);
+  const activeList = useMemo(
+    () => lists.find((p) => p.uuid === activeKey) ?? null,
+    [lists, activeKey]
+  );
 
   const isNameDuplicate =
     !!newListName.trim() &&
-    Object.keys(listMap).some((k) => k.trim().toLowerCase() === newListName.trim().toLowerCase());
+    lists.some((p) => p.name.trim().toLowerCase() === newListName.trim().toLowerCase());
 
   // Position the popover under the anchor, right-aligned.
   useLayoutEffect(() => {
@@ -154,20 +151,20 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
   useEffect(() => {
     if (!open) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setActiveKey(selectedKey);
-  }, [open, selectedKey]);
+    setActiveKey(activeBackendList?.uuid ?? TRANSACTION_DEFAULT_KEY);
+  }, [open, activeBackendList]);
 
   // Rebuild the draft whenever the active profile changes.
   useEffect(() => {
     if (!open) return;
-    const { orderedColumns, hiddenColumns } = getTransactionColumnsConfig(
-      { transactionList: { list: listMap, selected: activeKey } },
-      activeKey,
+    const columnsJson = isDefault ? null : (activeList?.columns_json ?? null);
+    const { orderedColumns, hiddenColumns } = getColumnsConfigFromColumnsJson(
+      columnsJson,
       fallbackIds
     );
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft(buildDraft(columns, orderedColumns, hiddenColumns));
-  }, [open, activeKey, listMap, columns, fallbackIds]);
+  }, [open, isDefault, activeList, columns, fallbackIds]);
 
   // Close on outside click + ESC. Don't close when interacting with the
   // confirmation modal (rendered as a separate portal at higher z-index).
@@ -263,45 +260,25 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     setDragOverIdx(null);
   };
 
-  /** Backend `columns_json` = visible columns (in order) by display name. */
-  const draftToColumnsJson = (items: DraftItem[]) =>
-    items.filter((c) => c.visible).map((c) => c.displayName);
-
   const handleApply = async () => {
     if (isDefault) {
-      // Default profile is read-only → just clear local override and persist
-      // the selection on userPreference.
-      dispatch(setTransactionListSelected(TRANSACTION_DEFAULT_KEY));
+      // Default profile → no backend list selected. Clear the local override
+      // and deselect any backend list.
+      dispatch(setSelectedListUuid(null));
       dispatch(resetColumnPreference(screen));
       onClose();
       return;
     }
-    const existing = listMap[activeKey] ?? {};
-    const { uuid, order: _o, unChecked: _u, updatedList: _l, ...extras } = existing;
-    void _o;
-    void _u;
-    void _l;
-    const columnsJson = draftToColumnsJson(draft);
-
-    if (uuid) {
-      // Persist edits to the backend first, then mirror into Redux.
-      const action = await dispatch(
-        updateColumnPreferenceList({
-          uuid,
-          name: activeKey,
-          columns_json: columnsJson,
-          currentSelectedList: true,
-        })
-      );
-      if (!updateColumnPreferenceList.fulfilled.match(action)) return;
-    }
-    dispatch(
-      setTransactionListEntry({
-        key: activeKey,
-        entry: { uuid, ...buildTransactionListEntry(draft, extras) },
+    if (!activeList) return;
+    const action = await dispatch(
+      updateColumnPreferenceList({
+        uuid: activeList.uuid,
+        name: activeList.name,
+        columns_json: buildColumnsJsonFromDraft(draft),
+        currentSelectedList: true,
       })
     );
-    dispatch(setTransactionListSelected(activeKey));
+    if (!updateColumnPreferenceList.fulfilled.match(action)) return;
     commitToTable(draft);
     onClose();
   };
@@ -311,39 +288,29 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     if (!name || isNameDuplicate) return;
     const seedDraft = draft.length ? draft : columns.map((c) => ({ ...c, visible: true }));
 
-    // Create on the backend first to obtain the uuid we need for future updates.
     const action = await dispatch(
       createColumnPreferenceList({
         name,
-        columns_json: draftToColumnsJson(seedDraft),
+        columns_json: buildColumnsJsonFromDraft(seedDraft),
         currentSelectedList: true,
       })
     );
     if (!createColumnPreferenceList.fulfilled.match(action) || !action.payload) return;
-    const { uuid } = action.payload;
 
-    dispatch(
-      setTransactionListEntry({
-        key: name,
-        entry: { uuid, ...buildTransactionListEntry(seedDraft) },
-      })
-    );
-    dispatch(setTransactionListSelected(name));
-    setActiveKey(name);
+    setActiveKey(action.payload.uuid);
     commitToTable(seedDraft);
     setNewListName('');
   };
 
   const handleConfirmDelete = async () => {
-    if (!confirmDeleteKey) return;
-    const entry = listMap[confirmDeleteKey];
-    if (entry?.uuid) {
-      const action = await dispatch(deleteColumnPreferenceList(entry.uuid));
-      if (!deleteColumnPreferenceList.fulfilled.match(action)) return;
+    if (!confirmDeleteKey || confirmDeleteKey === TRANSACTION_DEFAULT_KEY) {
+      setConfirmDeleteKey(null);
+      return;
     }
-    dispatch(removeTransactionListEntry(confirmDeleteKey));
-    if (selectedKey === confirmDeleteKey) {
-      dispatch(setTransactionListSelected(TRANSACTION_DEFAULT_KEY));
+    const wasActive = activeKey === confirmDeleteKey;
+    const action = await dispatch(deleteColumnPreferenceList(confirmDeleteKey));
+    if (!deleteColumnPreferenceList.fulfilled.match(action)) return;
+    if (wasActive) {
       setActiveKey(TRANSACTION_DEFAULT_KEY);
       dispatch(resetColumnPreference(screen));
     }
@@ -388,9 +355,11 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
               <h4 className="text-sm font-semibold text-[#1a1a1a]">{t('columns.custom_lists')}</h4>
 
               <div className="flex flex-col gap-1.5">
-                {profileKeys.map((key) => {
+                {[
+                  { key: TRANSACTION_DEFAULT_KEY, label: t('columns.default'), isDefault: true },
+                  ...lists.map((p) => ({ key: p.uuid, label: p.name, isDefault: false })),
+                ].map(({ key, label, isDefault: rowIsDefault }) => {
                   const isSelected = activeKey === key;
-                  const isDefaultRow = key === TRANSACTION_DEFAULT_KEY;
                   return (
                     <div
                       key={key}
@@ -408,11 +377,11 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
                       />
                       <span
                         className="min-w-0 flex-1 truncate text-sm text-[#1a1a1a]"
-                        title={isDefaultRow ? t('columns.default') : key}
+                        title={label}
                       >
-                        {isDefaultRow ? t('columns.default') : key}
+                        {label}
                       </span>
-                      {!isDefaultRow && (
+                      {!rowIsDefault && (
                         <button
                           type="button"
                           onClick={() => setConfirmDeleteKey(key)}
