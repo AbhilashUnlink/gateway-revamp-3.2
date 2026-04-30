@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { TabGroup, TabPanel, TabPanels } from '@headlessui/react';
 import { Button } from '@/components/ui/button';
-import { useTransactionDetails } from '@/hooks/useTransactionDetails';
 import { useChargebackHistory } from '@/hooks/useChargebackHistory';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
-import type { TransactionDetailsData } from '@/types/transactions/transactionDetails.types';
+import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { useAppDispatch } from '@/store/hooks';
+import { fetchTransactionDetails } from '@/store/thunks/transactionDetailsThunks';
 import { DetailsHeader } from './components/DetailsHeader';
 import { LifecycleTimeline } from './components/LifecycleTimeline';
 import { PageTabsList } from './components/PageTabs';
@@ -24,51 +25,25 @@ import {
   type InfoSectionConfig,
 } from './utils/buildSections';
 
-const CAPTURABLE_EVENTS = ['AUTHORIZED'];
-const REFUNDABLE_EVENTS = ['CAPTURED', 'PURCHASE', 'PURCHASED'];
-const EDIT_STATUS_ELIGIBLE = [
-  'PENDING',
-  'INPROGRESS',
-  'IN_PROGRESS',
-  'REVIEW',
-  'ERROR',
-  'INCOMPLETE',
-  'NOTSUCCESSFUL',
-  'UNKNOWN',
-  '',
-];
-
-interface ActionVisibility {
-  showRefund: boolean;
-  showCapture: boolean;
-  showDispute: boolean;
-  showEditStatus: boolean;
-}
-
 function parseStartingCycle(value: string | undefined): number | undefined {
   if (!value) return undefined;
   const match = String(value).match(/\d+/);
   return match ? Number(match[0]) : undefined;
 }
 
-function deriveVisibility(data: TransactionDetailsData | null): ActionVisibility {
-  if (!data)
-    return { showRefund: false, showCapture: false, showDispute: false, showEditStatus: false };
-  const event = (data.Event ?? '').toUpperCase();
-  const status = (data.Status ?? '').toUpperCase();
-  return {
-    showRefund: REFUNDABLE_EVENTS.includes(event) && !data.IsBlockRefund,
-    showCapture: CAPTURABLE_EVENTS.includes(event),
-    showDispute: true,
-    showEditStatus: EDIT_STATUS_ELIGIBLE.includes(status),
-  };
-}
-
 function TransactionDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { open } = useDrawerControl();
-  const { data, loading, error } = useTransactionDetails(id ?? null);
+  const dispatch = useAppDispatch();
+  const { data, loading, error, showRefund, showCapture, showVoid, showDispute, showEditStatus } =
+    useTransactionActions();
+
+  useEffect(() => {
+    if (!id) return;
+    void dispatch(fetchTransactionDetails({ id }));
+  }, [id, dispatch]);
+
   const {
     cases: chargebackCases,
     loading: chargebackLoading,
@@ -85,8 +60,6 @@ function TransactionDetailsPage() {
     () => (data ? buildLifecycleSummary(data, t) : { lifecycleLabel: '—', balanceLabel: null }),
     [data, t]
   );
-
-  const visibility = useMemo(() => deriveVisibility(data), [data]);
 
   if (loading) {
     return (
@@ -113,7 +86,7 @@ function TransactionDetailsPage() {
     currency: data.CurrencyCode,
   };
 
-  const onAction = (type: 'refund' | 'capture' | 'dispute' | 'edit-status') =>
+  const onAction = (type: 'refund' | 'capture' | 'void' | 'dispute' | 'edit-status') =>
     open({ type, data: drawerData });
 
   const visibleSections = filter === 'all' ? sections : sections.filter((s) => s.id === filter);
@@ -125,7 +98,7 @@ function TransactionDetailsPage() {
         transactionRefId={data.TransactionRefID}
         lifecycleLabel={lifecycle.lifecycleLabel}
         balanceLabel={lifecycle.balanceLabel}
-        showEditStatus={visibility.showEditStatus}
+        showEditStatus={showEditStatus}
         onEditStatus={() => onAction('edit-status')}
       />
 
@@ -136,7 +109,7 @@ function TransactionDetailsPage() {
         <div className="flex items-center justify-between gap-4 border-b border-[#ddcfb2] px-6 pt-3">
           <PageTabsList />
           <div className="flex items-center gap-3 pb-3">
-            {visibility.showRefund && (
+            {showRefund && (
               <Button
                 type="button"
                 variant="ghost"
@@ -146,7 +119,17 @@ function TransactionDetailsPage() {
                 {t('drawer.refund')}
               </Button>
             )}
-            {visibility.showCapture && (
+            {showVoid && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-12 px-4"
+                onClick={() => onAction('void')}
+              >
+                {t('drawer.void')}
+              </Button>
+            )}
+            {showCapture && (
               <Button
                 type="button"
                 variant="ghost"
@@ -156,7 +139,7 @@ function TransactionDetailsPage() {
                 {t('drawer.capture')}
               </Button>
             )}
-            {visibility.showDispute && (
+            {showDispute && (
               <Button
                 type="button"
                 variant="ghost"

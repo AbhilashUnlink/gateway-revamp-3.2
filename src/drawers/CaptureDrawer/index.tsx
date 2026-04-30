@@ -25,6 +25,7 @@ export default function CaptureDrawer({ type, data }: DrawerComponentProps) {
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitCapture, loading } = useCapture(handleClose);
   const { data: transactionDetail } = useTransactionActions();
+  console.log(transactionDetail, 'transactionDetail');
 
   const { amount, remainingAmount } = useMemo(
     () => calculateTransactionAmounts(transactionDetail, 'CAPTURE'),
@@ -60,7 +61,19 @@ export default function CaptureDrawer({ type, data }: DrawerComponentProps) {
         inputType: 'number',
         label: t('drawer.capture_amount'),
         placeholder: t('drawer.capture_amount_placeholder'),
-        rules: { required: true, validate: (v: string) => parseFloat(v) > 0 },
+        suffix: currency,
+        rules: {
+          required: t('drawer.capture_amount_required'),
+          validate: (v: string) => {
+            if (v === undefined || v === null || v === '') {
+              return t('drawer.capture_amount_required');
+            }
+            const value = parseFloat(v);
+            if (!(value > 0)) return t('drawer.capture_hint');
+            if (value > remainingAmount) return t('drawer.capture_exceeds_remaining');
+            return true;
+          },
+        },
         hint: t('drawer.capture_hint'),
         required: true,
       },
@@ -103,7 +116,7 @@ export default function CaptureDrawer({ type, data }: DrawerComponentProps) {
             onSubmit={onSubmit}
             className="gap-0"
             defaultValues={{
-              captureAmount: remainingAmount > 0 ? remainingAmountDisplay : '',
+              captureAmount: '',
               reference: '',
               consent: false,
             }}
