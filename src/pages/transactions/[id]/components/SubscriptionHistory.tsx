@@ -1,6 +1,6 @@
-import { Copy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
+import { CopyButton } from '@/components/ui/CopyButton';
 import type { TransactionHistoryItem } from '@/types/transactions/transactionDetails.types';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -33,8 +33,6 @@ interface SubscriptionCycleCardProps {
 function SubscriptionCycleCard({ item, cycleNumber, isActive }: SubscriptionCycleCardProps) {
   const { t } = useTranslation();
   const refId = item.trackid ?? item.uuid;
-
-  const handleCopy = () => void navigator.clipboard.writeText(refId);
 
   const status = (item.status ?? '').toUpperCase();
   const isSuccess = /SUCCESS|APPROVED|CAPTURED|PURCHASED?/.test(status);
@@ -73,14 +71,7 @@ function SubscriptionCycleCard({ item, cycleNumber, isActive }: SubscriptionCycl
               >
                 {shortenId(refId)}
               </span>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="shrink-0 text-[#808080] hover:text-[#1a1a1a]"
-                aria-label={t('drawer.copy')}
-              >
-                <Copy size={14} />
-              </button>
+              <CopyButton value={refId} ariaLabel={t('drawer.copy')} />
             </div>
           </div>
 

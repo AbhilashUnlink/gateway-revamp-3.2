@@ -1,6 +1,7 @@
-import { Copy, Share2, ExternalLink, Pencil, XCircle } from 'lucide-react';
+import { Share2, ExternalLink, Pencil, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { CopyButton } from '@/components/ui/CopyButton';
 import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
 import { useTransactionActions } from '@/hooks/useTransactionActions';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +37,7 @@ export function DrawerTransactionHeader({
   showDispute: showDisputeOverride,
 }: DrawerTransactionHeaderProps) {
   const { t } = useTranslation();
-  const { transactionRefId, handleClose, handleCopy, navigateTo } = useDrawerTransaction({
+  const { transactionRefId, handleClose, navigateTo } = useDrawerTransaction({
     type,
     data,
   });
@@ -72,15 +73,12 @@ export function DrawerTransactionHeader({
               <span className="text-sm font-semibold underline text-[#1a1a1a]">
                 {transactionRefId}
               </span>
-              <Button
-                variant="icon"
-                size="icon"
-                type="button"
-                onClick={handleCopy}
-                aria-label={t('drawer.copy')}
-              >
-                <Copy size={16} />
-              </Button>
+              <CopyButton
+                value={transactionRefId}
+                size={16}
+                ariaLabel={t('drawer.copy')}
+                className="flex h-8 w-8 items-center justify-center"
+              />
               <Button variant="icon" size="icon" type="button" aria-label={t('drawer.share')}>
                 <Share2 size={16} />
               </Button>

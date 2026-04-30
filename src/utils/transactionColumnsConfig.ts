@@ -6,7 +6,12 @@ export const TRANSACTION_DEFAULT_KEY = '__default__';
 /** Display names that must always be visible and cannot be reordered. */
 export const MANDATORY_FIELDS: readonly string[] = ['Transaction ID', 'Transaction Ref ID'];
 
-/** Display names that must never appear in the picker or table. */
+/**
+ * Display names that must NEVER appear in the column-preference picker
+ * but are always rendered on the table itself. The user cannot reorder,
+ * hide, or otherwise toggle these — they're invariants from the table's
+ * point of view.
+ */
 export const HIDDEN_FIELDS: readonly string[] = ['Transaction Type', 'Currency'];
 
 export interface ResolvedColumnsConfig {
@@ -36,19 +41,25 @@ export const MANDATORY_COLUMN_IDS_ORDERED: readonly string[] = Array.from(
   new Set(MANDATORY_FIELDS.map(toColumnId))
 );
 
-/** Filter a canonical column list, dropping anything in HIDDEN_FIELDS. */
+/**
+ * Strip columns flagged as picker-hidden from a list intended for the
+ * column-preference popover. The table itself keeps them — only the picker
+ * UI consumes the filtered list.
+ */
 export function filterHiddenColumns<T extends { id: string }>(columns: T[]): T[] {
   return columns.filter((c) => !HIDDEN_COLUMN_IDS.has(c.id));
 }
 
 /**
  * Resolve a saved profile's `columns_json` (display names) into table-ready
- * column state, layered with mandatory + hidden invariants.
+ * column state, layered with mandatory + picker-hidden invariants.
  *
- * - `columns_json` listed columns become the visible set, in given order.
- * - Mandatory ids are always pinned at the front and always visible.
- * - Hidden ids are always excluded.
- * - Any canonical column not present in `columns_json` is hidden.
+ * - `columns_json` listed columns become the toggleable visible set, in order.
+ * - Mandatory ids are pinned at the front and always visible.
+ * - Picker-hidden ids (HIDDEN_COLUMN_IDS) are always visible on the table —
+ *   they sit in their default position and are never reordered or toggled
+ *   off, regardless of the saved profile.
+ * - Any other canonical column not present in `columns_json` is hidden.
  */
 export function getColumnsConfigFromColumnsJson(
   columnsJson: string[] | null | undefined,
@@ -59,7 +70,6 @@ export function getColumnsConfigFromColumnsJson(
   );
 
   let orderedTail: string[];
-  let visibleSet: Set<string>;
 
   if (Array.isArray(columnsJson) && columnsJson.length > 0) {
     const requestedIds = columnsJson
@@ -74,20 +84,18 @@ export function getColumnsConfigFromColumnsJson(
       orderedTail.push(id);
       seen.add(id);
     }
-    visibleSet = new Set([...MANDATORY_COLUMN_IDS_ORDERED, ...orderedTail]);
   } else {
-    // No saved profile → show everything (minus hidden), in default order.
+    // No saved profile → show every togglable column in its default order.
     orderedTail = allowedTail;
-    visibleSet = new Set([...MANDATORY_COLUMN_IDS_ORDERED, ...allowedTail]);
   }
 
-  const orderedColumns = [...MANDATORY_COLUMN_IDS_ORDERED, ...orderedTail];
-  const hiddenColumns = fallbackColumnIds.filter(
-    (id) => !visibleSet.has(id) || HIDDEN_COLUMN_IDS.has(id)
-  );
-  for (const id of HIDDEN_COLUMN_IDS) {
-    if (!hiddenColumns.includes(id)) hiddenColumns.push(id);
-  }
+  // Always-on (picker-hidden) columns sit right after the mandatory block so
+  // they render no matter what the saved profile says.
+  const alwaysOnIds = fallbackColumnIds.filter((id) => HIDDEN_COLUMN_IDS.has(id));
+  const orderedColumns = [...MANDATORY_COLUMN_IDS_ORDERED, ...alwaysOnIds, ...orderedTail];
+  const visibleSet = new Set(orderedColumns);
+  const hiddenColumns = fallbackColumnIds.filter((id) => !visibleSet.has(id));
+
   return { orderedColumns, hiddenColumns };
 }
 

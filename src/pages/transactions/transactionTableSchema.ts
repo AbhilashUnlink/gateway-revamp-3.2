@@ -56,6 +56,7 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       headerSecondaryKey: 'table.transaction_id',
       cellType: 'link-copy',
       width: 256,
+      sticky: true,
       accessorFn: (row) => ({ primary: row.transactionRefId, secondary: row.transactionId }),
       onPrimaryClick: onRefIdClick,
       filterAttributes: [
@@ -69,6 +70,7 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       headerSecondaryKey: 'table.status',
       cellType: 'status',
       width: 190,
+      sticky: true,
       accessorFn: (row) => ({
         primary: row.transactionType,
         status: row.status,
@@ -101,6 +103,8 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
     },
     {
       id: 'amountFee',
+      sticky: true,
+
       headerPrimaryKey: 'table.amount',
       headerSecondaryKey: 'table.fee',
       cellType: 'multi',

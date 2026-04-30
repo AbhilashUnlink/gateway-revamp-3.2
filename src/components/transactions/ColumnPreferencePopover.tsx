@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Loader2, Move, Plus, Search, Table, Trash2, X } from 'lucide-react';
+import { CircleX, Loader2, Move, Plus, Search, Table, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   createColumnPreferenceList,
@@ -393,9 +393,9 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/60"
+            className="text-[#1a1a1a] transition-opacity hover:opacity-70"
           >
-            <X size={20} className="text-[#1a1a1a]" />
+            <CircleX size={24} strokeWidth={1.5} />
           </button>
         </div>
 

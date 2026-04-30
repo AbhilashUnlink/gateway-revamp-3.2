@@ -1,5 +1,6 @@
 import { cn } from '@/utils/cn';
 import type { CellData } from '@/types/transactions/transaction.types';
+import { isPresent } from '../utils/isPresent';
 
 interface TextCellProps {
   data: CellData;
@@ -10,11 +11,12 @@ export function TextCell({ data, className }: TextCellProps) {
   return (
     <span
       className={cn(
-        'block truncate max-w-[180px] text-[14px] font-normal leading-5 text-[#1a1a1a]',
+        'block truncate max-w-[180px] text-[14px] font-normal leading-5',
+        isPresent(data.primary) ? 'text-[#1a1a1a]' : 'text-[#bdbdbd]',
         className
       )}
     >
-      {data.primary ?? 'N/A'}
+      {isPresent(data.primary) ? data.primary : 'N/A'}
     </span>
   );
 }
