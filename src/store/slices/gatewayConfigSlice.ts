@@ -1,6 +1,16 @@
-import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
+import {
+  createSlice,
+  createAsyncThunk,
+  createSelector,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
 import type { RootState } from '@/store';
 import { apiService } from '@/utils/apiService';
+import {
+  getTransactionListBlob,
+  resolveSelectedKey,
+  type TransactionListEntry,
+} from '@/utils/transactionColumnsConfig';
 
 export type UserPreference = Record<string, unknown> | null;
 export type GatewayConfig = Record<string, unknown> | null;
@@ -49,11 +59,45 @@ export const fetchGatewayConfig = createAsyncThunk<GatewayConfig, void, { reject
   }
 );
 
+/** Mutate (or create) the `transactionList` block on `userPreference`. */
+function mutateTransactionList(
+  state: GatewayConfigState,
+  fn: (tl: { list: Record<string, TransactionListEntry>; selected?: string }) => void
+) {
+  const up = (state.userPreference ?? {}) as Record<string, unknown>;
+  const tl = (up.transactionList ?? {}) as {
+    list?: Record<string, TransactionListEntry>;
+    selected?: string;
+  };
+  if (!tl.list) tl.list = {};
+  fn(tl as { list: Record<string, TransactionListEntry>; selected?: string });
+  up.transactionList = tl;
+  state.userPreference = up;
+}
+
 const gatewayConfigSlice = createSlice({
   name: 'gatewayConfig',
   initialState,
   reducers: {
     resetGatewayConfig: () => initialState,
+    setTransactionListSelected(state, action: PayloadAction<string>) {
+      mutateTransactionList(state, (tl) => {
+        tl.selected = action.payload;
+      });
+    },
+    setTransactionListEntry(
+      state,
+      action: PayloadAction<{ key: string; entry: TransactionListEntry }>
+    ) {
+      mutateTransactionList(state, (tl) => {
+        tl.list[action.payload.key] = action.payload.entry;
+      });
+    },
+    removeTransactionListEntry(state, action: PayloadAction<string>) {
+      mutateTransactionList(state, (tl) => {
+        delete tl.list[action.payload];
+      });
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -84,7 +128,12 @@ const gatewayConfigSlice = createSlice({
   },
 });
 
-export const { resetGatewayConfig } = gatewayConfigSlice.actions;
+export const {
+  resetGatewayConfig,
+  setTransactionListSelected,
+  setTransactionListEntry,
+  removeTransactionListEntry,
+} = gatewayConfigSlice.actions;
 export default gatewayConfigSlice.reducer;
 
 // ── Base selectors ────────────────────────────────────────────────────────
@@ -93,6 +142,22 @@ export const selectUserPreference = (state: RootState) => state.gatewayConfig.us
 export const selectGatewayConfig = (state: RootState) => state.gatewayConfig.config;
 export const selectGatewayConfigLoading = (state: RootState) => state.gatewayConfig.loading;
 export const selectGatewayConfigError = (state: RootState) => state.gatewayConfig.error;
+
+// ── transactionList selectors ─────────────────────────────────────────────
+
+export const selectTransactionListBlob = createSelector([selectUserPreference], (up) =>
+  getTransactionListBlob(up)
+);
+
+export const selectTransactionListMap = createSelector(
+  [selectTransactionListBlob],
+  (blob) => blob.list ?? {}
+);
+
+export const selectTransactionListSelectedKey = createSelector(
+  [selectTransactionListBlob],
+  (blob) => resolveSelectedKey(blob)
+);
 
 // ── Typed option selectors ────────────────────────────────────────────────
 //

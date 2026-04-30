@@ -355,6 +355,28 @@ const en = {
     toggle_sidebar: 'Toggle sidebar',
     close_sidebar: 'Close sidebar',
   },
+  columns: {
+    title: 'Transaction Preference',
+    custom_lists: 'Custom Transaction Preference List',
+    add_list: 'Add Transaction Preference List',
+    enter_name: 'Enter list name',
+    name_taken: 'A list with this name already exists',
+    add: 'Add',
+    apply: 'Apply',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    delete_title: 'Delete Transaction Preference List',
+    delete_confirm: 'Do you really want to delete this record? This process cannot be undone.',
+    cannot_delete_active: 'Cannot delete the active list',
+    cannot_delete_default: 'The default list cannot be deleted',
+    default: 'Default',
+    default_readonly: 'Default list is read-only',
+    columns: 'Columns',
+    show_all: 'Show all',
+    hide_all: 'Hide all',
+    loading: 'Loading…',
+    drag_to_reorder: 'Drag to reorder',
+  },
 };
 
 export default en;

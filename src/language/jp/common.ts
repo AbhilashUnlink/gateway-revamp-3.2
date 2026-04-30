@@ -356,6 +356,28 @@ const jp = {
     toggle_sidebar: 'Toggle sidebar',
     close_sidebar: 'Close sidebar',
   },
+  columns: {
+    title: '取引設定',
+    custom_lists: 'カスタム取引設定リスト',
+    add_list: '取引設定リストを追加',
+    enter_name: 'リスト名を入力',
+    name_taken: '同じ名前のリストが既に存在します',
+    add: '追加',
+    apply: '適用',
+    cancel: 'キャンセル',
+    delete: '削除',
+    delete_title: '取引設定リストを削除',
+    delete_confirm: 'このレコードを本当に削除しますか？この操作は取り消せません。',
+    cannot_delete_active: 'アクティブなリストは削除できません',
+    cannot_delete_default: 'デフォルトリストは削除できません',
+    default: 'デフォルト',
+    default_readonly: 'デフォルトリストは読み取り専用です',
+    columns: 'カラム',
+    show_all: 'すべて表示',
+    hide_all: 'すべて非表示',
+    loading: '読み込み中...',
+    drag_to_reorder: 'ドラッグして並び替え',
+  },
 };
 
 export default jp;
