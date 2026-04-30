@@ -109,6 +109,24 @@ export const selectGatewayConfig = (state: RootState) => state.gatewayConfig.con
 export const selectGatewayConfigLoading = (state: RootState) => state.gatewayConfig.loading;
 export const selectGatewayConfigError = (state: RootState) => state.gatewayConfig.error;
 
+const readStringPref = (pref: UserPreference, key: string): string | null => {
+  if (!pref) return null;
+  const v = pref[key];
+  return typeof v === 'string' && v ? v : null;
+};
+
+/** User-preferred date pattern (date-fns subset, see `utils/formatDate.ts`). */
+export const selectUserDateFormat = (state: RootState) =>
+  readStringPref(state.gatewayConfig.userPreference, 'dateFormatType');
+
+/** User-preferred report download format (e.g. "excel", "csv", "pdf"). */
+export const selectUserFormatType = (state: RootState) =>
+  readStringPref(state.gatewayConfig.userPreference, 'formatType');
+
+/** User-preferred stats currency (e.g. "HKD", "PHP"). */
+export const selectUserCurrencyType = (state: RootState) =>
+  readStringPref(state.gatewayConfig.userPreference, 'currencyType');
+
 // ── Typed option selectors ────────────────────────────────────────────────
 //
 // All return `{ label, value }[]`. Memoized so consumers can use them in

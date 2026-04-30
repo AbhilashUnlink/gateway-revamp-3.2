@@ -6,7 +6,7 @@ import type { TableFilter, TransactionListParams } from '@/types/transactions/tr
 
 const PAGE_SIZE = 10;
 
-export function useTableDataAdapter(filters?: TableFilter[]) {
+export function useTableDataAdapter(filters?: TableFilter[], statsCurrency?: string) {
   const dispatch = useAppDispatch();
   const { rows, page, hasMore, loading, error, stats } = useAppSelector(
     (state) => state.transactions
@@ -18,10 +18,11 @@ export function useTableDataAdapter(filters?: TableFilter[]) {
         page: pageNumber,
         limit: PAGE_SIZE,
         filters,
+        statsCurrency,
       };
       dispatch(fetchTransactionsList(params));
     },
-    [dispatch, filters]
+    [dispatch, filters, statsCurrency]
   );
 
   const loadMore = useCallback(() => {

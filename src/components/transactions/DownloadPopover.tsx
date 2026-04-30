@@ -13,6 +13,7 @@ import {
   selectDownloadsRequesting,
   type DownloadEntry,
 } from '@/store/slices/downloadsSlice';
+import { selectUserFormatType } from '@/store/slices/gatewayConfigSlice';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 import { SearchableSelect } from '@/components/filter/controls/SearchableSelect';
@@ -31,9 +32,8 @@ interface Props {
 const POPOVER_WIDTH = 560;
 
 const FORMAT_OPTIONS = [
-  { label: 'Excel (.xlsx)', value: 'excel' },
+  { label: 'EXCEL', value: 'excel' },
   { label: 'CSV', value: 'csv' },
-  { label: 'PDF', value: 'pdf' },
 ];
 
 const LANGUAGE_OPTIONS = [
@@ -61,12 +61,15 @@ export function DownloadPopover({ open, onClose, anchorRef, filters, defaultEmai
   const loading = useAppSelector(selectDownloadsLoading);
   const requesting = useAppSelector(selectDownloadsRequesting);
   const downloadingByJobId = useAppSelector(selectDownloadingByJobId);
+  const userFormatType = useAppSelector(selectUserFormatType);
   const popRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const [tab, setTab] = useState<Tab>('request');
 
-  // Form state
-  const [format, setFormat] = useState('excel');
+  // Form state — initial format mirrors the user's saved preference; falls
+  // back to "excel" until `fetchUserPreferences` resolves.
+  const [format, setFormat] = useState(() => userFormatType ?? 'excel');
+  const formatTouchedRef = useRef(false);
   const [email, setEmail] = useState(defaultEmail ?? '');
   const [includeSensitive, setIncludeSensitive] = useState(false);
   const [includeWhitelisted, setIncludeWhitelisted] = useState(false);
@@ -78,6 +81,15 @@ export function DownloadPopover({ open, onClose, anchorRef, filters, defaultEmai
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (defaultEmail) setEmail(defaultEmail);
   }, [defaultEmail]);
+
+  // Sync the format default if `userPreference` resolves after mount —
+  // unless the user has already picked a format manually.
+  useEffect(() => {
+    if (formatTouchedRef.current) return;
+    if (!userFormatType) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFormat(userFormatType);
+  }, [userFormatType]);
 
   useLayoutEffect(() => {
     if (!open) return;
@@ -196,7 +208,14 @@ export function DownloadPopover({ open, onClose, anchorRef, filters, defaultEmai
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>{t('download.format', 'File format')}</Label>
-                <SearchableSelect value={format} onChange={setFormat} options={FORMAT_OPTIONS} />
+                <SearchableSelect
+                  value={format}
+                  onChange={(v) => {
+                    formatTouchedRef.current = true;
+                    setFormat(v);
+                  }}
+                  options={FORMAT_OPTIONS}
+                />
               </div>
               <div>
                 <Label>{t('download.language', 'Language')}</Label>
