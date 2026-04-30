@@ -23,6 +23,7 @@ import {
 } from '@/store/slices/gatewayConfigSlice';
 import { setColumnPreference, resetColumnPreference } from '@/store/slices/columnPreferencesSlice';
 import {
+  filterHiddenColumns,
   getTransactionColumnsConfig,
   TRANSACTION_DEFAULT_KEY,
 } from '@/utils/transactionColumnsConfig';
@@ -67,19 +68,21 @@ function TransactionsPage() {
 
   const columnConfigs = useMemo(
     () =>
-      buildTransactionColumns({
-        onRefIdClick: (row) =>
-          open({
-            type: 'details',
-            data: {
-              transactionRefId: row.transactionRefId,
-              transactionId: row.transactionId,
-              originalAmount: row.amount,
-              remainingAmount: row.amount,
-              currency: row.currency,
-            },
-          }),
-      }),
+      filterHiddenColumns(
+        buildTransactionColumns({
+          onRefIdClick: (row) =>
+            open({
+              type: 'details',
+              data: {
+                transactionRefId: row.transactionRefId,
+                transactionId: row.transactionId,
+                originalAmount: row.amount,
+                remainingAmount: row.amount,
+                currency: row.currency,
+              },
+            }),
+        })
+      ),
     [open]
   );
 

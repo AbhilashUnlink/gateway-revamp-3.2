@@ -27,7 +27,11 @@ import {
 } from '@/store/slices/columnPreferenceListsSlice';
 import {
   buildTransactionListEntry,
+  filterHiddenColumns,
   getTransactionColumnsConfig,
+  HIDDEN_COLUMN_IDS,
+  MANDATORY_COLUMN_IDS,
+  MANDATORY_COLUMN_IDS_ORDERED,
   TRANSACTION_DEFAULT_KEY,
 } from '@/utils/transactionColumnsConfig';
 import { Button } from '@/components/ui/button';
@@ -64,25 +68,34 @@ interface DraftItem {
 }
 
 function buildDraft(columns: ColumnDef[], orderedIds: string[], hiddenIds: string[]): DraftItem[] {
-  const byId = new Map(columns.map((c) => [c.id, c]));
+  const visibleColumns = filterHiddenColumns(columns);
+  const byId = new Map(visibleColumns.map((c) => [c.id, c]));
   const hiddenSet = new Set(hiddenIds);
   const seen = new Set<string>();
-  const out: DraftItem[] = [];
+  const tail: DraftItem[] = [];
 
   for (const id of orderedIds) {
-    if (seen.has(id)) continue;
+    if (seen.has(id) || HIDDEN_COLUMN_IDS.has(id) || MANDATORY_COLUMN_IDS.has(id)) continue;
     const col = byId.get(id);
     if (!col) continue;
-    out.push({ ...col, visible: !hiddenSet.has(id) });
+    tail.push({ ...col, visible: !hiddenSet.has(id) });
     seen.add(id);
   }
-  // Append any remaining columns at the end so newly-added schema columns
-  // never disappear from the picker.
-  for (const col of columns) {
-    if (seen.has(col.id)) continue;
-    out.push({ ...col, visible: !hiddenSet.has(col.id) });
+  // Append any remaining (non-mandatory) columns so newly-added schema
+  // columns never disappear from the picker.
+  for (const col of visibleColumns) {
+    if (seen.has(col.id) || MANDATORY_COLUMN_IDS.has(col.id)) continue;
+    tail.push({ ...col, visible: !hiddenSet.has(col.id) });
   }
-  return out;
+
+  // Pin mandatory columns at the front, always visible, in canonical order.
+  const mandatoryHead: DraftItem[] = [];
+  for (const id of MANDATORY_COLUMN_IDS_ORDERED) {
+    const col = byId.get(id);
+    if (!col) continue;
+    mandatoryHead.push({ ...col, visible: true });
+  }
+  return [...mandatoryHead, ...tail];
 }
 
 export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, columns }: Props) {
@@ -185,8 +198,10 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     dispatch(setColumnPreference({ screen, preference: { order, hidden } }));
   };
 
+  const isMandatoryId = (id: string) => MANDATORY_COLUMN_IDS.has(id);
+
   const toggle = (id: string) => {
-    if (isReadOnly) return;
+    if (isReadOnly || isMandatoryId(id)) return;
     setDraft((prev) => prev.map((c) => (c.id === id ? { ...c, visible: !c.visible } : c)));
   };
   const showAll = () => {
@@ -195,11 +210,24 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
   };
   const hideAll = () => {
     if (isReadOnly) return;
-    setDraft((prev) => prev.map((c) => ({ ...c, visible: false })));
+    setDraft((prev) =>
+      prev.map((c) => (isMandatoryId(c.id) ? { ...c, visible: true } : { ...c, visible: false }))
+    );
+  };
+
+  /** First index that is *not* a mandatory row — drops can never go above it. */
+  const firstSortableIdx = (items: DraftItem[]) => {
+    let i = 0;
+    while (i < items.length && isMandatoryId(items[i]!.id)) i++;
+    return i;
   };
 
   const handleDragStart = (idx: number) => (e: DragEvent<HTMLDivElement>) => {
     if (isReadOnly) return;
+    if (isMandatoryId(draft[idx]?.id ?? '')) {
+      e.preventDefault();
+      return;
+    }
     dragFromRef.current = idx;
     e.dataTransfer.effectAllowed = 'move';
     // Required for Firefox to actually start a drag.
@@ -207,6 +235,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
   };
   const handleDragOver = (idx: number) => (e: DragEvent<HTMLDivElement>) => {
     if (isReadOnly || dragFromRef.current === null) return;
+    if (isMandatoryId(draft[idx]?.id ?? '')) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     if (dragOverIdx !== idx) setDragOverIdx(idx);
@@ -219,6 +248,9 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     setDragOverIdx(null);
     if (from === null || from === idx) return;
     setDraft((prev) => {
+      const lockedTop = firstSortableIdx(prev);
+      // Mandatory rows never move and nothing can land above them.
+      if (from < lockedTop || idx < lockedTop) return prev;
       const next = [...prev];
       const [moved] = next.splice(from, 1);
       if (!moved) return prev;
@@ -476,10 +508,12 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
             <div className="flex-1 overflow-y-auto px-3 py-2">
               {draft.map((col, idx) => {
                 const isDragOver = dragOverIdx === idx;
+                const isMandatoryRow = isMandatoryId(col.id);
+                const rowLocked = isReadOnly || isMandatoryRow;
                 return (
                   <div
                     key={col.id}
-                    draggable={!isReadOnly}
+                    draggable={!rowLocked}
                     onDragStart={handleDragStart(idx)}
                     onDragOver={handleDragOver(idx)}
                     onDrop={handleDrop(idx)}
@@ -489,17 +523,17 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
                     }}
                     className={cn(
                       'flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-[#fafafa]',
-                      isDragOver && !isReadOnly && 'bg-[#f0f7ff] ring-1 ring-[#1a1a1a]'
+                      isDragOver && !rowLocked && 'bg-[#f0f7ff] ring-1 ring-[#1a1a1a]'
                     )}
                   >
                     <button
                       type="button"
                       aria-label={t('columns.drag_to_reorder')}
                       title={t('columns.drag_to_reorder')}
-                      disabled={isReadOnly}
+                      disabled={rowLocked}
                       className={cn(
                         'flex h-7 w-5 shrink-0 items-center justify-center text-[#bdbdbd]',
-                        isReadOnly
+                        rowLocked
                           ? 'cursor-not-allowed opacity-30'
                           : 'cursor-grab hover:text-[#1a1a1a]'
                       )}
@@ -510,7 +544,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
                       type="checkbox"
                       checked={col.visible}
                       onChange={() => toggle(col.id)}
-                      disabled={isReadOnly}
+                      disabled={rowLocked}
                       className="h-4 w-4 shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
                     />
                     <span
