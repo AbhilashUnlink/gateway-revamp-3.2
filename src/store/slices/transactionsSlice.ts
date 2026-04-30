@@ -1,8 +1,11 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { TransactionRow } from '@/types/transactions/transaction.types';
 import { fetchTransactionsList } from '@/store/thunks/transactionsThunks';
+import type { RootState } from '..';
 
 interface TransactionStats {
+  totalCount: string;
+  totalAmount: string;
   totalSales: string;
   totalRefund: string;
   approvalRatio: string;
@@ -19,10 +22,12 @@ interface TransactionsState {
 }
 
 const initialStats: TransactionStats = {
-  totalSales: '',
-  totalRefund: '',
-  approvalRatio: '',
-  currency: '',
+  totalCount: '0',
+  totalAmount: '0',
+  totalSales: '0',
+  totalRefund: '0',
+  approvalRatio: '0',
+  currency: 'USD',
 };
 
 const initialState: TransactionsState = {
@@ -60,14 +65,16 @@ const transactionsSlice = createSlice({
         state.rows.push(...action.payload.rows);
         state.hasMore = action.payload.hasMore;
         state.page = action.payload.page + 1;
-        state.stats = action.payload.stats;
+        state.stats = action.payload.stats as TransactionStats;
       })
       .addCase(fetchTransactionsList.rejected, (state, action) => {
         state.loading = false;
+        state.hasMore = false;
         state.error = action.payload as string;
       });
   },
 });
 
 export const { resetTransactions, appendRows } = transactionsSlice.actions;
+export const selectTotalCount = (state: RootState) => state.transactions.stats.totalCount ?? 0;
 export default transactionsSlice.reducer;

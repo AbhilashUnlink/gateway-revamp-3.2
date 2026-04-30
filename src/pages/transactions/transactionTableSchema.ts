@@ -59,7 +59,7 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       accessorFn: (row) => ({ primary: row.transactionRefId, secondary: row.transactionId }),
       onPrimaryClick: onRefIdClick,
       filterAttributes: [
-        { id: 'transactionRefId', labelKey: 'table.transaction_ref_id', type: 'text' },
+        { id: 'uuid', labelKey: 'table.transaction_ref_id', type: 'text' },
         { id: 'transactionId', labelKey: 'table.transaction_id', type: 'text' },
       ],
     },
@@ -198,7 +198,7 @@ export function buildTransactionColumns({ onRefIdClick }: SchemaContext = {}): C
       cellType: 'copy',
       width: 202,
       accessorFn: (row) => ({ primary: row.trackId }),
-      filterAttributes: [{ id: 'trackId', labelKey: 'table.track_id', type: 'text' }],
+      filterAttributes: [{ id: 'trackID', labelKey: 'table.track_id', type: 'text' }],
     },
     {
       id: 'statementId',

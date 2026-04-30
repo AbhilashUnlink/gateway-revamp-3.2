@@ -95,6 +95,8 @@ const en = {
   },
   transactions_page: {
     title: 'Transactions List',
+    total_count: 'Total Count:',
+    total_amount: 'Total Amount:',
     total_sales: 'Total Sales:',
     total_refund: 'Total Refund:',
     approval_ratio: 'Approval Ratio:',

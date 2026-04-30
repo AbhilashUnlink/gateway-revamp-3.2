@@ -142,6 +142,15 @@ function TransactionsPage() {
         <PageBar.Actions>
           <PageBar.StatsPill>
             <PageBar.StatItem
+              label={t('transactions_page.total_count')}
+              value={stats.totalCount || '—'}
+            />
+            {/* <PageBar.StatItem
+              label={t('transactions_page.total_amount')}
+              value={stats.totalAmount || '—'}
+              currencyPrefix={stats.currency || undefined}
+            /> */}
+            <PageBar.StatItem
               label={t('transactions_page.total_sales')}
               value={stats.totalSales || '—'}
               currencyPrefix={stats.currency || undefined}
