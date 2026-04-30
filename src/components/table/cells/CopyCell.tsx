@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { CellData } from '@/types/transactions/transaction.types';
+import { CopyButton } from '@/components/ui/CopyButton';
+import { isPresent } from '../utils/isPresent';
 
 interface CopyCellProps {
   data: CellData;
@@ -11,18 +11,18 @@ interface CopyCellProps {
 }
 
 export function CopyCell({ data, underline = false, className, onPrimaryClick }: CopyCellProps) {
-  const [copied, setCopied] = useState(false);
+  const hasPrimary = isPresent(data.primary);
+  const hasSecondary = isPresent(data.secondary);
 
-  const handleCopy = (value: string) => {
-    navigator.clipboard.writeText(value).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  };
+  if (!hasPrimary && !hasSecondary) {
+    return (
+      <span className={cn('text-[14px] font-normal leading-5 text-[#bdbdbd]', className)}>N/A</span>
+    );
+  }
 
   return (
     <div className={cn('flex flex-col gap-1', className)}>
-      {data.primary && (
+      {hasPrimary && (
         <div className="flex items-center gap-3">
           <span
             className={cn(
@@ -41,33 +41,15 @@ export function CopyCell({ data, underline = false, className, onPrimaryClick }:
           >
             {data.primary}
           </span>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCopy(data.primary!);
-            }}
-            aria-label="Copy"
-            className="shrink-0 text-neutral-400 hover:text-[#f7941d] transition-colors focus-visible:outline-none"
-          >
-            {copied ? <Check size={14} className="text-[#1e8f1f]" /> : <Copy size={14} />}
-          </button>
+          <CopyButton value={data.primary} />
         </div>
       )}
-      {data.secondary && (
+      {hasSecondary && (
         <div className="flex items-center gap-3">
           <span className="text-[12px] font-normal leading-[normal] text-[#808080] truncate max-w-[120px]">
             {data.secondary}
           </span>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCopy(data.secondary!);
-            }}
-            aria-label="Copy"
-            className="shrink-0 text-neutral-400 hover:text-[#f7941d] transition-colors focus-visible:outline-none"
-          >
-            <Copy size={14} />
-          </button>
+          <CopyButton value={data.secondary} />
         </div>
       )}
     </div>

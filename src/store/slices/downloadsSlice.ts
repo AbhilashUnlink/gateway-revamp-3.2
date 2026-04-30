@@ -219,3 +219,8 @@ export const selectDownloadsLoading = (state: RootState) => state.downloads.load
 export const selectDownloadsRequesting = (state: RootState) => state.downloads.requesting;
 export const selectDownloadsError = (state: RootState) => state.downloads.error;
 export const selectDownloadingByJobId = (state: RootState) => state.downloads.fetchingByJobId;
+export const selectHasProcessingDownloads = (state: RootState) =>
+  state.downloads.list.some((item) => {
+    const s = String(item.ReportStatus ?? '').toUpperCase();
+    return s === 'PROCESSING' || s === 'PENDING' || s === 'IN_PROGRESS';
+  });

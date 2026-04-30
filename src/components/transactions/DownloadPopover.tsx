@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Download, Loader2, X, FileText, RotateCcw } from 'lucide-react';
+import { Download, Loader2, X, FileText, Timer, CircleX } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   downloadReportByJobId,
@@ -11,13 +11,13 @@ import {
   selectDownloads,
   selectDownloadsLoading,
   selectDownloadsRequesting,
+  selectHasProcessingDownloads,
   type DownloadEntry,
 } from '@/store/slices/downloadsSlice';
 import { selectUserFormatType } from '@/store/slices/gatewayConfigSlice';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
-import { SearchableSelect } from '@/components/filter/controls/SearchableSelect';
 import type { TableFilter } from '@/types/transactions/transaction.types';
+import type { FilterField, FilterRule } from '@/components/filter/types';
 
 interface Props {
   open: boolean;
@@ -27,68 +27,79 @@ interface Props {
   filters: TableFilter[];
   /** Pre-fill notifyEmail from the signed-in user. */
   defaultEmail?: string;
+  /** Total record count from the active table query. */
+  totalCount?: number | string;
+  /** Applied filter rules from redux — used for the Applied Filters tooltip. */
+  appliedRules?: FilterRule[];
+  /** Filter field metadata for resolving rule labels. */
+  fields?: FilterField[];
 }
 
-const POPOVER_WIDTH = 560;
+const POPOVER_WIDTH = 640;
+const POPOVER_MIN_HEIGHT = 420;
+const POPOVER_VIEWPORT_PADDING = 16;
 
-const FORMAT_OPTIONS = [
-  { label: 'EXCEL', value: 'excel' },
-  { label: 'CSV', value: 'csv' },
-];
+type FormatValue = 'csv' | 'excel';
 
-const LANGUAGE_OPTIONS = [
-  { label: 'English', value: 'EN' },
-  { label: '日本語', value: 'JP' },
-];
-
-type Tab = 'request' | 'history';
-
-function detectTimeZone(): { iana: string; display: string } {
-  const iana = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  const offsetMin = -new Date().getTimezoneOffset();
-  const sign = offsetMin >= 0 ? '+' : '-';
-  const abs = Math.abs(offsetMin);
-  const hh = String(Math.floor(abs / 60)).padStart(2, '0');
-  const mm = String(abs % 60).padStart(2, '0');
-  const display = `${iana.replace(/_/g, ' ')} (UTC${sign}${hh}:${mm})`;
-  return { iana, display };
+function normalizeFormat(value: unknown): FormatValue {
+  return String(value ?? '').toLowerCase() === 'csv' ? 'csv' : 'excel';
 }
 
-export function DownloadPopover({ open, onClose, anchorRef, filters, defaultEmail }: Props) {
-  const { t } = useTranslation();
+function formatTimestamp(value?: string): string {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
+}
+
+function deriveFileName(item: DownloadEntry): string {
+  if (item.FileName) return String(item.FileName);
+  const ts = formatTimestamp(item.CreatedAt);
+  return ts ? `Transaction Details ${ts}` : (item.JobID ?? '—');
+}
+
+export function DownloadPopover({
+  open,
+  onClose,
+  anchorRef,
+  filters,
+  defaultEmail,
+  totalCount,
+  appliedRules = [],
+  fields = [],
+}: Props) {
+  const { t } = useTranslation() as { t: (key: string, defaultValue?: string) => string };
   const dispatch = useAppDispatch();
   const list = useAppSelector(selectDownloads);
   const loading = useAppSelector(selectDownloadsLoading);
   const requesting = useAppSelector(selectDownloadsRequesting);
   const downloadingByJobId = useAppSelector(selectDownloadingByJobId);
+  const hasProcessing = useAppSelector(selectHasProcessingDownloads);
   const userFormatType = useAppSelector(selectUserFormatType);
   const popRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
-  const [tab, setTab] = useState<Tab>('request');
+  const filtersTriggerRef = useRef<HTMLButtonElement>(null);
+  const [position, setPosition] = useState<{ top: number; left: number; height: number } | null>(
+    null
+  );
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Form state — initial format mirrors the user's saved preference; falls
-  // back to "excel" until `fetchUserPreferences` resolves.
-  const [format, setFormat] = useState(() => userFormatType ?? 'excel');
+  const [format, setFormat] = useState<FormatValue>(() => normalizeFormat(userFormatType));
   const formatTouchedRef = useRef(false);
-  const [email, setEmail] = useState(defaultEmail ?? '');
-  const [includeSensitive, setIncludeSensitive] = useState(false);
-  const [includeWhitelisted, setIncludeWhitelisted] = useState(false);
-  const [language, setLanguage] = useState('EN');
-  const tz = useMemo(() => detectTimeZone(), []);
+  const tz = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC', []);
 
-  // Sync email when the prop arrives later (auth slice may load after mount).
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (defaultEmail) setEmail(defaultEmail);
-  }, [defaultEmail]);
-
-  // Sync the format default if `userPreference` resolves after mount —
-  // unless the user has already picked a format manually.
   useEffect(() => {
     if (formatTouchedRef.current) return;
     if (!userFormatType) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFormat(userFormatType);
+    setFormat(normalizeFormat(userFormatType));
   }, [userFormatType]);
 
   useLayoutEffect(() => {
@@ -96,9 +107,15 @@ export function DownloadPopover({ open, onClose, anchorRef, filters, defaultEmai
     const update = () => {
       const rect = anchorRef.current?.getBoundingClientRect();
       if (!rect) return;
+      const top = rect.bottom + 8;
+      const height = Math.max(
+        POPOVER_MIN_HEIGHT,
+        window.innerHeight - top - POPOVER_VIEWPORT_PADDING - 40
+      );
       setPosition({
-        top: rect.bottom + 8,
+        top,
         left: Math.max(8, rect.right - POPOVER_WIDTH),
+        height,
       });
     };
     update();
@@ -110,11 +127,13 @@ export function DownloadPopover({ open, onClose, anchorRef, filters, defaultEmai
     };
   }, [open, anchorRef]);
 
-  // Fetch list whenever popover opens or user switches to history tab.
+  // Re-fetch the list each time the popover opens, but only if a previous
+  // request is still processing — otherwise the cached state is reused.
   useEffect(() => {
     if (!open) return;
+    if (!hasProcessing) return;
     void dispatch(fetchDownloadList());
-  }, [open, dispatch]);
+  }, [open, hasProcessing, dispatch]);
 
   useEffect(() => {
     if (!open) return;
@@ -138,181 +157,132 @@ export function DownloadPopover({ open, onClose, anchorRef, filters, defaultEmai
 
   if (!open || !position) return null;
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const canSubmit = !!format && emailValid && !requesting;
-
   const submit = async () => {
-    if (!canSubmit) return;
+    if (requesting) return;
     await dispatch(
       requestDownload({
         filter: filters,
         selectedFormatType: format,
-        notifyEmail: email,
-        includeSensitiveColumns: includeSensitive,
-        includeWhiteListedColumns: includeWhitelisted,
-        selectedLanguage: language,
-        DisplayTimeZone: tz.display,
+        notifyEmail: defaultEmail ?? '',
+        includeSensitiveColumns: false,
+        includeWhiteListedColumns: false,
+        selectedLanguage: 'EN',
+        DisplayTimeZone: tz,
       })
     );
-    setTab('history');
   };
+
+  const totalRecords =
+    totalCount !== undefined && totalCount !== null && totalCount !== '' ? totalCount : '—';
+  const hasAppliedFilters = appliedRules.length > 0;
 
   return createPortal(
     <div
       ref={popRef}
-      className={cn(
-        'fixed z-[60] flex max-h-[calc(100vh-120px)] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_12px_40px_rgba(0,0,0,0.18)]'
-      )}
-      style={{ top: position.top, left: position.left, width: POPOVER_WIDTH }}
+      role="dialog"
+      aria-modal="false"
+      className="fixed z-[60] flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_4px_10px_rgba(0,0,0,0.2)]"
+      style={{
+        top: position.top,
+        left: position.left,
+        width: POPOVER_WIDTH,
+        height: position.height,
+      }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#f0f0f0] px-5 py-4">
-        <h3 className="text-base font-semibold text-[#1a1a1a]">
-          {t('download.title', 'Transaction Download')}
+      {/* Header — soft orange tint */}
+      <div className="flex h-[66px] shrink-0 items-center gap-2 rounded-t-2xl bg-[#fff6e6] px-4 py-1.5">
+        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white">
+          <Download size={16} className="text-[#1a1a1a]" />
+        </div>
+        <h3 className="flex-1 text-base font-semibold leading-5 text-[#1a1a1a]">
+          {t('download.title')}
         </h3>
         <button
           type="button"
           onClick={onClose}
-          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#fafafa]"
-          aria-label="Close"
+          aria-label={t('download.close')}
+          className="text-[#1a1a1a] transition-opacity hover:opacity-70"
         >
-          <X size={18} />
+          <CircleX size={24} strokeWidth={1.5} />
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-[#f0f0f0]">
-        {(['request', 'history'] as Tab[]).map((id) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setTab(id)}
-            className={cn(
-              'flex-1 px-4 py-2.5 text-sm font-medium uppercase tracking-wide',
-              tab === id
-                ? 'border-b-2 border-[#1a1a1a] text-[#1a1a1a]'
-                : 'text-[#808080] hover:text-[#1a1a1a]'
-            )}
-          >
-            {id === 'request'
-              ? t('download.tab_request', 'Request Download')
-              : t('download.tab_history', 'Recent Downloads')}
-          </button>
-        ))}
-      </div>
-
-      {/* Body */}
-      <div className="flex flex-1 flex-col overflow-y-auto px-5 py-4">
-        {tab === 'request' ? (
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{t('download.format', 'File format')}</Label>
-                <SearchableSelect
-                  value={format}
-                  onChange={(v) => {
-                    formatTouchedRef.current = true;
-                    setFormat(v);
-                  }}
-                  options={FORMAT_OPTIONS}
-                />
-              </div>
-              <div>
-                <Label>{t('download.language', 'Language')}</Label>
-                <SearchableSelect
-                  value={language}
-                  onChange={setLanguage}
-                  options={LANGUAGE_OPTIONS}
-                />
-              </div>
+      <div className="flex min-h-0 flex-1 flex-col gap-9 p-4">
+        {/* Request row */}
+        <div className="flex shrink-0 flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-[#4d4d4d]">
+              <span className="font-normal">{t('download.total_records')} </span>
+              <span className="font-semibold text-[#1a1a1a]">{totalRecords}</span>
             </div>
-
-            <div>
-              <Label>{t('download.email', 'Notify email')}</Label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="h-10 w-full rounded-lg border border-[#e5e5e5] bg-white px-3 text-sm text-[#1a1a1a] outline-none focus:border-[#1a1a1a]"
-              />
-              {!emailValid && email.length > 0 && (
-                <div className="mt-1 text-xs text-[#ff4343]">
-                  {t('download.email_invalid', 'Enter a valid email')}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <Label>{t('download.timezone', 'Timezone')}</Label>
-              <div className="flex h-10 items-center rounded-lg border border-[#e5e5e5] bg-[#fafafa] px-3 text-sm text-[#1a1a1a]">
-                {tz.display}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Toggle
-                label={t('download.include_sensitive', 'Include sensitive columns')}
-                checked={includeSensitive}
-                onChange={setIncludeSensitive}
-              />
-              <Toggle
-                label={t('download.include_whitelisted', 'Include whitelisted columns')}
-                checked={includeWhitelisted}
-                onChange={setIncludeWhitelisted}
-              />
-            </div>
-
-            <div className="rounded-lg bg-[#fafafa] px-3 py-2 text-xs text-[#808080]">
-              {filters.length > 0
-                ? t('download.applied_filters', '{{count}} applied filter(s) will be included', {
-                    count: filters.length,
-                  })
-                : t(
-                    'download.no_filters',
-                    'No filters applied — full result set will be requested'
-                  )}
-            </div>
+            <button
+              ref={filtersTriggerRef}
+              type="button"
+              onClick={() => hasAppliedFilters && setFiltersOpen((o) => !o)}
+              disabled={!hasAppliedFilters}
+              className="text-xs text-[#1a1a1a] underline disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {t('download.view_applied_filters')}
+            </button>
           </div>
-        ) : (
-          <HistoryList
-            list={list}
-            loading={loading}
-            downloadingByJobId={downloadingByJobId}
-            onDownload={(jobID) => dispatch(downloadReportByJobId(jobID))}
-          />
-        )}
-      </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between gap-3 border-t border-[#f0f0f0] px-5 py-3">
-        {tab === 'history' ? (
-          <>
+          <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[#e5e5e5] bg-[#fff6e6] p-3">
+            <div className="flex-1 text-sm font-semibold text-[#1a1a1a]">
+              {t('download.report_format')}
+            </div>
+            <Radio
+              label={t('download.format_csv')}
+              checked={format === 'csv'}
+              onChange={() => {
+                formatTouchedRef.current = true;
+                setFormat('csv');
+              }}
+            />
+            <Radio
+              label={t('download.format_excel')}
+              checked={format === 'excel'}
+              onChange={() => {
+                formatTouchedRef.current = true;
+                setFormat('excel');
+              }}
+            />
             <button
               type="button"
-              onClick={() => dispatch(fetchDownloadList())}
-              disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-40"
+              onClick={submit}
+              disabled={requesting}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#f7941d] px-4 text-sm font-semibold uppercase leading-5 text-white shadow-[0_4px_9px_rgba(0,0,0,0.1)] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <RotateCcw size={14} className={loading ? 'animate-spin' : ''} />
-              {t('download.refresh', 'Refresh')}
+              {requesting && <Loader2 size={14} className="animate-spin" />}
+              {t('download.request_download')}
             </button>
-            <Button type="button" variant="ghost" onClick={onClose}>
-              {t('download.close', 'Close')}
-            </Button>
-          </>
-        ) : (
-          <>
-            <span className="text-xs text-[#808080]">
-              {t('download.email_note', 'A link will be emailed when ready')}
-            </span>
-            <Button type="button" onClick={submit} disabled={!canSubmit}>
-              {requesting && <Loader2 size={14} className="mr-1.5 animate-spin" />}
-              {t('download.request', 'Request download')}
-            </Button>
-          </>
-        )}
+          </div>
+        </div>
+
+        {/* History */}
+        <div className="flex min-h-0 flex-1 flex-col gap-4">
+          <h4 className="shrink-0 text-sm font-semibold text-[#4d4d4d]">
+            {t('download.previous_requests')}
+          </h4>
+
+          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+            <HistoryList
+              list={list}
+              loading={loading}
+              fields={fields}
+              downloadingByJobId={downloadingByJobId}
+              onDownload={(jobID) => dispatch(downloadReportByJobId(jobID))}
+            />
+          </div>
+        </div>
       </div>
+
+      {filtersOpen && (
+        <AppliedFiltersPopover
+          anchorRef={filtersTriggerRef}
+          entries={rulesToEntries(appliedRules, fields, t)}
+          onClose={() => setFiltersOpen(false)}
+        />
+      )}
     </div>,
     document.body
   );
@@ -320,68 +290,49 @@ export function DownloadPopover({ open, onClose, anchorRef, filters, defaultEmai
 
 // ── Subcomponents ────────────────────────────────────────────────────────
 
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mb-1 text-xs font-medium uppercase tracking-wide text-[#808080]">
-      {children}
-    </div>
-  );
-}
-
-function Toggle({
+function Radio({
   label,
   checked,
   onChange,
 }: {
   label: string;
   checked: boolean;
-  onChange: (v: boolean) => void;
+  onChange: () => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[#e5e5e5] px-3 py-2 hover:bg-[#fafafa]">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4"
-      />
+    <label className="flex cursor-pointer items-center gap-2.5">
+      <span
+        className={cn(
+          'relative h-5 w-5 rounded-full border bg-white',
+          checked ? 'border-[#f7941d]' : 'border-[#e5e5e5]'
+        )}
+      >
+        {checked && (
+          <span className="absolute inset-1 rounded-full bg-[#f7941d]" aria-hidden="true" />
+        )}
+      </span>
       <span className="text-sm text-[#1a1a1a]">{label}</span>
+      <input
+        type="radio"
+        className="sr-only"
+        checked={checked}
+        onChange={onChange}
+        aria-label={label}
+      />
     </label>
   );
-}
-
-const STATUS_TONE: Record<string, string> = {
-  COMPLETED: 'bg-[#e6f7e6] text-[#1e8f1f]',
-  SUCCESS: 'bg-[#e6f7e6] text-[#1e8f1f]',
-  PROCESSING: 'bg-[#fff4d6] text-[#a96900]',
-  PENDING: 'bg-[#fff4d6] text-[#a96900]',
-  IN_PROGRESS: 'bg-[#fff4d6] text-[#a96900]',
-  FAILED: 'bg-[#ffe5e5] text-[#ff4343]',
-  ERROR: 'bg-[#ffe5e5] text-[#ff4343]',
-};
-
-/** Pull a sensible filename for display: prefer FileName → JobID → ReportURL basename. */
-function deriveFileName(item: DownloadEntry): string {
-  if (item.FileName) return String(item.FileName);
-  if (item.JobID) {
-    const ext = item.selectedFormatType ? `.${String(item.selectedFormatType).toLowerCase()}` : '';
-    return `${item.JobID}${ext}`;
-  }
-  if (item.ReportURL) {
-    const parts = String(item.ReportURL).split('/');
-    return parts[parts.length - 1] || String(item.ReportURL);
-  }
-  return '—';
 }
 
 function HistoryList({
   list,
   loading,
+  fields,
   downloadingByJobId,
   onDownload,
 }: {
   list: DownloadEntry[];
   loading: boolean;
+  fields: FilterField[];
   downloadingByJobId: Record<string, boolean>;
   onDownload: (jobID: string) => void;
 }) {
@@ -392,7 +343,7 @@ function HistoryList({
     return (
       <div className="flex items-center justify-center gap-2 py-10 text-sm text-[#808080]">
         <Loader2 size={14} className="animate-spin" />
-        {t('download.loading', 'Loading…')}
+        {t('download.loading')}
       </div>
     );
   }
@@ -401,65 +352,268 @@ function HistoryList({
     return (
       <div className="flex flex-col items-center gap-2 rounded-lg bg-[#fafafa] px-4 py-10 text-center">
         <FileText size={28} className="text-[#bdbdbd]" />
-        <span className="text-sm text-[#808080]">
-          {t('download.empty', 'No download requests yet')}
-        </span>
+        <span className="text-sm text-[#808080]">{t('download.empty')}</span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {safeList.map((item, idx) => {
-        const status = String(item.ReportStatus ?? '').toUpperCase();
-        const tone = STATUS_TONE[status] ?? 'bg-[#f0f0f0] text-[#808080]';
-        const isCompleted = status === 'COMPLETED' || status === 'SUCCESS';
-        const isProcessing =
-          status === 'PROCESSING' || status === 'PENDING' || status === 'IN_PROGRESS';
-        const fileName = deriveFileName(item);
-        return (
-          <div
-            key={item.JobID ?? item.ID ?? idx}
-            className="flex items-center gap-3 rounded-lg border border-[#e5e5e5] bg-white px-3 py-2"
-          >
-            <FileText size={16} className="shrink-0 text-[#808080]" />
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium text-[#1a1a1a]" title={fileName}>
-                {fileName}
-              </div>
-              <div className="flex items-center gap-2 truncate text-xs text-[#808080]">
-                {item.selectedFormatType && (
-                  <span>{String(item.selectedFormatType).toUpperCase()}</span>
-                )}
-                {item.NoOfRecords !== undefined && (
-                  <span>· {Number(item.NoOfRecords).toLocaleString()} rows</span>
-                )}
-                {item.CreatedAt && <span>· {new Date(item.CreatedAt).toLocaleString()}</span>}
-              </div>
-            </div>
-            <span className={cn('shrink-0 rounded px-2 py-0.5 text-xs font-medium', tone)}>
-              {isProcessing && <Loader2 size={10} className="mr-1 inline animate-spin" />}
-              {status || '—'}
-            </span>
-            {isCompleted && item.JobID && (
-              <button
-                type="button"
-                onClick={() => item.JobID && onDownload(item.JobID)}
-                disabled={!!downloadingByJobId[item.JobID]}
-                title={item.ReportURL ? String(item.ReportURL) : undefined}
-                className="inline-flex h-8 items-center gap-1 rounded-lg bg-[#1a1a1a] px-2.5 text-xs font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {downloadingByJobId[item.JobID] ? (
-                  <Loader2 size={12} className="animate-spin" />
-                ) : (
-                  <Download size={12} />
-                )}
-                {t('download.download', 'Download')}
-              </button>
-            )}
-          </div>
-        );
-      })}
+    <div className="flex flex-col gap-3">
+      {safeList.map((item, idx) => (
+        <HistoryRow
+          key={item.JobID ?? item.ID ?? idx}
+          item={item}
+          fields={fields}
+          downloading={!!(item.JobID && downloadingByJobId[item.JobID])}
+          onDownload={() => item.JobID && onDownload(item.JobID)}
+        />
+      ))}
     </div>
+  );
+}
+
+function HistoryRow({
+  item,
+  fields,
+  downloading,
+  onDownload,
+}: {
+  item: DownloadEntry;
+  fields: FilterField[];
+  downloading: boolean;
+  onDownload: () => void;
+}) {
+  const { t } = useTranslation() as { t: (key: string, defaultValue?: string) => string };
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const status = String(item.ReportStatus ?? '').toUpperCase();
+  const isReady = status === 'COMPLETED' || status === 'SUCCESS' || status === 'READY';
+  const isProcessing = status === 'PROCESSING' || status === 'PENDING' || status === 'IN_PROGRESS';
+  const isFailed = status === 'FAILED' || status === 'ERROR';
+  const fileName = deriveFileName(item);
+  const itemEntries = useMemo(() => itemFiltersToEntries(item, fields, t), [item, fields, t]);
+  const hasItemFilters = itemEntries.length > 0;
+
+  // Progress: ready → 100%, processing → 41% placeholder (no real % from API).
+  const progressPct = isReady ? 100 : isProcessing ? 41 : 0;
+
+  return (
+    <div className="flex flex-col gap-3 rounded-lg border border-[#e5e5e5] bg-[#fafafa] px-3 pt-0 pb-3">
+      {/* Progress bar — sits flush at the top, no horizontal padding inside row's px-3 */}
+      <div className="-mx-3 grid grid-cols-1">
+        <div className="col-start-1 row-start-1 h-1 rounded-sm bg-[#e5e5e5]" />
+        <div
+          className={cn(
+            'col-start-1 row-start-1 h-1 rounded-sm',
+            isFailed ? 'bg-[#ff4343]' : 'bg-[#f7941d]'
+          )}
+          style={{ width: `${progressPct}%` }}
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        {isProcessing ? (
+          <div className="flex items-center gap-2">
+            <Timer size={16} className="text-[#1a1a1a]" />
+            <span className="text-xs text-[#1a1a1a]">{t('download.status_preparing')}</span>
+          </div>
+        ) : (
+          <span
+            className={cn(
+              'inline-flex h-5 items-center rounded-sm px-1 py-1.5 text-xs font-medium uppercase',
+              isReady
+                ? 'bg-[#c6f3da] text-[#1e8f1f]'
+                : isFailed
+                  ? 'bg-[#ffe5e5] text-[#ff4343]'
+                  : 'bg-[#f0f0f0] text-[#808080]'
+            )}
+          >
+            {isReady
+              ? t('download.status_ready')
+              : isFailed
+                ? t('download.status_failed')
+                : status || '—'}
+          </span>
+        )}
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={() => hasItemFilters && setFiltersOpen((o) => !o)}
+          disabled={!hasItemFilters}
+          className="text-xs text-[#1a1a1a] underline disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {t('download.view_applied_filters')}
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <FileText size={20} className="shrink-0 text-[#1e8f1f]" />
+        <div className="min-w-0 flex-1 truncate text-sm text-[#1a1a1a]" title={fileName}>
+          {fileName}
+        </div>
+        <button
+          type="button"
+          onClick={onDownload}
+          disabled={!isReady || downloading || !item.JobID}
+          aria-label={t('download.download_action')}
+          title={item.ReportURL ? String(item.ReportURL) : undefined}
+          className={cn(
+            'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-[#f7941d] text-white shadow-[0_4px_9px_rgba(0,0,0,0.04)] hover:opacity-90 disabled:cursor-not-allowed',
+            !isReady && 'opacity-30'
+          )}
+        >
+          {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+        </button>
+      </div>
+
+      {filtersOpen && (
+        <AppliedFiltersPopover
+          anchorRef={triggerRef}
+          entries={itemEntries}
+          onClose={() => setFiltersOpen(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+interface AppliedFilterEntry {
+  label: string;
+  value: string;
+}
+
+function rulesToEntries(
+  rules: FilterRule[],
+  fields: FilterField[],
+  t: (key: string, defaultValue?: string) => string
+): AppliedFilterEntry[] {
+  const fieldsById = new Map(fields.map((f) => [f.id, f]));
+  return rules.map((rule) => {
+    const field = fieldsById.get(rule.field);
+    return {
+      label: field ? t(field.labelKey, field.id) : rule.field,
+      value: formatRuleValue(rule),
+    };
+  });
+}
+
+interface ApiFilterEntry {
+  field?: string;
+  value?: unknown;
+  operator?: string;
+  operand?: string;
+}
+
+function itemFiltersToEntries(
+  item: DownloadEntry,
+  fields: FilterField[],
+  t: (key: string, defaultValue?: string) => string
+): AppliedFilterEntry[] {
+  const filterList = item.FilterList as { filter?: ApiFilterEntry[] } | undefined;
+  const raw = Array.isArray(filterList?.filter) ? filterList!.filter : [];
+  const fieldsById = new Map(fields.map((f) => [f.id.toLowerCase(), f]));
+  return raw
+    .filter((entry): entry is ApiFilterEntry & { field: string } => !!entry?.field)
+    .map((entry) => {
+      const field = fieldsById.get(entry.field.toLowerCase());
+      const label = field ? t(field.labelKey, field.id) : entry.field;
+      const v = entry.value;
+      let value = '—';
+      if (Array.isArray(v)) value = v.length > 0 ? v.join(', ') : '—';
+      else if (v !== null && v !== undefined && String(v).length > 0) value = String(v);
+      return { label, value };
+    });
+}
+
+function formatRuleValue(rule: FilterRule): string {
+  const v = rule.value;
+  if (Array.isArray(v)) return v.length > 0 ? v.join(', ') : '—';
+  if (v && typeof v === 'object') {
+    const range = v as { from?: string; to?: string };
+    if (range.from || range.to) return `${range.from ?? '—'} → ${range.to ?? '—'}`;
+    return '—';
+  }
+  if (v === '' || v === null || v === undefined) return '—';
+  return String(v);
+}
+
+function AppliedFiltersPopover({
+  anchorRef,
+  entries,
+  onClose,
+}: {
+  anchorRef: RefObject<HTMLButtonElement | null>;
+  entries: AppliedFilterEntry[];
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const update = () => {
+      const rect = anchorRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const width = 230;
+      setPos({
+        top: rect.bottom + 6,
+        left: Math.max(8, rect.right - width),
+      });
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+    };
+  }, [anchorRef]);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (ref.current?.contains(target)) return;
+      if (anchorRef.current?.contains(target)) return;
+      onClose();
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [anchorRef, onClose]);
+
+  if (!pos) return null;
+
+  return createPortal(
+    <div
+      ref={ref}
+      role="tooltip"
+      data-filter-portal="true"
+      className="fixed z-[70] flex flex-col overflow-hidden rounded-lg bg-white shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
+      style={{ top: pos.top, left: pos.left, width: 230 }}
+    >
+      <div className="flex h-8 items-center gap-2 border-b border-[#e5e5e5] bg-white px-3">
+        <span className="flex-1 text-sm font-semibold leading-5 text-[#1a1a1a]">
+          {t('download.applied_filters_title')}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t('download.close')}
+          className="flex h-4 w-4 items-center justify-center text-[#1a1a1a] hover:opacity-70"
+        >
+          <X size={12} />
+        </button>
+      </div>
+      <div className="flex max-h-[260px] flex-col gap-2 overflow-y-auto p-3">
+        {entries.map((entry, idx) => (
+          <div key={`${entry.label}-${idx}`} className="flex items-start gap-3">
+            <span className="flex-1 text-xs leading-[15px] text-[#808080]">{entry.label}</span>
+            <span className="text-right text-xs leading-[15px] text-[#1a1a1a] break-words">
+              {entry.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>,
+    document.body
   );
 }

@@ -1,4 +1,5 @@
-import { Copy, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { CopyButton } from '@/components/ui/CopyButton';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 import type { ChargebackCase } from '@/types/transactions/chargeback.types';
@@ -37,8 +38,6 @@ interface ChargebackCardProps {
 function ChargebackCard({ data }: ChargebackCardProps) {
   const { t } = useTranslation();
 
-  const handleCopy = () => void navigator.clipboard.writeText(data.caseId);
-
   return (
     <div className="flex w-[453px] shrink-0 flex-col gap-2">
       <div className="flex items-center gap-2">
@@ -58,14 +57,7 @@ function ChargebackCard({ data }: ChargebackCardProps) {
               <span className="truncate text-sm font-semibold leading-5 text-[#1a1a1a] underline">
                 {shortenId(data.caseId)}
               </span>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="shrink-0 text-[#808080] hover:text-[#1a1a1a]"
-                aria-label={t('drawer.copy')}
-              >
-                <Copy size={14} />
-              </button>
+              <CopyButton value={data.caseId} ariaLabel={t('drawer.copy')} />
             </div>
           </div>
 

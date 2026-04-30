@@ -94,6 +94,12 @@ export interface ColumnConfig {
   accessorFn: (row: TransactionRow) => CellData;
   onPrimaryClick?: (row: TransactionRow) => void;
   /**
+   * Pin this column to the left while the table scrolls horizontally. Only
+   * the leading run of `sticky: true` columns is pinned — the first non-sticky
+   * column ends the run, even if a later column is also marked sticky.
+   */
+  sticky?: boolean;
+  /**
    * Filter attributes derived from this column. Always one per logical attribute
    * — no grouping. For a payment cell with three accessor keys, three entries.
    */

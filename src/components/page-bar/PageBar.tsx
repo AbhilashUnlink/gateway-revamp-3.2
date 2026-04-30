@@ -22,7 +22,12 @@ interface PageBarTitleProps {
 
 function PageBarTitle({ children, className }: PageBarTitleProps) {
   return (
-    <div className={cn('flex flex-1 items-center h-[48px] min-w-0', className)}>
+    <div
+      className={cn(
+        'flex flex-1 items-center h-[32px] min-w-0 border-l-4 px-2 mt-2 border-[#f7941d]',
+        className
+      )}
+    >
       <h1 className="text-[24px] font-semibold leading-none text-[#1a1a1a] truncate">{children}</h1>
     </div>
   );
@@ -77,7 +82,9 @@ interface PageBarStatItemProps {
 
 function PageBarStatItem({ label, value, currencyPrefix, className }: PageBarStatItemProps) {
   return (
-    <div className={cn('flex flex-col items-start justify-between h-full px-3 -mt-2', className)}>
+    <div
+      className={cn('flex flex-col items-start justify-between h-full px-3 -mt-[7px]', className)}
+    >
       <span className="text-xs font-medium leading-5 text-[#f7941d] uppercase whitespace-nowrap">
         {label}
       </span>

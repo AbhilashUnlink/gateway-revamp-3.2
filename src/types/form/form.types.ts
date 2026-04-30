@@ -20,6 +20,7 @@ export interface InputFieldSchema extends BaseFieldSchema {
   type: 'input';
   inputType?: 'text' | 'password' | 'email' | 'number' | 'tel';
   icon?: React.ElementType;
+  suffix?: string;
 }
 
 export interface TextareaFieldSchema extends BaseFieldSchema {

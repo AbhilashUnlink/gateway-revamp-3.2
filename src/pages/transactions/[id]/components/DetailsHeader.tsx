@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil } from 'lucide-react';
+import { ChevronLeft, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
@@ -28,10 +28,10 @@ export function DetailsHeader({
           <button
             type="button"
             onClick={() => navigate('/transactions')}
-            className="text-[#1a1a1a] hover:opacity-70"
+            className="text-[#1a1a1a] hover:opacity-70 cursor-pointer"
             aria-label={t('transaction_details_page.back')}
           >
-            <ArrowLeft size={24} />
+            <ChevronLeft size={24} />
           </button>
           <h1 className="text-xl font-semibold leading-7 text-[#1a1a1a]">
             {t('transaction_details_page.title')}
@@ -45,22 +45,22 @@ export function DetailsHeader({
       </div>
 
       <div className="flex h-12 items-stretch gap-0 rounded-2xl border border-white bg-[#fff6e6] px-4 py-2.5 drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.04)]">
-        <div className="flex flex-col items-start justify-between px-3">
+        <div className="flex flex-col items-start justify-between px-3 -mt-[5px]">
           <span className="whitespace-nowrap text-xs font-medium uppercase leading-5 text-[#f7941d]">
             {t('transaction_details_page.lifecycle_status')}
           </span>
-          <span className="whitespace-nowrap text-xs font-semibold leading-5 text-[#1a1a1a]">
+          <span className="whitespace-nowrap text-xs font-semibold leading-5 text-[#1a1a1a] -mt-[2px]">
             {lifecycleLabel || '—'}
           </span>
         </div>
         {balanceLabel && (
           <>
             <div className="my-1 w-px bg-[#e5e5e5]" />
-            <div className="flex flex-col items-start justify-between px-3">
+            <div className="flex flex-col items-start justify-between px-3 -mt-[5px]">
               <span className="whitespace-nowrap text-xs font-medium uppercase leading-5 text-[#f7941d]">
                 {t('transaction_details_page.balance_left')}
               </span>
-              <span className="whitespace-nowrap text-xs font-semibold leading-5 text-[#1a1a1a]">
+              <span className="whitespace-nowrap text-xs font-semibold leading-5 text-[#1a1a1a] -mt-[2px]">
                 {balanceLabel}
               </span>
             </div>

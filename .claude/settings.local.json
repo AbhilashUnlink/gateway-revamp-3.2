@@ -19,7 +19,8 @@
       "mcp__claude_ai_Linear__get_issue",
       "mcp__claude_ai_Linear__save_issue",
       "mcp__claude_ai_Figma__get_design_context",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "mcp__claude_ai_Linear__list_teams"
     ]
   }
 }

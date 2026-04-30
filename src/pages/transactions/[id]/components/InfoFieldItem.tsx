@@ -1,5 +1,6 @@
-import { Copy, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { CopyButton } from '@/components/ui/CopyButton';
 import type { InfoFieldConfig } from '../utils/buildSections';
 
 interface InfoFieldItemProps {
@@ -13,7 +14,6 @@ export function InfoFieldItem({ field, className }: InfoFieldItemProps) {
       ? String(field.value)
       : 'N/A';
   const isMissing = display === 'N/A';
-  const handleCopy = () => void navigator.clipboard.writeText(display);
 
   return (
     <div className={cn('flex h-11 flex-col gap-1', className)}>
@@ -40,16 +40,7 @@ export function InfoFieldItem({ field, className }: InfoFieldItemProps) {
             {display}
           </span>
         )}
-        {field.copyable && !isMissing && !field.badge && (
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="shrink-0 text-[#808080] hover:text-[#1a1a1a]"
-            aria-label="copy"
-          >
-            <Copy size={14} />
-          </button>
-        )}
+        {field.copyable && !isMissing && !field.badge && <CopyButton value={display} />}
         {field.downloadable && !isMissing && (
           <button
             type="button"

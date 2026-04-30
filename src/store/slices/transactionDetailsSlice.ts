@@ -193,7 +193,6 @@ export const selectTransactionActions = createSelector(
       !data.IsBlockRefund &&
       hasAccess(TRANSACTION_PERMISSIONS.REFUND_TRANSACTION, userGroups);
 
-    console.log(hasAccess(TRANSACTION_PERMISSIONS.REFUND_TRANSACTION, userGroups), 'Asdfasdf');
     // Capture: authorised must exceed already-captured + pending-capture, and auth must not be voided/cancelled
     const isCaptureButtonEnabled =
       amounts.authorisedAmount > amounts.totalCapturedAmount + amounts.totalPendingCaptureAmount &&

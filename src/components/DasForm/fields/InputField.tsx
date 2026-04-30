@@ -17,6 +17,7 @@ export function InputField({ field }: InputFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   const Icon = field.icon;
+  const suffix = field.suffix;
   const isPassword = field.inputType === 'password';
   const resolvedType = isPassword
     ? showPassword
@@ -55,7 +56,7 @@ export function InputField({ field }: InputFieldProps) {
                 'text-sm leading-5 text-neutral-800 placeholder:text-[#808080]',
                 'outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border',
                 Icon ? 'pl-12' : 'pl-4',
-                isPassword ? 'pr-12' : 'pr-4',
+                isPassword ? 'pr-12' : suffix ? 'pr-14' : 'pr-4',
                 error && 'border-red-400 focus:ring-red-300/40'
               )}
               {...rhfField}
@@ -73,6 +74,11 @@ export function InputField({ field }: InputFieldProps) {
           >
             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
+        )}
+        {!isPassword && suffix && (
+          <span className="pointer-events-none absolute right-4 text-sm font-medium text-[#808080]">
+            {suffix}
+          </span>
         )}
       </div>
       {error && (

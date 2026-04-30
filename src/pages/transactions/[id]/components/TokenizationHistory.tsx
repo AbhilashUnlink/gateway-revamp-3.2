@@ -1,4 +1,4 @@
-import { Copy } from 'lucide-react';
+import { CopyButton } from '@/components/ui/CopyButton';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 
@@ -51,8 +51,6 @@ function TokenCard({ item, isActive }: TokenCardProps) {
   const createdAt = item.CreatedAt ?? '';
   const updatedAt = item.UpdatedAt ?? item.CreatedAt ?? '';
 
-  const handleCopy = () => void navigator.clipboard.writeText(String(refId));
-
   return (
     <div className="flex w-[453px] shrink-0 flex-col gap-2">
       <div className="flex items-center gap-2">
@@ -92,14 +90,7 @@ function TokenCard({ item, isActive }: TokenCardProps) {
               >
                 {shortenId(String(refId))}
               </span>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="shrink-0 text-[#808080] hover:text-[#1a1a1a]"
-                aria-label={t('drawer.copy')}
-              >
-                <Copy size={14} />
-              </button>
+              <CopyButton value={String(refId)} ariaLabel={t('drawer.copy')} />
             </div>
           </div>
 

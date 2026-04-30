@@ -50,23 +50,61 @@ export function DataTable({
 
   const isEmpty = !loading && data.length === 0;
 
+  // Cumulative left offsets for the leading run of `sticky: true` columns.
+  // Once a non-sticky column appears, the run ends — later sticky columns are
+  // ignored to keep the pinned area contiguous against the left edge.
+  const stickyOffsets = useMemo<(number | undefined)[]>(() => {
+    let acc = 0;
+    let runActive = true;
+    return columnConfigs.map((col) => {
+      if (!runActive || !col.sticky) {
+        runActive = false;
+        return undefined;
+      }
+      const offset = acc;
+      acc += col.width;
+      return offset;
+    });
+  }, [columnConfigs]);
+
+  // Mark the last sticky column so it can render a right-edge shadow that
+  // visually separates the fixed columns from the scrollable rest of the row.
+  const stickyEdgeIndex = useMemo(() => {
+    let last = -1;
+    stickyOffsets.forEach((v, i) => {
+      if (v !== undefined) last = i;
+    });
+    return last;
+  }, [stickyOffsets]);
+
   return (
     <div className={cn('w-full overflow-auto rounded-2xl', className)}>
       <table className="border-separate border-spacing-0 w-full min-w-max">
-        <TableHeader columnConfigs={columnConfigs} />
+        <TableHeader
+          columnConfigs={columnConfigs}
+          stickyOffsets={stickyOffsets}
+          stickyEdgeIndex={stickyEdgeIndex}
+        />
         <tbody>
           {table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
               row={row}
               columnConfigs={columnConfigs}
+              stickyOffsets={stickyOffsets}
+              stickyEdgeIndex={stickyEdgeIndex}
               onRowClick={onRowClick}
             />
           ))}
 
           {loading &&
             Array.from({ length: 5 }).map((_, i) => (
-              <SkeletonRow key={`skeleton-${i}`} columnCount={columnConfigs.length} />
+              <SkeletonRow
+                key={`skeleton-${i}`}
+                columnCount={columnConfigs.length}
+                stickyOffsets={stickyOffsets}
+                stickyEdgeIndex={stickyEdgeIndex}
+              />
             ))}
 
           {isEmpty && (

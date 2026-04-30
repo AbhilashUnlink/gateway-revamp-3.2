@@ -1,14 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { RotateCcw, Download, Columns } from 'lucide-react';
+import { RotateCw, Download, Columns } from 'lucide-react';
 import type { TransactionRow, TableFilter } from '@/types/transactions/transaction.types';
 import { DataTable } from '@/components/table';
 import { useTableDataAdapter } from '@/components/table/hooks/useTableDataAdapter';
 import { PageBar } from '@/components/page-bar';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { openFilter, selectAppliedRules, makeSelectAppliedCount } from '@/store/slices/filterSlice';
+import {
+  openFilter,
+  selectAppliedRules,
+  makeSelectAppliedCount,
+  selectFilterIsOpen,
+  closeFilter,
+} from '@/store/slices/filterSlice';
 import { FilterPopover, buildFilterFields, serializeForTransactions } from '@/components/filter';
 import { DownloadPopover } from '@/components/transactions/DownloadPopover';
 import { useColumnPreferences } from '@/hooks/useColumnPreferences';
@@ -23,6 +29,7 @@ import {
   setColumnPreference,
   resetColumnPreference,
 } from '@/store/slices/columnPreferencesSlice';
+import { fetchDownloadList, selectHasProcessingDownloads } from '@/store/slices/downloadsSlice';
 import { selectUserCurrencyType } from '@/store/slices/gatewayConfigSlice';
 import {
   filterHiddenColumns,
@@ -41,6 +48,7 @@ function TransactionsPage() {
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [columnsOpen, setColumnsOpen] = useState(false);
   const userEmail = useAppSelector((s) => s.auth.signInData.email);
+  const hasProcessingDownloads = useAppSelector(selectHasProcessingDownloads);
 
   const appliedRules = useAppSelector(selectAppliedRules(SCREEN));
   const appliedCount = useAppSelector(useMemo(() => makeSelectAppliedCount(SCREEN), []));
@@ -57,8 +65,19 @@ function TransactionsPage() {
   );
   const { open } = useDrawerControl();
 
+  // Whole-row click → open the details drawer.
+  // The Transaction Ref ID link inside the row navigates to the full page.
   const handleRowClick = (row: TransactionRow) => {
-    navigate(`/transactions/${row.transactionRefId}`);
+    open({
+      type: 'details',
+      data: {
+        transactionRefId: row.transactionRefId,
+        transactionId: row.transactionId,
+        originalAmount: row.amount,
+        remainingAmount: row.amount,
+        currency: row.currency,
+      },
+    });
   };
 
   // SINGLE source of truth for the fetch trigger: the serialized filter payload.
@@ -71,24 +90,14 @@ function TransactionsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersKey, userCurrency]);
 
+  // Full schema — picker-hidden columns are kept here so they always render.
+  // The popover's column list filters them out separately.
   const columnConfigs = useMemo(
     () =>
-      filterHiddenColumns(
-        buildTransactionColumns({
-          onRefIdClick: (row) =>
-            open({
-              type: 'details',
-              data: {
-                transactionRefId: row.transactionRefId,
-                transactionId: row.transactionId,
-                originalAmount: row.amount,
-                remainingAmount: row.amount,
-                currency: row.currency,
-              },
-            }),
-        })
-      ),
-    [open]
+      buildTransactionColumns({
+        onRefIdClick: (row) => navigate(`/transactions/${row.transactionRefId}`),
+      }),
+    [navigate]
   );
 
   const filterFields = useMemo(() => buildFilterFields(columnConfigs), [columnConfigs]);
@@ -96,6 +105,12 @@ function TransactionsPage() {
   // Hydrate the saved column-preference lists once on mount.
   useEffect(() => {
     dispatch(fetchColumnPreferenceLists());
+  }, [dispatch]);
+
+  // Hydrate the download list once on mount so the action-button indicator can
+  // light up before the user opens the popover.
+  useEffect(() => {
+    dispatch(fetchDownloadList());
   }, [dispatch]);
 
   // Sync the active backend list's `columns_json` into the local visibility /
@@ -124,15 +139,19 @@ function TransactionsPage() {
   const visibleColumnConfigs = useColumnPreferences(SCREEN, columnConfigs);
 
   // Drawer items: id + backend display name + i18n label key.
+  // Picker-hidden columns (HIDDEN_FIELDS) are stripped here so they don't
+  // surface as toggleable rows in the column-preference popover.
   const columnPreferenceItems = useMemo(
     () =>
-      columnConfigs.map((c) => ({
+      filterHiddenColumns(columnConfigs).map((c) => ({
         id: c.id,
         displayName: transactionColumnIdToDisplayName(c.id),
         labelKey: c.headerPrimaryKey,
       })),
     [columnConfigs]
   );
+
+  const filterIsOpen = useAppSelector(selectFilterIsOpen(SCREEN));
 
   return (
     <div className="px-6 pb-6 h-[calc(100vh-80px)] flex flex-col">
@@ -145,11 +164,12 @@ function TransactionsPage() {
               label={t('transactions_page.total_count')}
               value={stats.totalCount || '—'}
             />
+            <div className="h-6 w-0.5 bg-gray-200" />
             {/* <PageBar.StatItem
               label={t('transactions_page.total_amount')}
               value={stats.totalAmount || '—'}
               currencyPrefix={stats.currency || undefined}
-            /> */}
+            />  <div className="h-6 w-0.5 bg-gray-200" /> */}
             <PageBar.StatItem
               label={t('transactions_page.total_sales')}
               value={stats.totalSales || '—'}
@@ -164,14 +184,20 @@ function TransactionsPage() {
             <div className="h-6 w-0.5 bg-gray-200" />
             <PageBar.StatItem
               label={t('transactions_page.approval_ratio')}
-              value={stats.approvalRatio || '—'}
+              value={stats.approvalRatio ? `${stats.approvalRatio} %` : '—'}
             />
           </PageBar.StatsPill>
           <PageBar.FilterButton
             ref={filterButtonRef}
             label={t('transactions_page.filters')}
             count={appliedCount}
-            onClick={() => dispatch(openFilter(SCREEN))}
+            onClick={() => {
+              if (filterIsOpen) {
+                dispatch(closeFilter(SCREEN));
+              } else {
+                dispatch(openFilter(SCREEN));
+              }
+            }}
           />
         </PageBar.Actions>
 
@@ -181,14 +207,22 @@ function TransactionsPage() {
             aria-label="Refresh"
             onClick={refresh}
           >
-            <RotateCcw className={loading ? 'disabled animate-spin' : ''} size={18} />
+            <RotateCw className={loading ? 'disabled animate-spin' : ''} size={18} />
           </PageBar.ActionButton>
           <PageBar.ActionButton
             ref={downloadButtonRef}
             aria-label="Download"
             onClick={() => setDownloadOpen((o) => !o)}
           >
-            <Download size={20} />
+            <span className="relative inline-flex">
+              <Download size={20} />
+              {hasProcessingDownloads && (
+                <span
+                  aria-label="Download in progress"
+                  className="absolute -right-1 -top-1 h-2 w-2 animate-pulse rounded-full bg-[#f7941d] ring-2 ring-white"
+                />
+              )}
+            </span>
           </PageBar.ActionButton>
           <PageBar.ActionButton
             ref={columnsButtonRef}
@@ -217,6 +251,9 @@ function TransactionsPage() {
         anchorRef={downloadButtonRef}
         filters={filters}
         defaultEmail={userEmail}
+        totalCount={stats.totalCount}
+        appliedRules={appliedRules}
+        fields={filterFields}
       />
       <ColumnPreferencePopover
         open={columnsOpen}
