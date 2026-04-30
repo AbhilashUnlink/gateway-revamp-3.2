@@ -131,7 +131,7 @@ export const captureTransaction = createAsyncThunk(
   'transactions/capture',
   async (payload: unknown, thunkAPI) => {
     try {
-      const res = await apiService.transactions.postCapture(payload);
+      const res = await apiService.transactions.capture(payload);
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue((err as Error).message);

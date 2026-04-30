@@ -23,6 +23,7 @@ import {
   setColumnPreference,
   resetColumnPreference,
 } from '@/store/slices/columnPreferencesSlice';
+import { selectUserCurrencyType } from '@/store/slices/gatewayConfigSlice';
 import {
   filterHiddenColumns,
   getColumnsConfigFromColumnsJson,
@@ -49,7 +50,11 @@ function TransactionsPage() {
     [appliedRules]
   );
 
-  const { rows, loading, hasMore, stats, loadMore, refresh } = useTableDataAdapter(filters);
+  const userCurrency = useAppSelector(selectUserCurrencyType);
+  const { rows, loading, hasMore, stats, loadMore, refresh } = useTableDataAdapter(
+    filters,
+    userCurrency ?? undefined
+  );
   const { open } = useDrawerControl();
 
   const handleRowClick = (row: TransactionRow) => {
@@ -64,7 +69,7 @@ function TransactionsPage() {
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersKey]);
+  }, [filtersKey, userCurrency]);
 
   const columnConfigs = useMemo(
     () =>

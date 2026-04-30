@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Calendar } from 'lucide-react';
+import { useUserDateFormat } from '@/hooks/useUserDateFormat';
 
 interface Value {
   from?: string;
@@ -63,22 +64,6 @@ function split(iso: string | undefined): { date: string; time: string } {
   return { date: toDateInput(d), time: toTimeInput(d) };
 }
 
-const DISPLAY_FORMAT: Intl.DateTimeFormatOptions = {
-  day: '2-digit',
-  month: 'short',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false,
-};
-
-function formatRange(from?: string, to?: string): string {
-  if (!from && !to) return '';
-  const fmt = (iso?: string) =>
-    iso ? new Date(iso).toLocaleString(undefined, DISPLAY_FORMAT) : '—';
-  return `${fmt(from)}  →  ${fmt(to)}`;
-}
-
 function relativeRange(unit: 'minutes' | 'hours' | 'days', amount: number): Value {
   const to = new Date();
   const from = new Date(to);
@@ -91,6 +76,12 @@ function relativeRange(unit: 'minutes' | 'hours' | 'days', amount: number): Valu
 // ── Component ────────────────────────────────────────────────────────────
 
 export function DateRangeValue({ value, onChange }: Props) {
+  const formatUserDate = useUserDateFormat();
+  const formatRange = (from?: string, to?: string): string => {
+    if (!from && !to) return '';
+    const fmt = (iso?: string) => (iso ? formatUserDate(iso) : '—');
+    return `${fmt(from)}  →  ${fmt(to)}`;
+  };
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>('absolute');
   const [menuPos, setMenuPos] = useState<MenuPosition | null>(null);
@@ -173,7 +164,7 @@ export function DateRangeValue({ value, onChange }: Props) {
         type="button"
         title={
           display
-            ? `From: ${value?.from ? new Date(value.from).toLocaleString(undefined, DISPLAY_FORMAT) : '—'}\nTo: ${value?.to ? new Date(value.to).toLocaleString(undefined, DISPLAY_FORMAT) : '—'}`
+            ? `From: ${value?.from ? formatUserDate(value.from) : '—'}\nTo: ${value?.to ? formatUserDate(value.to) : '—'}`
             : undefined
         }
         onClick={() => (open ? setOpen(false) : openPopover())}
@@ -224,12 +215,8 @@ export function DateRangeValue({ value, onChange }: Props) {
             {(() => {
               const draftFrom = tab === 'absolute' ? combine(fromDate, fromTime) : value?.from;
               const draftTo = tab === 'absolute' ? combine(toDate, toTime) : value?.to;
-              const fromLabel = draftFrom
-                ? new Date(draftFrom).toLocaleString(undefined, DISPLAY_FORMAT)
-                : '—';
-              const toLabel = draftTo
-                ? new Date(draftTo).toLocaleString(undefined, DISPLAY_FORMAT)
-                : '—';
+              const fromLabel = draftFrom ? formatUserDate(draftFrom) : '—';
+              const toLabel = draftTo ? formatUserDate(draftTo) : '—';
               const titleText =
                 draftFrom && draftTo ? `${fromLabel}  →  ${toLabel}` : 'No range selected';
               return (

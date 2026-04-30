@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Check, GripVertical, Loader2, Plus, Trash2, X } from 'lucide-react';
+import { Loader2, Move, Plus, Search, Table, Trash2, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   createColumnPreferenceList,
@@ -78,14 +78,11 @@ function buildDraft(columns: ColumnDef[], orderedIds: string[], hiddenIds: strin
     tail.push({ ...col, visible: !hiddenSet.has(id) });
     seen.add(id);
   }
-  // Append any remaining (non-mandatory) columns so newly-added schema
-  // columns never disappear from the picker.
   for (const col of visibleColumns) {
     if (seen.has(col.id) || MANDATORY_COLUMN_IDS.has(col.id)) continue;
     tail.push({ ...col, visible: !hiddenSet.has(col.id) });
   }
 
-  // Pin mandatory columns at the front, always visible, in canonical order.
   const mandatoryHead: DraftItem[] = [];
   for (const id of MANDATORY_COLUMN_IDS_ORDERED) {
     const col = byId.get(id);
@@ -93,6 +90,45 @@ function buildDraft(columns: ColumnDef[], orderedIds: string[], hiddenIds: strin
     mandatoryHead.push({ ...col, visible: true });
   }
   return [...mandatoryHead, ...tail];
+}
+
+// ──────────────── Toggle (matches Figma 28×16 brand pill) ────────────────
+interface ToggleProps {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  disabled?: boolean;
+  ariaLabel?: string;
+}
+
+function Toggle({ checked, onChange, disabled, ariaLabel }: ToggleProps) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (!disabled) onChange(!checked);
+      }}
+      className={cn(
+        'relative h-4 w-7 shrink-0 rounded-full transition-colors',
+        checked ? 'bg-[#f7941d]' : 'border border-[#e5e5e5] bg-white',
+        disabled && 'cursor-not-allowed opacity-50'
+      )}
+    >
+      <span
+        className={cn(
+          'absolute h-3 w-3 rounded-full shadow-[0_2px_4px_rgba(39,39,39,0.1)] transition-all',
+          // The off-state has a 1px border (box-sizing: border-box), which
+          // shrinks the content box; offset the knob by 1px less to keep it
+          // visually centered.
+          checked ? 'left-[14px] top-[2px] bg-white' : 'left-[1px] top-[1px] bg-[#f7941d]'
+        )}
+      />
+    </button>
+  );
 }
 
 export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, columns }: Props) {
@@ -114,6 +150,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
   const [newListName, setNewListName] = useState('');
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<string | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const isDefault = activeKey === TRANSACTION_DEFAULT_KEY;
   const isReadOnly = isDefault;
@@ -147,15 +184,12 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     };
   }, [open, anchorRef]);
 
-  // Re-seed the active key from Redux whenever the popover opens or the
-  // backend-confirmed selection changes.
   useEffect(() => {
     if (!open) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveKey(activeBackendList?.uuid ?? TRANSACTION_DEFAULT_KEY);
   }, [open, activeBackendList]);
 
-  // Rebuild the draft whenever the active profile changes.
   useEffect(() => {
     if (!open) return;
     const columnsJson = isDefault ? null : (activeList?.columns_json ?? null);
@@ -165,10 +199,9 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     );
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft(buildDraft(columns, orderedColumns, hiddenColumns));
+    setSearchQuery('');
   }, [open, isDefault, activeList, columns, fallbackIds]);
 
-  // Close on outside click + ESC. Don't close when interacting with the
-  // confirmation modal (rendered as a separate portal at higher z-index).
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
@@ -189,7 +222,6 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     };
   }, [open, anchorRef, onClose]);
 
-  /** Sync the local visibility/order slice so the table updates immediately. */
   const commitToTable = (items: DraftItem[]) => {
     const order = items.map((c) => c.id);
     const hidden = items.filter((c) => !c.visible).map((c) => c.id);
@@ -202,18 +234,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     if (isReadOnly || isMandatoryId(id)) return;
     setDraft((prev) => prev.map((c) => (c.id === id ? { ...c, visible: !c.visible } : c)));
   };
-  const showAll = () => {
-    if (isReadOnly) return;
-    setDraft((prev) => prev.map((c) => ({ ...c, visible: true })));
-  };
-  const hideAll = () => {
-    if (isReadOnly) return;
-    setDraft((prev) =>
-      prev.map((c) => (isMandatoryId(c.id) ? { ...c, visible: true } : { ...c, visible: false }))
-    );
-  };
 
-  /** First index that is *not* a mandatory row — drops can never go above it. */
   const firstSortableIdx = (items: DraftItem[]) => {
     let i = 0;
     while (i < items.length && isMandatoryId(items[i]!.id)) i++;
@@ -228,7 +249,6 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     }
     dragFromRef.current = idx;
     e.dataTransfer.effectAllowed = 'move';
-    // Required for Firefox to actually start a drag.
     e.dataTransfer.setData('text/plain', String(idx));
   };
   const handleDragOver = (idx: number) => (e: DragEvent<HTMLDivElement>) => {
@@ -247,7 +267,6 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     if (from === null || from === idx) return;
     setDraft((prev) => {
       const lockedTop = firstSortableIdx(prev);
-      // Mandatory rows never move and nothing can land above them.
       if (from < lockedTop || idx < lockedTop) return prev;
       const next = [...prev];
       const [moved] = next.splice(from, 1);
@@ -263,8 +282,6 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
 
   const handleApply = async () => {
     if (isDefault) {
-      // Default profile → no backend list selected. Clear the local override
-      // and deselect any backend list.
       dispatch(setSelectedListUuid(null));
       dispatch(resetColumnPreference(screen));
       onClose();
@@ -303,6 +320,18 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     setNewListName('');
   };
 
+  /**
+   * All list-row selections (Default + custom) go through here so typing a
+   * new-list name and clicking an existing row are mutually exclusive — the
+   * footer button switches between Apply and Save based on `newListName`.
+   */
+  const selectListKey = (key: string) => {
+    setActiveKey(key);
+    setNewListName('');
+  };
+
+  const isAdding = !!newListName.trim();
+
   const handleConfirmDelete = async () => {
     if (!confirmDeleteKey || confirmDeleteKey === TRANSACTION_DEFAULT_KEY) {
       setConfirmDeleteKey(null);
@@ -318,7 +347,22 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     setConfirmDeleteKey(null);
   };
 
+  // Filter the right-pane list by search query while preserving original
+  // draft indices so drag-and-drop stays correct.
+  const indexedDraft = useMemo(() => draft.map((item, idx) => ({ item, idx })), [draft]);
+  const filteredDraft = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return indexedDraft;
+    return indexedDraft.filter(
+      ({ item }) =>
+        t(item.labelKey, item.displayName).toLowerCase().includes(q) ||
+        item.displayName.toLowerCase().includes(q)
+    );
+  }, [indexedDraft, searchQuery, t]);
+
   if (!open || !position) return null;
+
+  const customLists = lists;
 
   return createPortal(
     <>
@@ -327,205 +371,200 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
         ref={popRef}
         role="dialog"
         aria-modal="false"
-        className="fixed z-[60] flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
+        className="fixed z-[60] flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_4px_10px_rgba(0,0,0,0.2)]"
         style={{
           top: position.top,
           left: position.left,
           width: POPOVER_WIDTH,
-          maxHeight: position.maxHeight,
+          // Fixed height (not max-height) so the popover stays a constant
+          // size when the search filter shrinks the right-pane list.
+          height: position.maxHeight,
         }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#f0f0f0] px-6 py-4">
-          <h3 className="text-lg font-semibold text-[#1a1a1a]">{t('columns.title')}</h3>
+        {/* Header — soft orange tint */}
+        <div className="flex h-[66px] shrink-0 items-center gap-2 rounded-t-2xl bg-[#fff6e6] px-4 py-1.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white">
+            <Table size={16} className="text-[#1a1a1a]" />
+          </div>
+          <h3 className="flex-1 text-base font-semibold leading-5 text-[#1a1a1a]">
+            {t('columns.title')}
+          </h3>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-[#fafafa]"
             aria-label="Close"
+            className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/60"
           >
-            <X size={18} />
+            <X size={20} className="text-[#1a1a1a]" />
           </button>
         </div>
 
         {/* Body — two columns */}
-        <div className="grid min-h-0 flex-1 grid-cols-2 gap-0 overflow-hidden">
-          {/* Left: profiles */}
-          <div className="flex flex-col overflow-hidden border-r border-[#f0f0f0]">
-            <div className="flex flex-col gap-3 overflow-y-auto px-6 py-5">
-              <h4 className="text-sm font-semibold text-[#1a1a1a]">{t('columns.custom_lists')}</h4>
+        <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 overflow-hidden px-4 py-4">
+          {/* Left column — Predefined + Custom + actions */}
+          <div className="flex min-h-0 flex-col gap-6 overflow-y-auto pr-1">
+            {/* Predefined List */}
+            <section className="flex flex-col gap-2">
+              <h4 className="text-sm font-semibold leading-5 text-[#1a1a1a]">
+                {t('columns.predefined_lists')}
+              </h4>
+              <PredefinedRow
+                label={t('columns.default')}
+                selected={isDefault}
+                onSelect={() => selectListKey(TRANSACTION_DEFAULT_KEY)}
+              />
+            </section>
 
-              <div className="flex flex-col gap-1.5">
-                {[
-                  { key: TRANSACTION_DEFAULT_KEY, label: t('columns.default'), isDefault: true },
-                  ...lists.map((p) => ({ key: p.uuid, label: p.name, isDefault: false })),
-                ].map(({ key, label, isDefault: rowIsDefault }) => {
-                  const isSelected = activeKey === key;
+            {/* Custom Preferred List */}
+            <section className="flex flex-col gap-3">
+              <h4 className="text-sm font-semibold leading-5 text-[#1a1a1a]">
+                {t('columns.custom_lists')}
+              </h4>
+
+              <div className="flex flex-col gap-3">
+                {customLists.map((p) => {
+                  const isSelected = activeKey === p.uuid;
                   return (
-                    <div
-                      key={key}
-                      className={cn(
-                        'group flex items-center gap-2 rounded-lg border px-3 py-2',
-                        isSelected ? 'border-[#1a1a1a] bg-[#fafafa]' : 'border-[#e5e5e5] bg-white'
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="column-preference"
-                        checked={isSelected}
-                        onChange={() => setActiveKey(key)}
-                        className="h-4 w-4 shrink-0"
-                      />
-                      <span
-                        className="min-w-0 flex-1 truncate text-sm text-[#1a1a1a]"
-                        title={label}
-                      >
-                        {label}
-                      </span>
-                      {!rowIsDefault && (
-                        <button
-                          type="button"
-                          onClick={() => setConfirmDeleteKey(key)}
-                          disabled={isSelected}
-                          aria-label="Delete"
-                          title={
-                            isSelected ? t('columns.cannot_delete_active') : t('columns.delete')
-                          }
-                          className="shrink-0 text-[#808080] opacity-0 transition-opacity hover:text-[#ff4343] disabled:cursor-not-allowed disabled:opacity-30 group-hover:opacity-100"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                    </div>
+                    <CustomListRow
+                      key={p.uuid}
+                      label={p.name}
+                      selected={isSelected}
+                      onSelect={() => selectListKey(p.uuid)}
+                      onDelete={() => setConfirmDeleteKey(p.uuid)}
+                      deleteDisabled={isSelected}
+                      deleteTitle={
+                        isSelected ? t('columns.cannot_delete_active') : t('columns.delete')
+                      }
+                    />
                   );
                 })}
-              </div>
 
-              <div className="pt-2">
-                <Button type="button" onClick={handleApply} disabled={saving} className="w-full">
-                  {saving ? (
-                    <Loader2 size={14} className="mr-1.5 animate-spin" />
-                  ) : (
-                    <Check size={14} className="mr-1.5" />
+                {/* Add New */}
+                <div className="flex flex-col gap-2 border-t border-[#e5e5e5] pt-3">
+                  <span className="inline-flex w-fit items-center gap-2 text-sm font-semibold leading-5 text-[#1a1a1a]">
+                    {t('columns.add_new')}
+                    <Plus size={16} />
+                  </span>
+                  <input
+                    type="text"
+                    value={newListName}
+                    onChange={(e) => setNewListName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddList();
+                    }}
+                    placeholder={t('columns.enter_name')}
+                    className="h-12 w-full rounded-lg border border-[#e5e5e5] bg-white px-3 text-sm text-[#1a1a1a] outline-none focus:border-[#f7941d]"
+                  />
+                  {isNameDuplicate && (
+                    <span className="text-xs text-[#ff4343]">{t('columns.name_taken')}</span>
                   )}
-                  {t('columns.apply')}
-                </Button>
+                </div>
               </div>
-            </div>
+            </section>
 
-            {/* Add new list */}
-            <div className="mt-auto border-t border-[#f0f0f0] bg-[#fafafa] px-6 py-4">
-              <h4 className="mb-2 text-sm font-semibold text-[#1a1a1a]">{t('columns.add_list')}</h4>
-              <div className="flex flex-col gap-1.5">
-                <input
-                  type="text"
-                  value={newListName}
-                  onChange={(e) => setNewListName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddList();
-                  }}
-                  placeholder={t('columns.enter_name')}
-                  className="h-10 w-full rounded-lg border border-[#e5e5e5] bg-white px-3 text-sm text-[#1a1a1a] outline-none focus:border-[#1a1a1a]"
-                />
-                {isNameDuplicate && (
-                  <span className="text-xs text-[#ff4343]">{t('columns.name_taken')}</span>
-                )}
-                <Button
-                  type="button"
-                  onClick={handleAddList}
-                  disabled={!newListName.trim() || isNameDuplicate || saving}
-                >
-                  {saving ? (
-                    <Loader2 size={14} className="mr-1.5 animate-spin" />
-                  ) : (
-                    <Plus size={14} className="mr-1.5" />
-                  )}
-                  {t('columns.add')}
-                </Button>
-              </div>
+            {/* Actions — Apply switches to Save while a new-list name is being typed. */}
+            <div className="mt-auto flex gap-3 pt-2 pb-1">
+              <Button
+                type="button"
+                variant="primary"
+                onClick={isAdding ? handleAddList : handleApply}
+                disabled={saving || (isAdding && isNameDuplicate)}
+                className="flex-1"
+              >
+                {isAdding ? t('columns.save') : t('columns.apply')}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  if (isAdding) {
+                    setNewListName('');
+                    return;
+                  }
+                  onClose();
+                }}
+                disabled={saving}
+                className="flex-1"
+              >
+                {t('columns.cancel')}
+              </Button>
             </div>
           </div>
 
-          {/* Right: column list */}
-          <div className="flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between border-b border-[#f0f0f0] px-6 py-3">
-              <span className="text-sm font-semibold text-[#1a1a1a]">{t('columns.columns')}</span>
-              <div className="flex items-center gap-3 text-xs">
-                <button
-                  type="button"
-                  onClick={showAll}
-                  disabled={isReadOnly}
-                  className="font-medium text-[#1a1a1a] hover:text-[#f7941d] disabled:cursor-not-allowed disabled:text-[#bdbdbd] disabled:hover:text-[#bdbdbd]"
-                >
-                  {t('columns.show_all')}
-                </button>
-                <span className="text-[#bdbdbd]">·</span>
-                <button
-                  type="button"
-                  onClick={hideAll}
-                  disabled={isReadOnly}
-                  className="font-medium text-[#1a1a1a] hover:text-[#f7941d] disabled:cursor-not-allowed disabled:text-[#bdbdbd] disabled:hover:text-[#bdbdbd]"
-                >
-                  {t('columns.hide_all')}
-                </button>
+          {/* Right column — Selected items */}
+          <div className="flex min-h-0 flex-col gap-2">
+            <h4 className="text-sm font-semibold leading-5 text-[#1a1a1a]">
+              {t('columns.selected_items')}
+            </h4>
+
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-lg border border-[#e5e5e5] bg-[#fff6e6] p-3">
+              {/* Search */}
+              <div className="flex h-9 shrink-0 items-center gap-2 rounded-lg border border-[#e5e5e5] bg-white pl-3 pr-2">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t('columns.search')}
+                  className="h-full flex-1 bg-transparent text-xs leading-[15px] text-[#1a1a1a] outline-none placeholder:text-[#808080]"
+                />
+                <Search size={16} className="text-[#808080]" />
               </div>
-            </div>
-            {isReadOnly && (
-              <div className="border-b border-[#f0f0f0] bg-[#fffbe6] px-6 py-2 text-xs text-[#8a6d3b]">
-                {t('columns.default_readonly')}
-              </div>
-            )}
-            <div className="flex-1 overflow-y-auto px-3 py-2">
-              {draft.map((col, idx) => {
-                const isDragOver = dragOverIdx === idx;
-                const isMandatoryRow = isMandatoryId(col.id);
-                const rowLocked = isReadOnly || isMandatoryRow;
-                return (
-                  <div
-                    key={col.id}
-                    draggable={!rowLocked}
-                    onDragStart={handleDragStart(idx)}
-                    onDragOver={handleDragOver(idx)}
-                    onDrop={handleDrop(idx)}
-                    onDragEnd={handleDragEnd}
-                    onDragLeave={() => {
-                      if (dragOverIdx === idx) setDragOverIdx(null);
-                    }}
-                    className={cn(
-                      'flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-[#fafafa]',
-                      isDragOver && !rowLocked && 'bg-[#f0f7ff] ring-1 ring-[#1a1a1a]'
-                    )}
-                  >
-                    <button
-                      type="button"
-                      aria-label={t('columns.drag_to_reorder')}
-                      title={t('columns.drag_to_reorder')}
-                      disabled={rowLocked}
+
+              {/* List */}
+              <div className="-mr-1 flex-1 overflow-y-auto pr-1">
+                {filteredDraft.map(({ item: col, idx }) => {
+                  const isDragOver = dragOverIdx === idx;
+                  const isMandatoryRow = isMandatoryId(col.id);
+                  const rowLocked = isReadOnly || isMandatoryRow;
+                  return (
+                    <div
+                      key={col.id}
+                      draggable={!rowLocked}
+                      onDragStart={handleDragStart(idx)}
+                      onDragOver={handleDragOver(idx)}
+                      onDrop={handleDrop(idx)}
+                      onDragEnd={handleDragEnd}
+                      onDragLeave={() => {
+                        if (dragOverIdx === idx) setDragOverIdx(null);
+                      }}
                       className={cn(
-                        'flex h-7 w-5 shrink-0 items-center justify-center text-[#bdbdbd]',
-                        rowLocked
-                          ? 'cursor-not-allowed opacity-30'
-                          : 'cursor-grab hover:text-[#1a1a1a]'
+                        'flex items-center gap-2.5 py-3',
+                        isDragOver && !rowLocked && 'rounded ring-1 ring-[#f7941d]'
                       )}
                     >
-                      <GripVertical size={14} />
-                    </button>
-                    <input
-                      type="checkbox"
-                      checked={col.visible}
-                      onChange={() => toggle(col.id)}
-                      disabled={rowLocked}
-                      className="h-4 w-4 shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                    <span
-                      className="min-w-0 flex-1 truncate text-sm text-[#1a1a1a]"
-                      title={col.displayName}
-                    >
-                      {t(col.labelKey, col.displayName)}
-                    </span>
-                  </div>
-                );
-              })}
+                      <button
+                        type="button"
+                        aria-label={t('columns.drag_to_reorder')}
+                        title={t('columns.drag_to_reorder')}
+                        disabled={rowLocked}
+                        className={cn(
+                          'flex size-4 shrink-0 items-center justify-center text-[#808080]',
+                          rowLocked
+                            ? 'cursor-not-allowed opacity-30'
+                            : 'cursor-grab hover:text-[#1a1a1a]'
+                        )}
+                      >
+                        <Move size={14} />
+                      </button>
+                      <span
+                        className="min-w-0 flex-1 truncate text-sm leading-5 text-[#1a1a1a]"
+                        title={col.displayName}
+                      >
+                        {t(col.labelKey, col.displayName)}
+                      </span>
+                      <Toggle
+                        checked={col.visible}
+                        disabled={rowLocked}
+                        onChange={() => toggle(col.id)}
+                        ariaLabel={col.displayName}
+                      />
+                    </div>
+                  );
+                })}
+                {filteredDraft.length === 0 && (
+                  <div className="py-8 text-center text-xs text-[#808080]">—</div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -541,14 +580,21 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
             <h4 className="text-lg font-semibold text-[#1a1a1a]">{t('columns.delete_title')}</h4>
             <p className="mt-2 text-sm text-[#808080]">{t('columns.delete_confirm')}</p>
             <div className="mt-5 flex justify-end gap-3">
-              <Button type="button" variant="ghost" onClick={() => setConfirmDeleteKey(null)}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setConfirmDeleteKey(null)}
+                disabled={saving}
+              >
                 {t('columns.cancel')}
               </Button>
               <Button
                 type="button"
                 onClick={handleConfirmDelete}
+                disabled={saving}
                 className="bg-[#ff4343] hover:bg-[#e23838]"
               >
+                {saving && <Loader2 size={14} className="mr-1.5 animate-spin" />}
                 {t('columns.delete')}
               </Button>
             </div>
@@ -557,5 +603,89 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
       )}
     </>,
     document.body
+  );
+}
+
+// ──────────────── Sub-rows ────────────────
+
+interface RowChromeProps {
+  selected: boolean;
+}
+
+const rowChrome = ({ selected }: RowChromeProps) =>
+  cn(
+    'flex h-12 w-full items-center gap-3 rounded-lg border p-3 transition-colors',
+    selected ? 'border-[#f7941d] bg-[#fff6e6]' : 'border-[#e5e5e5] bg-white'
+  );
+
+function PredefinedRow({
+  label,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(rowChrome({ selected }), 'cursor-pointer text-left')}
+    >
+      <span className="min-w-0 flex-1 truncate text-sm leading-5 text-[#1a1a1a]" title={label}>
+        {label}
+      </span>
+      <Toggle checked={selected} onChange={() => onSelect()} ariaLabel={label} />
+    </button>
+  );
+}
+
+function CustomListRow({
+  label,
+  selected,
+  onSelect,
+  onDelete,
+  deleteDisabled,
+  deleteTitle,
+}: {
+  label: string;
+  selected: boolean;
+  onSelect: () => void;
+  onDelete: () => void;
+  deleteDisabled: boolean;
+  deleteTitle: string;
+}) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      className={cn(rowChrome({ selected }), 'group cursor-pointer')}
+    >
+      <span className="min-w-0 flex-1 truncate text-sm leading-5 text-[#1a1a1a]" title={label}>
+        {label}
+      </span>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+        disabled={deleteDisabled}
+        aria-label="Delete"
+        title={deleteTitle}
+        className="text-[#f7941d] transition-opacity hover:text-[#ff4343] disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        <Trash2 size={20} />
+      </button>
+      <Toggle checked={selected} onChange={() => onSelect()} ariaLabel={label} />
+    </div>
   );
 }
