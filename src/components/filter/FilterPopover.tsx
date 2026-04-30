@@ -9,6 +9,7 @@ import {
   closeFilter,
   loadRules,
   removeRule,
+  resetFilters,
   selectDraftRules,
   selectFilterIsOpen,
   updateRule,
@@ -187,6 +188,13 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
     setPresetName('');
   };
 
+  const handleCancel = () => {
+    dispatch(resetFilters(screen));
+    dispatch(closeFilter(screen));
+    setSavingMode(false);
+    setPresetName('');
+  };
+
   const handleLoadPreset = (uuid: string) => {
     const preset = presets.find((p) => p.uuid === uuid);
     if (!preset) return;
@@ -312,7 +320,7 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
         <Button
           type="button"
           variant="ghost"
-          onClick={handleClose}
+          onClick={handleCancel}
           className="flex-1 rounded-2xl uppercase"
         >
           {t('filter.cancel', 'Cancel')}

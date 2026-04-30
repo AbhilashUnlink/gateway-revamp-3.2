@@ -72,17 +72,20 @@ export const fetchTransactionsList = createAsyncThunk(
       const skip = (params.page - 1) * params.limit;
       const hasMore =
         listData?.hasMore ??
-        (totalCount > 0 ? skip + rows.length < totalCount : rows.length === params.limit);
+        (rows.length > 0 &&
+          (totalCount > 0 ? skip + rows.length < totalCount : rows.length === params.limit));
 
       return {
         rows,
         hasMore,
         page: params.page,
         stats: {
-          totalSales: listData?.total_sales ?? '',
-          totalRefund: listData?.total_refund ?? '',
-          approvalRatio: listData?.approval_ratio ?? '',
-          currency: listData?.currency ?? '',
+          totalCount: listData?.total_count ?? '0',
+          totalAmount: listData?.total_amount ?? '0',
+          totalSales: listData?.total_sales ?? '0',
+          totalRefund: listData?.total_refund ?? '0',
+          approvalRatio: listData?.approval_ratio ?? '0',
+          currency: listData?.currency ?? 'USD',
         },
       };
     } catch (err) {

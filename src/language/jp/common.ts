@@ -95,6 +95,8 @@ const jp = {
   },
   transactions_page: {
     title: '取引リスト',
+    total_count: '総件数:',
+    total_amount: '総金額:',
     total_sales: '総売上:',
     total_refund: '総返金:',
     approval_ratio: '承認率:',
