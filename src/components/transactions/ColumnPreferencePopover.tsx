@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Check, GripVertical, Plus, Trash2, X } from 'lucide-react';
+import { Check, GripVertical, Loader2, Plus, Trash2, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setColumnPreference, resetColumnPreference } from '@/store/slices/columnPreferencesSlice';
 import {
@@ -19,6 +19,12 @@ import {
   setTransactionListEntry,
   setTransactionListSelected,
 } from '@/store/slices/gatewayConfigSlice';
+import {
+  createColumnPreferenceList,
+  deleteColumnPreferenceList,
+  selectColumnPreferenceListsSaving,
+  updateColumnPreferenceList,
+} from '@/store/slices/columnPreferenceListsSlice';
 import {
   buildTransactionListEntry,
   getTransactionColumnsConfig,
@@ -84,6 +90,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
   const dispatch = useAppDispatch();
   const listMap = useAppSelector(selectTransactionListMap);
   const selectedKey = useAppSelector(selectTransactionListSelectedKey);
+  const saving = useAppSelector(selectColumnPreferenceListsSaving);
 
   const popRef = useRef<HTMLDivElement>(null);
   const dragFromRef = useRef<number | null>(null);
@@ -133,6 +140,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
   // backend-confirmed selection changes.
   useEffect(() => {
     if (!open) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveKey(selectedKey);
   }, [open, selectedKey]);
 
@@ -144,6 +152,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
       activeKey,
       fallbackIds
     );
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft(buildDraft(columns, orderedColumns, hiddenColumns));
   }, [open, activeKey, listMap, columns, fallbackIds]);
 
@@ -222,7 +231,11 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     setDragOverIdx(null);
   };
 
-  const handleApply = () => {
+  /** Backend `columns_json` = visible columns (in order) by display name. */
+  const draftToColumnsJson = (items: DraftItem[]) =>
+    items.filter((c) => c.visible).map((c) => c.displayName);
+
+  const handleApply = async () => {
     if (isDefault) {
       // Default profile is read-only → just clear local override and persist
       // the selection on userPreference.
@@ -232,14 +245,28 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
       return;
     }
     const existing = listMap[activeKey] ?? {};
-    const { ['order']: _o, ['unChecked']: _u, ['updatedList']: _l, ...extras } = existing;
+    const { uuid, order: _o, unChecked: _u, updatedList: _l, ...extras } = existing;
     void _o;
     void _u;
     void _l;
+    const columnsJson = draftToColumnsJson(draft);
+
+    if (uuid) {
+      // Persist edits to the backend first, then mirror into Redux.
+      const action = await dispatch(
+        updateColumnPreferenceList({
+          uuid,
+          name: activeKey,
+          columns_json: columnsJson,
+          currentSelectedList: true,
+        })
+      );
+      if (!updateColumnPreferenceList.fulfilled.match(action)) return;
+    }
     dispatch(
       setTransactionListEntry({
         key: activeKey,
-        entry: buildTransactionListEntry(draft, extras),
+        entry: { uuid, ...buildTransactionListEntry(draft, extras) },
       })
     );
     dispatch(setTransactionListSelected(activeKey));
@@ -247,14 +274,26 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     onClose();
   };
 
-  const handleAddList = () => {
+  const handleAddList = async () => {
     const name = newListName.trim();
     if (!name || isNameDuplicate) return;
     const seedDraft = draft.length ? draft : columns.map((c) => ({ ...c, visible: true }));
+
+    // Create on the backend first to obtain the uuid we need for future updates.
+    const action = await dispatch(
+      createColumnPreferenceList({
+        name,
+        columns_json: draftToColumnsJson(seedDraft),
+        currentSelectedList: true,
+      })
+    );
+    if (!createColumnPreferenceList.fulfilled.match(action) || !action.payload) return;
+    const { uuid } = action.payload;
+
     dispatch(
       setTransactionListEntry({
         key: name,
-        entry: buildTransactionListEntry(seedDraft),
+        entry: { uuid, ...buildTransactionListEntry(seedDraft) },
       })
     );
     dispatch(setTransactionListSelected(name));
@@ -263,8 +302,13 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     setNewListName('');
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!confirmDeleteKey) return;
+    const entry = listMap[confirmDeleteKey];
+    if (entry?.uuid) {
+      const action = await dispatch(deleteColumnPreferenceList(entry.uuid));
+      if (!deleteColumnPreferenceList.fulfilled.match(action)) return;
+    }
     dispatch(removeTransactionListEntry(confirmDeleteKey));
     if (selectedKey === confirmDeleteKey) {
       dispatch(setTransactionListSelected(TRANSACTION_DEFAULT_KEY));
@@ -356,8 +400,12 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
               </div>
 
               <div className="pt-2">
-                <Button type="button" onClick={handleApply} className="w-full">
-                  <Check size={14} className="mr-1.5" />
+                <Button type="button" onClick={handleApply} disabled={saving} className="w-full">
+                  {saving ? (
+                    <Loader2 size={14} className="mr-1.5 animate-spin" />
+                  ) : (
+                    <Check size={14} className="mr-1.5" />
+                  )}
                   {t('columns.apply')}
                 </Button>
               </div>
@@ -383,9 +431,13 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
                 <Button
                   type="button"
                   onClick={handleAddList}
-                  disabled={!newListName.trim() || isNameDuplicate}
+                  disabled={!newListName.trim() || isNameDuplicate || saving}
                 >
-                  <Plus size={14} className="mr-1.5" />
+                  {saving ? (
+                    <Loader2 size={14} className="mr-1.5 animate-spin" />
+                  ) : (
+                    <Plus size={14} className="mr-1.5" />
+                  )}
                   {t('columns.add')}
                 </Button>
               </div>

@@ -3,6 +3,8 @@ import { TRANSACTION_COLUMN_DISPLAY_NAMES } from '@/pages/transactions/transacti
 export const TRANSACTION_DEFAULT_KEY = 'default';
 
 export interface TransactionListEntry {
+  /** Backend uuid (set after a successful create — drives subsequent updates). */
+  uuid?: string;
   order?: string[];
   unChecked?: string[];
   updatedList?: Array<{ headerName?: string; id?: string }>;

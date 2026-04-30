@@ -109,6 +109,42 @@ const slice = createSlice({
       }
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createColumnPreferenceList.pending, (state) => {
+        state.saving = true;
+        state.error = null;
+      })
+      .addCase(createColumnPreferenceList.fulfilled, (state) => {
+        state.saving = false;
+      })
+      .addCase(createColumnPreferenceList.rejected, (state, action) => {
+        state.saving = false;
+        state.error = action.payload ?? 'Failed to create column preference';
+      })
+      .addCase(updateColumnPreferenceList.pending, (state) => {
+        state.saving = true;
+        state.error = null;
+      })
+      .addCase(updateColumnPreferenceList.fulfilled, (state) => {
+        state.saving = false;
+      })
+      .addCase(updateColumnPreferenceList.rejected, (state, action) => {
+        state.saving = false;
+        state.error = action.payload ?? 'Failed to update column preference';
+      })
+      .addCase(deleteColumnPreferenceList.pending, (state) => {
+        state.saving = true;
+        state.error = null;
+      })
+      .addCase(deleteColumnPreferenceList.fulfilled, (state) => {
+        state.saving = false;
+      })
+      .addCase(deleteColumnPreferenceList.rejected, (state, action) => {
+        state.saving = false;
+        state.error = action.payload ?? 'Failed to delete column preference';
+      });
+  },
 });
 
 export const { resetColumnPreferenceLists, setSelectedListUuid } = slice.actions;
