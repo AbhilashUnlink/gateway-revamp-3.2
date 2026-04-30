@@ -105,8 +105,6 @@ export const apiService = {
       Api().post(`transactions/transaction-column-preference/update/${params.uuid}`, data),
     postTransactionColumnPreferenceDelete: (params: { uuid: string }) =>
       Api().post(`transactions/transaction-column-preference/delete/${params.uuid}`),
-    getAllTransactionColumnPreferences: () =>
-      Api().get(`transactions/transaction-column-preference/user/getAll`),
     getTransactionColumnPreferenceById: (params: { uuid: string }) =>
       Api().get(`transactions/transaction-column-preference/${params.uuid}`),
     postVoid: (data?: unknown) => Api().post(`transactions/void`, data),
