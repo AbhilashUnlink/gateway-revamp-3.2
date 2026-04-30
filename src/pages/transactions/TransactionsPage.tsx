@@ -20,8 +20,9 @@ import { ColumnPreferencePopover } from '@/components/transactions/ColumnPrefere
 import {
   fetchColumnPreferenceLists,
   selectActiveColumnPreferenceList,
-} from '@/store/slices/columnPreferenceListsSlice';
-import { setColumnPreference, resetColumnPreference } from '@/store/slices/columnPreferencesSlice';
+  setColumnPreference,
+  resetColumnPreference,
+} from '@/store/slices/columnPreferencesSlice';
 import {
   filterHiddenColumns,
   getColumnsConfigFromColumnsJson,

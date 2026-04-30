@@ -11,16 +11,17 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Check, GripVertical, Loader2, Plus, Trash2, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setColumnPreference, resetColumnPreference } from '@/store/slices/columnPreferencesSlice';
 import {
   createColumnPreferenceList,
   deleteColumnPreferenceList,
+  resetColumnPreference,
   selectActiveColumnPreferenceList,
   selectColumnPreferenceLists,
   selectColumnPreferenceListsSaving,
+  setColumnPreference,
   setSelectedListUuid,
   updateColumnPreferenceList,
-} from '@/store/slices/columnPreferenceListsSlice';
+} from '@/store/slices/columnPreferencesSlice';
 import {
   buildColumnsJsonFromDraft,
   filterHiddenColumns,
