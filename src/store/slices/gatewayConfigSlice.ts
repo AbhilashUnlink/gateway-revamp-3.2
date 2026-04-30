@@ -235,6 +235,27 @@ export const selectChargebackReasonCodeOptions = createSelector([selectGatewayCo
   return out;
 });
 
+export const selectChargebackReasonCodeOptionsByScheme = (scheme: string | null | undefined) =>
+  createSelector([selectGatewayConfig], (config): FilterOption[] => {
+    if (!scheme) return [];
+    const raw = pickKey(config, 'chargebackReasonCode');
+    if (!raw || typeof raw !== 'object') return [];
+    const list = (raw as Record<string, unknown>)[scheme];
+    if (!Array.isArray(list)) return [];
+    const out: FilterOption[] = [];
+    for (const item of list) {
+      if (!item || typeof item !== 'object') continue;
+      const o = item as Record<string, unknown>;
+      const code = o.ReasonCode as string | undefined;
+      const desc = o.ReasonCodeDescription as string | undefined;
+      if (code) {
+        const label = desc ? `${code} ${desc}` : code;
+        out.push({ label, value: label });
+      }
+    }
+    return out;
+  });
+
 export const selectTransactionTypeOptions = createSelector([selectGatewayConfig], (config) =>
   toStringOptions(pickKey(config, 'transactionTypes'))
 );

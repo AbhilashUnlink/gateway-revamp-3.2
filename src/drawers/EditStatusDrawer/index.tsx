@@ -12,15 +12,6 @@ import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
 
 const FORM_ID = 'edit-status-form';
 
-const STATUS_OPTIONS = [
-  { label: 'Successful', value: 'SUCCESSFUL' },
-  { label: 'Not Successful', value: 'NOTSUCCESSFUL' },
-  { label: 'Pending', value: 'PENDING' },
-  { label: 'Review', value: 'REVIEW' },
-  { label: 'Declined', value: 'DECLINED' },
-  { label: 'Error', value: 'ERROR' },
-];
-
 interface EditStatusFormValues {
   status: string;
   authCode: string;
@@ -32,6 +23,11 @@ export default function EditStatusDrawer({ type, data }: DrawerComponentProps) {
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitEditStatus, loading } = useEditStatus(handleClose);
   const { data: details } = useTransactionActions();
+
+  const STATUS_OPTIONS = [
+    { label: t('drawer.status_option_successful'), value: 'SUCCESSFUL' },
+    { label: t('drawer.status_option_notsuccessful'), value: 'NOTSUCCESSFUL' },
+  ];
 
   const transactionId = String(details?.TransactionID ?? data?.transactionId ?? '');
   const currentAuthCode = details?.AuthCode ?? '';

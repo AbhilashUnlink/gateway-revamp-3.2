@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import DasDrawer from '@/components/ui/DasDrawer';
@@ -7,6 +8,9 @@ import type { FormSchema } from '@/components/DasForm';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
 import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
 import { useDispute } from '@/hooks/useDispute';
+import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { useAppSelector } from '@/store/hooks';
+import { selectChargebackReasonCodeOptionsByScheme } from '@/store/slices/gatewayConfigSlice';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
 
 const FORM_ID = 'dispute-form';
@@ -22,6 +26,23 @@ export default function DisputeDrawer({ type, data }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitDispute, loading } = useDispute(handleClose);
+  const { data: details } = useTransactionActions();
+
+  const scheme = (data?.paymentScheme as string) ?? details?.Scheme ?? null;
+  const reasonCodeSelector = useMemo(
+    () => selectChargebackReasonCodeOptionsByScheme(scheme),
+    [scheme]
+  );
+  const reasonCodeOptions = useAppSelector(reasonCodeSelector);
+
+  const CASE_TYPE_OPTIONS = [
+    { label: t('drawer.case_type_retrieval_request'), value: 'RetrievalRequest' },
+    { label: t('drawer.case_type_first_chargeback'), value: 'FirstChargeback' },
+    { label: t('drawer.case_type_second_chargeback'), value: 'SecondChargeback' },
+    { label: t('drawer.case_type_auto_representment'), value: 'AutoRepresentment' },
+    { label: t('drawer.case_type_chargeback_reversal'), value: 'ChargebackReversal' },
+    { label: t('drawer.case_type_evidence_under_review'), value: 'EvidenceUnderReview' },
+  ];
 
   const schema: FormSchema = {
     fieldGap: 4,
@@ -31,7 +52,7 @@ export default function DisputeDrawer({ type, data }: DrawerComponentProps) {
         name: 'CaseType',
         label: t('drawer.case_type'),
         placeholder: 'Select',
-        options: [],
+        options: CASE_TYPE_OPTIONS,
         rules: { required: true },
         required: true,
       },
@@ -40,7 +61,7 @@ export default function DisputeDrawer({ type, data }: DrawerComponentProps) {
         name: 'ReasonCode',
         label: t('drawer.reason_description'),
         placeholder: 'Select',
-        options: [],
+        options: reasonCodeOptions,
         rules: { required: true },
         required: true,
       },
