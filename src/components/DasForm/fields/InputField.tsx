@@ -31,6 +31,7 @@ export function InputField({ field }: InputFieldProps) {
       {field.label && (
         <label htmlFor={field.name} className="text-sm font-medium text-[#1a1a1a]">
           {field.label}
+          {field.required && <span className="ml-0.5 text-[#ff4343]">*</span>}
         </label>
       )}
       <div className="relative flex items-center">

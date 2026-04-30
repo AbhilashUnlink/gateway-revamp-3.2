@@ -60,7 +60,19 @@ export default function RefundDrawer({ type, data }: DrawerComponentProps) {
         inputType: 'number',
         label: t('drawer.refund_amount'),
         placeholder: t('drawer.refund_amount_placeholder'),
-        rules: { required: true, validate: (v: string) => parseFloat(v) > 0 },
+        suffix: currency,
+        rules: {
+          required: t('drawer.refund_amount_required'),
+          validate: (v: string) => {
+            if (v === undefined || v === null || v === '') {
+              return t('drawer.refund_amount_required');
+            }
+            const value = parseFloat(v);
+            if (!(value > 0)) return t('drawer.refund_hint');
+            if (value > remainingAmount) return t('drawer.refund_exceeds_remaining');
+            return true;
+          },
+        },
         hint: t('drawer.refund_hint'),
         required: true,
       },
@@ -103,7 +115,7 @@ export default function RefundDrawer({ type, data }: DrawerComponentProps) {
             onSubmit={onSubmit}
             className="gap-0"
             defaultValues={{
-              refundAmount: remainingAmount > 0 ? remainingAmountDisplay : '',
+              refundAmount: '',
               reference: '',
               consent: false,
             }}

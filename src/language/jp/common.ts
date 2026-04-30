@@ -117,6 +117,8 @@ const jp = {
     reference: '参照',
     optional: '（任意）',
     refund_hint: '値は0より大きくなければなりません',
+    refund_amount_required: '返金金額は必須項目です',
+    refund_exceeds_remaining: '返金金額は残額を超えることはできません',
     reference_hint: '最大128文字',
     consent_text:
       'はい、返金を希望します。この操作は取り消せないことを了承した上で、返金処理を開始してください。*',

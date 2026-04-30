@@ -117,6 +117,8 @@ const en = {
     reference: 'Reference',
     optional: '(Optional)',
     refund_hint: 'Value of the number must be greater than 0',
+    refund_amount_required: 'Refund amount is required',
+    refund_exceeds_remaining: 'Refund amount cannot exceed the remaining amount',
     reference_hint: 'Max 128 characters only',
     consent_text:
       'Yes, I would like to refund the amount and I understand that this action is not reversible. Kindly proceed to initiate this refund process.*',
