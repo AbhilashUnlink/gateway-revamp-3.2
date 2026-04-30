@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { RotateCcw, Download, Columns } from 'lucide-react';
@@ -10,7 +10,13 @@ import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { openFilter, selectAppliedRules, makeSelectAppliedCount } from '@/store/slices/filterSlice';
 import { FilterPopover, buildFilterFields, serializeForTransactions } from '@/components/filter';
-import { buildTransactionColumns } from './transactionTableSchema';
+import { DownloadPopover } from '@/components/transactions/DownloadPopover';
+import { ColumnPreferenceDrawer } from '@/components/transactions/ColumnPreferenceDrawer';
+import { useColumnPreferences } from '@/hooks/useColumnPreferences';
+import {
+  buildTransactionColumns,
+  transactionColumnIdToDisplayName,
+} from './transactionTableSchema';
 
 const SCREEN = 'transactions' as const;
 
@@ -19,6 +25,11 @@ function TransactionsPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const filterButtonRef = useRef<HTMLButtonElement>(null);
+  const downloadButtonRef = useRef<HTMLButtonElement>(null);
+  const columnsButtonRef = useRef<HTMLButtonElement>(null);
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const [columnsOpen, setColumnsOpen] = useState(false);
+  const userEmail = useAppSelector((s) => s.auth.signInData.email);
 
   const appliedRules = useAppSelector(selectAppliedRules(SCREEN));
   const appliedCount = useAppSelector(useMemo(() => makeSelectAppliedCount(SCREEN), []));
@@ -65,6 +76,20 @@ function TransactionsPage() {
 
   const filterFields = useMemo(() => buildFilterFields(columnConfigs), [columnConfigs]);
 
+  // Apply user's saved column-preference (visibility + order) on top of defaults.
+  const visibleColumnConfigs = useColumnPreferences(SCREEN, columnConfigs);
+
+  // Drawer items: id + backend display name + i18n label key.
+  const columnPreferenceItems = useMemo(
+    () =>
+      columnConfigs.map((c) => ({
+        id: c.id,
+        displayName: transactionColumnIdToDisplayName(c.id),
+        labelKey: c.headerPrimaryKey,
+      })),
+    [columnConfigs]
+  );
+
   return (
     <div className="px-6 pb-6 h-[calc(100vh-80px)] flex flex-col">
       <PageBar>
@@ -105,17 +130,25 @@ function TransactionsPage() {
           >
             <RotateCcw className={loading ? 'disabled animate-spin' : ''} size={18} />
           </PageBar.ActionButton>
-          <PageBar.ActionButton aria-label="Download" onClick={() => {}}>
+          <PageBar.ActionButton
+            ref={downloadButtonRef}
+            aria-label="Download"
+            onClick={() => setDownloadOpen((o) => !o)}
+          >
             <Download size={20} />
           </PageBar.ActionButton>
-          <PageBar.ActionButton aria-label="Column preferences" onClick={() => {}}>
+          <PageBar.ActionButton
+            ref={columnsButtonRef}
+            aria-label="Column preferences"
+            onClick={() => setColumnsOpen((o) => !o)}
+          >
             <Columns size={20} />
           </PageBar.ActionButton>
         </PageBar.Actions>
       </PageBar>
 
       <DataTable
-        columnConfigs={columnConfigs}
+        columnConfigs={visibleColumnConfigs}
         data={rows}
         loading={loading}
         hasMore={hasMore}
@@ -125,6 +158,20 @@ function TransactionsPage() {
       />
 
       <FilterPopover screen={SCREEN} fields={filterFields} anchorRef={filterButtonRef} />
+      <DownloadPopover
+        open={downloadOpen}
+        onClose={() => setDownloadOpen(false)}
+        anchorRef={downloadButtonRef}
+        filters={filters}
+        defaultEmail={userEmail}
+      />
+      <ColumnPreferenceDrawer
+        open={columnsOpen}
+        onClose={() => setColumnsOpen(false)}
+        anchorRef={columnsButtonRef}
+        screen={SCREEN}
+        columns={columnPreferenceItems}
+      />
     </div>
   );
 }

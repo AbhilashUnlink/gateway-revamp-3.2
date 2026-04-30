@@ -10,6 +10,9 @@ import drawersReducer from './slices/drawerSlice';
 import gatewayConfigReducer from './slices/gatewayConfigSlice';
 import filtersReducer from './slices/filterSlice';
 import presetFiltersReducer from './slices/presetFiltersSlice';
+import downloadsReducer from './slices/downloadsSlice';
+import columnPreferencesReducer from './slices/columnPreferencesSlice';
+import columnPreferenceListsReducer from './slices/columnPreferenceListsSlice';
 import { SESSION_EXPIRED_ACTION } from '@/utils/forceLogout';
 
 const appReducer = combineReducers({
@@ -24,6 +27,9 @@ const appReducer = combineReducers({
   gatewayConfig: gatewayConfigReducer,
   filters: filtersReducer,
   presetFilters: presetFiltersReducer,
+  downloads: downloadsReducer,
+  columnPreferences: columnPreferencesReducer,
+  columnPreferenceLists: columnPreferenceListsReducer,
 });
 
 const rootReducer: typeof appReducer = (state, action: Action) => {

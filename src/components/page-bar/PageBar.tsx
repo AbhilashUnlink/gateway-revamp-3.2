@@ -135,22 +135,25 @@ interface PageBarActionButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
   children: ReactNode;
 }
 
-function PageBarActionButton({ children, className, ...props }: PageBarActionButtonProps) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        'flex size-[48px] shrink-0 items-center justify-center',
-        'bg-white rounded-2xl shadow-[0px_4px_9px_0px_rgba(0,0,0,0.04)]',
-        'text-[#1a1a1a] transition-opacity hover:opacity-80',
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-}
+const PageBarActionButton = forwardRef<HTMLButtonElement, PageBarActionButtonProps>(
+  function PageBarActionButton({ children, className, ...props }, ref) {
+    return (
+      <button
+        ref={ref}
+        type="button"
+        className={cn(
+          'flex size-[48px] shrink-0 items-center justify-center',
+          'bg-white rounded-2xl shadow-[0px_4px_9px_0px_rgba(0,0,0,0.04)]',
+          'text-[#1a1a1a] transition-opacity hover:opacity-80',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+);
 
 // ── Attach sub-components ─────────────────────────────────────────────────
 
