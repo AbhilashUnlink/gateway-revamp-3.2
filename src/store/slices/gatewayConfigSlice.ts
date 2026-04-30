@@ -1,16 +1,6 @@
-import {
-  createSlice,
-  createAsyncThunk,
-  createSelector,
-  type PayloadAction,
-} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '@/store';
 import { apiService } from '@/utils/apiService';
-import {
-  getTransactionListBlob,
-  resolveSelectedKey,
-  type TransactionListEntry,
-} from '@/utils/transactionColumnsConfig';
 
 export type UserPreference = Record<string, unknown> | null;
 export type GatewayConfig = Record<string, unknown> | null;
@@ -29,6 +19,20 @@ const initialState: GatewayConfigState = {
   error: null,
 };
 
+/**
+ * Keys on the userPreference payload that we deliberately do not store —
+ * column-preference profiles for transactions and statements are owned by
+ * dedicated endpoints (`/transaction-column-preference/getAll` etc).
+ */
+const STRIPPED_USER_PREFERENCE_KEYS = ['transactionList', 'statementList'] as const;
+
+function stripStaleUserPreferenceKeys(raw: Record<string, unknown> | null): UserPreference {
+  if (!raw) return null;
+  const out: Record<string, unknown> = { ...raw };
+  for (const key of STRIPPED_USER_PREFERENCE_KEYS) delete out[key];
+  return out;
+}
+
 export const fetchUserPreferences = createAsyncThunk<UserPreference, void, { rejectValue: string }>(
   'gatewayConfig/fetchUserPreferences',
   async (_, thunkAPI) => {
@@ -36,7 +40,8 @@ export const fetchUserPreferences = createAsyncThunk<UserPreference, void, { rej
       const res = (await apiService.dasconfig.userPreferences()) as {
         data: { data?: Array<{ configuration?: Record<string, unknown> }> };
       };
-      return res.data?.data?.[0]?.configuration ?? null;
+      const configuration = res.data?.data?.[0]?.configuration ?? null;
+      return stripStaleUserPreferenceKeys(configuration);
     } catch (err) {
       return thunkAPI.rejectWithValue((err as Error).message || 'Failed to load user preferences');
     }
@@ -59,45 +64,11 @@ export const fetchGatewayConfig = createAsyncThunk<GatewayConfig, void, { reject
   }
 );
 
-/** Mutate (or create) the `transactionList` block on `userPreference`. */
-function mutateTransactionList(
-  state: GatewayConfigState,
-  fn: (tl: { list: Record<string, TransactionListEntry>; selected?: string }) => void
-) {
-  const up = (state.userPreference ?? {}) as Record<string, unknown>;
-  const tl = (up.transactionList ?? {}) as {
-    list?: Record<string, TransactionListEntry>;
-    selected?: string;
-  };
-  if (!tl.list) tl.list = {};
-  fn(tl as { list: Record<string, TransactionListEntry>; selected?: string });
-  up.transactionList = tl;
-  state.userPreference = up;
-}
-
 const gatewayConfigSlice = createSlice({
   name: 'gatewayConfig',
   initialState,
   reducers: {
     resetGatewayConfig: () => initialState,
-    setTransactionListSelected(state, action: PayloadAction<string>) {
-      mutateTransactionList(state, (tl) => {
-        tl.selected = action.payload;
-      });
-    },
-    setTransactionListEntry(
-      state,
-      action: PayloadAction<{ key: string; entry: TransactionListEntry }>
-    ) {
-      mutateTransactionList(state, (tl) => {
-        tl.list[action.payload.key] = action.payload.entry;
-      });
-    },
-    removeTransactionListEntry(state, action: PayloadAction<string>) {
-      mutateTransactionList(state, (tl) => {
-        delete tl.list[action.payload];
-      });
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -128,12 +99,7 @@ const gatewayConfigSlice = createSlice({
   },
 });
 
-export const {
-  resetGatewayConfig,
-  setTransactionListSelected,
-  setTransactionListEntry,
-  removeTransactionListEntry,
-} = gatewayConfigSlice.actions;
+export const { resetGatewayConfig } = gatewayConfigSlice.actions;
 export default gatewayConfigSlice.reducer;
 
 // ── Base selectors ────────────────────────────────────────────────────────
@@ -142,22 +108,6 @@ export const selectUserPreference = (state: RootState) => state.gatewayConfig.us
 export const selectGatewayConfig = (state: RootState) => state.gatewayConfig.config;
 export const selectGatewayConfigLoading = (state: RootState) => state.gatewayConfig.loading;
 export const selectGatewayConfigError = (state: RootState) => state.gatewayConfig.error;
-
-// ── transactionList selectors ─────────────────────────────────────────────
-
-export const selectTransactionListBlob = createSelector([selectUserPreference], (up) =>
-  getTransactionListBlob(up)
-);
-
-export const selectTransactionListMap = createSelector(
-  [selectTransactionListBlob],
-  (blob) => blob.list ?? {}
-);
-
-export const selectTransactionListSelectedKey = createSelector(
-  [selectTransactionListBlob],
-  (blob) => resolveSelectedKey(blob)
-);
 
 // ── Typed option selectors ────────────────────────────────────────────────
 //

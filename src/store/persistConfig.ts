@@ -1,4 +1,4 @@
-const storage = {
+export const storage = {
   getItem: (key: string): Promise<string | null> => {
     return Promise.resolve(window.localStorage.getItem(key));
   },
@@ -15,7 +15,9 @@ const storage = {
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth', 'user', 'permissions', 'settings', 'ui', 'filters', 'columnPreferences'],
+  // `columnPreferences` is persisted via its own nested persistReducer in
+  // rootReducer.ts (only the `byScreen` slice survives reloads).
+  whitelist: ['auth', 'user', 'permissions', 'settings', 'ui', 'filters'],
 };
 
 export default persistConfig;

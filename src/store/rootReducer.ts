@@ -1,4 +1,5 @@
 import { combineReducers, type Action } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
 import authReducer from './slices/authSlice';
 import userReducer from './slices/userSlice';
 import uiReducer from './slices/uiSlice';
@@ -12,8 +13,16 @@ import filtersReducer from './slices/filterSlice';
 import presetFiltersReducer from './slices/presetFiltersSlice';
 import downloadsReducer from './slices/downloadsSlice';
 import columnPreferencesReducer from './slices/columnPreferencesSlice';
-import columnPreferenceListsReducer from './slices/columnPreferenceListsSlice';
+import { storage } from './persistConfig';
 import { SESSION_EXPIRED_ACTION } from '@/utils/forceLogout';
+
+// Only the per-screen view state survives reloads — server `lists` and
+// loading flags are intentionally excluded so they're refetched fresh.
+const columnPreferencesPersistConfig = {
+  key: 'columnPreferences',
+  storage,
+  whitelist: ['byScreen'],
+};
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -28,8 +37,7 @@ const appReducer = combineReducers({
   filters: filtersReducer,
   presetFilters: presetFiltersReducer,
   downloads: downloadsReducer,
-  columnPreferences: columnPreferencesReducer,
-  columnPreferenceLists: columnPreferenceListsReducer,
+  columnPreferences: persistReducer(columnPreferencesPersistConfig, columnPreferencesReducer),
 });
 
 const rootReducer: typeof appReducer = (state, action: Action) => {

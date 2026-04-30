@@ -99,6 +99,8 @@ export const apiService = {
       Api().post(`transactions/transaction-preset/filter/delete/${params.uuid}`),
     postTransactionReportPreferenceCreate: (data?: unknown) =>
       Api().post(`transactions/transaction-report-preference/create`, data),
+    getAllTransactionColumnPreferences: () =>
+      Api().get(`transactions/transaction-column-preference/getAll`),
     postTransactionColumnPreferenceCreate: (data?: unknown) =>
       Api().post(`transactions/transaction-column-preference/create`, data),
     postTransactionColumnPreferenceUpdate: (params: { uuid: string }, data?: unknown) =>
