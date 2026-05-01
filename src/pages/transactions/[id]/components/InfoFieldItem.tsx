@@ -1,14 +1,16 @@
+import { memo } from 'react';
 import { Download } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { CopyButton } from '@/components/ui/CopyButton';
-import type { InfoFieldConfig } from '../utils/buildSections';
+import type { InfoFieldConfig } from '../types';
+import { StatusBadge } from './primitives';
 
 interface InfoFieldItemProps {
   field: InfoFieldConfig;
   className?: string;
 }
 
-export function InfoFieldItem({ field, className }: InfoFieldItemProps) {
+export const InfoFieldItem = memo(function InfoFieldItem({ field, className }: InfoFieldItemProps) {
   const display =
     field.value !== undefined && field.value !== null && field.value !== ''
       ? String(field.value)
@@ -20,16 +22,7 @@ export function InfoFieldItem({ field, className }: InfoFieldItemProps) {
       <span className="text-sm leading-5 text-[#808080]">{field.label}</span>
       <div className="flex items-center gap-2">
         {field.badge ? (
-          <span
-            className={cn(
-              'inline-flex items-center rounded px-1 py-0.5 text-xs font-medium uppercase leading-none',
-              field.badge.tone === 'success'
-                ? 'bg-[#c6f3da] text-[#1e8f1f]'
-                : 'border border-[#e5e5e5] text-[#1a1a1a]'
-            )}
-          >
-            {field.badge.label}
-          </span>
+          <StatusBadge label={field.badge.label} tone={field.badge.tone} />
         ) : (
           <span
             className={cn(
@@ -53,4 +46,4 @@ export function InfoFieldItem({ field, className }: InfoFieldItemProps) {
       </div>
     </div>
   );
-}
+});

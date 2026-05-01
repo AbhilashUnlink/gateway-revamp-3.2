@@ -1,0 +1,94 @@
+import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { cn } from '@/utils/cn';
+import { CopyButton } from '@/components/ui/CopyButton';
+import { FieldCell, HistoryCard, StatusBadge } from '../primitives';
+import { formatDateTime12, isSuccessStatus, shortenId } from '../../utils';
+import type { TokenizedItem } from '../../types';
+
+interface TokenCardProps {
+  item: TokenizedItem;
+  isActive: boolean;
+}
+
+const TokenCard = memo(function TokenCard({ item, isActive }: TokenCardProps) {
+  const { t } = useTranslation();
+
+  const refId = String(item.TransactionRefID ?? item.trackid ?? item.uuid ?? '');
+  const status = (item.Status ?? item.status ?? '').toString();
+  const success = isSuccessStatus(status);
+  const createdAt = item.CreatedAt ?? '';
+  const updatedAt = item.UpdatedAt ?? item.CreatedAt ?? '';
+
+  return (
+    <HistoryCard.Root active={isActive}>
+      <HistoryCard.Header active={isActive}>
+        <StatusBadge label={status || '—'} tone={success ? 'success' : 'error'} />
+      </HistoryCard.Header>
+      <HistoryCard.Body active={isActive}>
+        <HistoryCard.Grid>
+          <FieldCell label={t('transaction_details_page.transaction_ref_id')}>
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  'truncate text-sm font-semibold leading-5 underline',
+                  isActive ? 'text-[#f7941d]' : 'text-[#1a1a1a]'
+                )}
+              >
+                {shortenId(refId)}
+              </span>
+              <CopyButton value={refId} ariaLabel={t('drawer.copy')} />
+            </div>
+          </FieldCell>
+
+          <FieldCell align="end" label={t('transaction_details_page.amount')}>
+            {`${item.CurrencyCode ?? ''} ${item.amount ?? ''}`}
+          </FieldCell>
+
+          <FieldCell label={t('transaction_details_page.transaction_date')}>
+            {formatDateTime12(createdAt)}
+          </FieldCell>
+
+          <FieldCell align="end" label={t('transaction_details_page.update_date')}>
+            {formatDateTime12(updatedAt)}
+          </FieldCell>
+        </HistoryCard.Grid>
+      </HistoryCard.Body>
+    </HistoryCard.Root>
+  );
+});
+
+interface TokenizationHistoryProps {
+  items: unknown[];
+}
+
+export function TokenizationHistory({ items }: TokenizationHistoryProps) {
+  const { t } = useTranslation();
+
+  const list = useMemo(() => {
+    const arr = Array.isArray(items) ? (items as TokenizedItem[]) : [];
+    return arr
+      .slice()
+      .sort((a, b) => new Date(b.CreatedAt ?? 0).getTime() - new Date(a.CreatedAt ?? 0).getTime());
+  }, [items]);
+
+  if (list.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-8 text-sm text-[#808080]">
+        {t('transaction_details_page.tokenization_history_empty')}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex gap-6 overflow-x-auto pb-2">
+      {list.map((item, idx) => (
+        <TokenCard
+          key={`${item.uuid ?? item.trackid ?? idx}-${idx}`}
+          item={item}
+          isActive={idx === 0}
+        />
+      ))}
+    </div>
+  );
+}

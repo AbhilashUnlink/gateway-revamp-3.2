@@ -22,6 +22,12 @@ export default {
     },
     extend: {
       colors: {
+        brand: {
+          DEFAULT: 'var(--brand-color)',
+          hover: 'var(--brand-color-hover)',
+          light: 'var(--brand-color-light)',
+          soft: 'var(--brand-color-soft)',
+        },
         primary: {
           DEFAULT: 'var(--color-primary)',
           light: 'var(--color-primary-light)',

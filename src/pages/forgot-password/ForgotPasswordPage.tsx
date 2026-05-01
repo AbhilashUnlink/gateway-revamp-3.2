@@ -16,7 +16,7 @@ function ForgotPasswordPage() {
       <div className="flex h-11 items-center justify-between">
         <DasLink to="/login">{t('forgot_password.back_to_sign_in')}</DasLink>
         <div className="relative inline-flex items-center">
-          <LanguageSelect />
+          <LanguageSelect variant="light" />
         </div>
       </div>
 

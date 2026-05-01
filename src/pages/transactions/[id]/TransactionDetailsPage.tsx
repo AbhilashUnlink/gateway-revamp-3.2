@@ -17,13 +17,10 @@ import { ChargebackHistory } from './components/ChargebackHistory';
 import { SubscriptionHistory } from './components/SubscriptionHistory';
 import { TokenizationHistory } from './components/TokenizationHistory';
 import { AuditLog } from './components/AuditLog';
-import { InfoFilterPills, type InfoFilter } from './components/InfoFilterPills';
-import { InfoSection } from './components/InfoSection';
-import {
-  buildLifecycleSummary,
-  buildSections,
-  type InfoSectionConfig,
-} from './utils/buildSections';
+import { InfoFilterPills } from './components/InfoFilterPills';
+import { InfoSection, InfoSectionBody, InfoSectionHeader } from './components/InfoSection';
+import { buildLifecycleSummary, buildSections } from './utils/buildSections';
+import type { InfoFilter, InfoSectionConfig } from './types';
 
 function parseStartingCycle(value: string | undefined): number | undefined {
   if (!value) return undefined;
@@ -93,7 +90,7 @@ function TransactionDetailsPage() {
   const layout = filter === 'all' ? 'column' : 'grid';
 
   return (
-    <div className="flex h-[calc(100vh-80px)] flex-col overflow-y-auto px-6 pb-6">
+    <div className="flex h-[calc(100vh-80px)] flex-col overflow-hidden px-6 pb-6">
       <DetailsHeader
         transactionRefId={data.TransactionRefID}
         lifecycleLabel={lifecycle.lifecycleLabel}
@@ -180,19 +177,28 @@ function TransactionDetailsPage() {
         </TabPanels>
       </TabGroup>
 
-      <div className="mt-4 overflow-hidden rounded-2xl drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.04)]">
+      <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.04)]">
         <InfoFilterPills active={filter} onChange={setFilter} />
-        <div className="bg-white p-6">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-white px-6 pb-6">
           {filter === 'all' ? (
-            <div className="flex items-start gap-6">
+            <>
+              <div className="sticky top-0 z-10 flex items-end gap-6 bg-white pt-6">
+                {visibleSections.map((section) => (
+                  <InfoSectionHeader key={`h-${section.id}`} section={section} />
+                ))}
+              </div>
+              <div className="mt-4 flex items-start gap-6">
+                {visibleSections.map((section) => (
+                  <InfoSectionBody key={`b-${section.id}`} section={section} layout="column" />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="pt-6">
               {visibleSections.map((section) => (
-                <InfoSection key={section.id} section={section} layout="column" />
+                <InfoSection key={section.id} section={section} layout={layout} />
               ))}
             </div>
-          ) : (
-            visibleSections.map((section) => (
-              <InfoSection key={section.id} section={section} layout={layout} />
-            ))
           )}
         </div>
       </div>

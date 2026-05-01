@@ -1,7 +1,7 @@
 import { Tab, TabList } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
-import { PAGE_TABS } from './PageTabs.config';
+import { PAGE_TABS } from '../constants';
 
 export function PageTabsList() {
   const { t } = useTranslation();
@@ -22,7 +22,7 @@ export function PageTabsList() {
             )
           }
         >
-          <Icon size={20} />
+          <Icon className="h-5 w-5 shrink-0" />
           <span>{t(labelKey)}</span>
         </Tab>
       ))}

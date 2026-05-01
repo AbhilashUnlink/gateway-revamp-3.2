@@ -17,7 +17,15 @@ body {
 }
 
 :root {
-  --btn-primary: #f7941d;
-  --btn-primary-hover: #e8860f;
-  --btn-primary-text: #ffffff;
+  --brand-color: #f7941d;
+  --brand-color-hover: #e8860f;
+  --brand-color-light: #fff6e6;
+  --brand-color-soft: #ffeabe;
+}
+
+@theme {
+  --color-brand: var(--brand-color);
+  --color-brand-hover: var(--brand-color-hover);
+  --color-brand-light: var(--brand-color-light);
+  --color-brand-soft: var(--brand-color-soft);
 }

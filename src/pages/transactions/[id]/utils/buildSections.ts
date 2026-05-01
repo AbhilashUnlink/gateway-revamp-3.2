@@ -1,65 +1,38 @@
 import type { TFunction } from 'i18next';
 import type { TransactionDetailsData } from '@/types/transactions/transactionDetails.types';
+import type { InfoSectionConfig, LifecycleSummary } from '../types';
+import { formatCurrency } from './formatters';
 
-export type InfoSectionId =
-  | 'transaction'
-  | 'merchant'
-  | 'payment'
-  | 'subscription'
-  | 'browser'
-  | 'additional';
+const PARTIAL_REFUND_STATES = new Set(['PARTIALLYREFUNDED', 'PARTIALLY_REFUNDED']);
 
-export interface InfoFieldConfig {
-  label: string;
-  value?: string | number | null;
-  copyable?: boolean;
-  downloadable?: boolean;
-  badge?: { label: string; tone: 'success' | 'neutral' };
-}
+const deriveIntegrationMethod = (data: TransactionDetailsData): string =>
+  data.ThreeDSecureInfo ? '3DS' : 'Non 3DS';
 
-export interface InfoSectionConfig {
-  id: InfoSectionId;
-  titleKey: string;
-  fields: InfoFieldConfig[];
-}
-
-function fmtCurrency(currency: string | undefined | null, value: number | undefined | null) {
-  if (value === undefined || value === null || value === 0) return null;
-  const c = currency ?? '';
-  return c ? `${c} ${value}` : `${value}`;
-}
-
-function deriveIntegrationMethod(data: TransactionDetailsData): string {
-  return data.ThreeDSecureInfo ? '3DS' : 'Non 3DS';
-}
-
-function computeRemaining(data: TransactionDetailsData): string | null {
+const computeRemaining = (data: TransactionDetailsData): string | null => {
   if (!Array.isArray(data.TransactionHistory) || data.TransactionHistory.length === 0) return null;
   const refunded = data.TransactionHistory.filter((h) => /refund/i.test(h.event)).reduce(
     (sum, h) => sum + (Number(h.amount) || 0),
     0
   );
   const remaining = (Number(data.Amount) || 0) - refunded;
-  return fmtCurrency(data.CurrencyCode, remaining);
-}
+  return formatCurrency(data.CurrencyCode, remaining);
+};
 
 export function buildLifecycleSummary(
   data: TransactionDetailsData,
   t: TFunction
-): { lifecycleLabel: string; balanceLabel: string | null } {
+): LifecycleSummary {
   const status = (data.Status ?? '').toUpperCase();
   const event = (data.Event ?? '').toUpperCase();
-  const lifecycleLabel =
-    status === 'PARTIALLYREFUNDED' || status === 'PARTIALLY_REFUNDED'
-      ? t('transaction_details_page.lifecycle_partially_refunded')
-      : (data.Status ?? data.Event ?? event);
-  const balanceLabel = computeRemaining(data);
-  return { lifecycleLabel, balanceLabel };
+  const lifecycleLabel = PARTIAL_REFUND_STATES.has(status)
+    ? t('transaction_details_page.lifecycle_partially_refunded')
+    : (data.Status ?? data.Event ?? event);
+  return { lifecycleLabel, balanceLabel: computeRemaining(data) };
 }
 
 export function buildSections(data: TransactionDetailsData, t: TFunction): InfoSectionConfig[] {
   const txCurrency = data.CurrencyCode ?? '';
-  const fee = fmtCurrency(txCurrency, undefined);
+  const fee = formatCurrency(txCurrency, undefined);
 
   return [
     {
@@ -83,7 +56,7 @@ export function buildSections(data: TransactionDetailsData, t: TFunction): InfoS
         { label: t('transaction_details_page.track_id'), value: data.trackID, copyable: true },
         {
           label: t('transaction_details_page.amount'),
-          value: fmtCurrency(txCurrency, data.Amount),
+          value: formatCurrency(txCurrency, data.Amount),
         },
         { label: t('transaction_details_page.currency'), value: txCurrency || null },
         {
@@ -110,10 +83,7 @@ export function buildSections(data: TransactionDetailsData, t: TFunction): InfoS
           copyable: true,
           downloadable: true,
         },
-        {
-          label: t('transaction_details_page.amount_in_settlement_currency'),
-          value: null,
-        },
+        { label: t('transaction_details_page.amount_in_settlement_currency'), value: null },
         { label: t('transaction_details_page.customer_interaction'), value: data.ProductType },
       ],
     },
