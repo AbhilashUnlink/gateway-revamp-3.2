@@ -149,6 +149,12 @@ export const apiService = {
       Api().post(`entities/reseller/sendReferralEmail`, data),
     getProductTake10Skip0DASMID: (params: { DASMID: string }) =>
       Api().get(`entities/product/?take=10&skip=0&DASMID=${params.DASMID}`),
+    getProductByDASMIDTerminalID: (params: { dasmid: string; terminalId: string }) =>
+      Api().get(
+        `entities/product/${encodeURIComponent(params.dasmid)}@@@${encodeURIComponent(params.terminalId)}/`
+      ),
+    getMerchantById: (params: { merchantId: string }) =>
+      Api().get(`entities/merchant/${encodeURIComponent(params.merchantId)}/`),
     postMerchantDevicesCreate: (data?: unknown) =>
       Api().post(`entities/merchant/devices/create`, data),
     postMerchantCatalogCategories: (data?: unknown) =>
@@ -172,5 +178,7 @@ export const apiService = {
 
   acquirers: {
     postAdd: (data?: unknown) => Api().post(`acquirers/add`, data),
+    getByAcquirerMid: (params: { acquirerMid: string }) =>
+      Api().get(`acquirers/acquirer-mid/${encodeURIComponent(params.acquirerMid)}`),
   },
 };

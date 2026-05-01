@@ -15,12 +15,19 @@ export interface InfoFieldBadge {
   tone: Exclude<BadgeTone, 'error'>;
 }
 
+export type InfoFieldAction =
+  | { kind: 'product'; dasmid: string; terminalId: string }
+  | { kind: 'acquirer-mid'; acquirerMid: string }
+  | { kind: 'merchant'; merchantId: string }
+  | { kind: 'hashcard-check'; hashCardNumber: string };
+
 export interface InfoFieldConfig {
   label: string;
   value?: string | number | null;
   copyable?: boolean;
   downloadable?: boolean;
   badge?: InfoFieldBadge;
+  action?: InfoFieldAction;
 }
 
 export interface InfoSectionConfig {

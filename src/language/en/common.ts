@@ -173,6 +173,7 @@ const en = {
     breadcrumb_ref_id: 'Ref ID-{{id}}',
     lifecycle_status: 'Transaction Lifecycle Status',
     lifecycle_partially_refunded: 'Partially Refunded',
+    dasmid: 'DASMID',
     balance_left: 'Balance Left',
     transaction_xray: 'Transaction X-Ray',
     edit_status: 'Edit Status',

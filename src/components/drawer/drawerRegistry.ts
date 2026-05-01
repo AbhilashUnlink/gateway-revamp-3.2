@@ -5,6 +5,9 @@ const CaptureDrawer = lazy(() => import('@/drawers/CaptureDrawer'));
 const VoidDrawer = lazy(() => import('@/drawers/VoidDrawer'));
 const DisputeDrawer = lazy(() => import('@/drawers/DisputeDrawer'));
 const EditStatusDrawer = lazy(() => import('@/drawers/EditStatusDrawer'));
+const ProductDetailsDrawer = lazy(() => import('@/drawers/ProductDetailsDrawer'));
+const AcquirerMidDrawer = lazy(() => import('@/drawers/AcquirerMidDrawer'));
+const MerchantDetailsDrawer = lazy(() => import('@/drawers/MerchantDetailsDrawer'));
 
 export interface DrawerComponentProps {
   type: string;
@@ -25,4 +28,7 @@ export const DRAWER_REGISTRY: DrawerRegistryEntry[] = [
   { type: 'void', component: VoidDrawer, width: 520, topOffset: 100 },
   { type: 'dispute', component: DisputeDrawer, width: 520, topOffset: 100 },
   { type: 'edit-status', component: EditStatusDrawer, width: 520, topOffset: 100 },
+  { type: 'product', component: ProductDetailsDrawer, width: 640, topOffset: 100 },
+  { type: 'acquirer-mid', component: AcquirerMidDrawer, width: 640, topOffset: 100 },
+  { type: 'merchant', component: MerchantDetailsDrawer, width: 640, topOffset: 100 },
 ];

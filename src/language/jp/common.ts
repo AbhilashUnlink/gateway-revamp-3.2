@@ -174,6 +174,7 @@ const jp = {
     breadcrumb_ref_id: 'Ref ID-{{id}}',
     lifecycle_status: '取引ライフサイクルステータス',
     lifecycle_partially_refunded: '一部返金済み',
+    dasmid: 'DASMID',
     balance_left: '残高',
     transaction_xray: 'トランザクションX-Ray',
     edit_status: 'ステータス編集',
