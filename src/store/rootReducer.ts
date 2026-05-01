@@ -13,6 +13,7 @@ import filtersReducer from './slices/filterSlice';
 import presetFiltersReducer from './slices/presetFiltersSlice';
 import downloadsReducer from './slices/downloadsSlice';
 import columnPreferencesReducer from './slices/columnPreferencesSlice';
+import entityCacheReducer from './slices/entityCacheSlice';
 import { storage } from './persistConfig';
 import { SESSION_EXPIRED_ACTION } from '@/utils/forceLogout';
 
@@ -38,6 +39,7 @@ const appReducer = combineReducers({
   presetFilters: presetFiltersReducer,
   downloads: downloadsReducer,
   columnPreferences: persistReducer(columnPreferencesPersistConfig, columnPreferencesReducer),
+  entityCache: entityCacheReducer,
 });
 
 const rootReducer: typeof appReducer = (state, action: Action) => {

@@ -55,12 +55,24 @@ export function useDrawerUrlSync() {
     }
 
     if (current?.type !== urlType) {
-      dispatch(
-        openDrawer({
-          type: urlType,
-          data: { transactionRefId: id, transactionId: id },
-        })
-      );
+      const drawerData = buildDrawerDataFromUrl(urlType, id);
+      dispatch(openDrawer({ type: urlType, data: drawerData }));
     }
   }, [urlType, id, loading, data, actions, current, dispatch, setSearchParams]);
+}
+
+function buildDrawerDataFromUrl(type: string, id: string): Record<string, unknown> {
+  const base = { transactionRefId: id, transactionId: id };
+  switch (type) {
+    case 'product': {
+      const [dasmid, terminalId] = id.split('___');
+      return { ...base, dasmid: dasmid ?? '', terminalId: terminalId ?? '' };
+    }
+    case 'acquirer-mid':
+      return { ...base, acquirerMid: id };
+    case 'merchant':
+      return { ...base, merchantId: id };
+    default:
+      return base;
+  }
 }

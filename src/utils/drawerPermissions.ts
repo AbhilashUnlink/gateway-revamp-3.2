@@ -1,6 +1,6 @@
 import type { TransactionActionsVisibility } from '@/store/slices/transactionDetailsSlice';
 
-export const ALWAYS_ALLOWED_DRAWERS = new Set(['details']);
+export const ALWAYS_ALLOWED_DRAWERS = new Set(['details', 'product', 'acquirer-mid', 'merchant']);
 
 export function isDrawerAllowed(type: string, actions: TransactionActionsVisibility): boolean {
   switch (type) {

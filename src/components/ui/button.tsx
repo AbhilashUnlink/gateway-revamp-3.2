@@ -15,6 +15,8 @@ const buttonVariants = cva(
         link: 'bg-transparent hover:underline shadow-none rounded-none border-none cursor-pointer',
         'language-option':
           'w-full justify-start gap-2 border-b border-[#e5e5e5] last:border-b-0 text-sm text-[#1a1a1a] hover:bg-brand-light data-[selected=true]:bg-brand-light',
+        'field-link':
+          'bg-transparent text-left font-semibold text-[#1a1a1a] underline hover:text-brand cursor-pointer',
       },
 
       size: {
@@ -23,6 +25,7 @@ const buttonVariants = cva(
         default: 'h-12 px-4 text-sm font-semibold uppercase rounded-2xl',
         lg: 'h-12 px-6 text-base rounded-2xl',
         'menu-item': 'p-3 rounded-none',
+        inline: 'h-auto p-0 text-sm leading-5 rounded-none',
       },
     },
 

@@ -95,11 +95,13 @@ export function buildSections(data: TransactionDetailsData, t: TFunction): InfoS
           label: t('transaction_details_page.merchant_account'),
           value: data.Merchant,
           copyable: true,
+          action: data.MerchantID ? { kind: 'merchant', merchantId: data.MerchantID } : undefined,
         },
         {
           label: t('transaction_details_page.merchant_account_en'),
           value: data.LegalNameInEnglish,
           copyable: true,
+          action: data.MerchantID ? { kind: 'merchant', merchantId: data.MerchantID } : undefined,
         },
         {
           label: t('transaction_details_page.merchant_ref_id'),
@@ -110,19 +112,31 @@ export function buildSections(data: TransactionDetailsData, t: TFunction): InfoS
           label: t('transaction_details_page.merchant_id'),
           value: data.MerchantID,
           copyable: true,
+          action: data.MerchantID ? { kind: 'merchant', merchantId: data.MerchantID } : undefined,
         },
         { label: t('transaction_details_page.merchant_ip'), value: data.MerchantIP },
         {
           label: t('transaction_details_page.merchant_category_code'),
           value: data.MerchantCategoryCode,
         },
-        { label: t('transaction_details_page.das_mid'), value: data.DASMID, copyable: true },
+        {
+          label: t('transaction_details_page.dasmid'),
+          value: data.DASMID,
+          copyable: true,
+          action:
+            data.DASMID && data.TerminalID
+              ? { kind: 'product', dasmid: data.DASMID, terminalId: data.TerminalID }
+              : undefined,
+        },
         { label: t('transaction_details_page.product_type'), value: data.ProductType },
         { label: t('transaction_details_page.acquirer'), value: data.AcquirerCode },
         {
           label: t('transaction_details_page.acquirer_mid'),
           value: data.AcquirerMID,
           copyable: true,
+          action: data.AcquirerMID
+            ? { kind: 'acquirer-mid', acquirerMid: data.AcquirerMID }
+            : undefined,
         },
         {
           label: t('transaction_details_page.acquirer_reference_number'),
@@ -160,6 +174,9 @@ export function buildSections(data: TransactionDetailsData, t: TFunction): InfoS
           label: t('transaction_details_page.hash_card_number'),
           value: data.HashCardNumber,
           copyable: true,
+          action: data.HashCardNumber
+            ? { kind: 'hashcard-check', hashCardNumber: data.HashCardNumber }
+            : undefined,
         },
         {
           label: t('transaction_details_page.email_address'),
