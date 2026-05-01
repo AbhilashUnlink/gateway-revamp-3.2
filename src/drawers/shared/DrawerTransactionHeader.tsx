@@ -1,10 +1,11 @@
-import { Share2, ExternalLink, Pencil, XCircle } from 'lucide-react';
+import { Share2, ExternalLink, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
 import { useTransactionActions } from '@/hooks/useTransactionActions';
 import { useNavigate } from 'react-router-dom';
+import { EditButtonIcon } from '@/assets/icons/action-buttons';
 
 export type DrawerTab = 'details' | 'refund' | 'capture' | 'void' | 'dispute' | 'edit-status';
 
@@ -168,7 +169,9 @@ export function DrawerTransactionHeader({
             onClick={activeTab !== 'edit-status' ? () => navigateTo('edit-status') : undefined}
             className="gap-2 shadow-none drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.1)]"
           >
-            <Pencil size={20} />
+            <EditButtonIcon
+              className={activeTab === 'edit-status' ? 'text-(var(--brand-color))' : ''}
+            />
             {t('drawer.edit_status')}
           </Button>
         )}

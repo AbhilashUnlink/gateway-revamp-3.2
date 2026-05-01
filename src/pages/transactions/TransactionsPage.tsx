@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { RotateCw, Download, Columns } from 'lucide-react';
 import type { TransactionRow, TableFilter } from '@/types/transactions/transaction.types';
+import {
+  ColumnPreferenceButtonIcon,
+  DownloadButtonIcon,
+  RefreshButtonIcon,
+} from '@/assets/icons/action-buttons';
 import { DataTable } from '@/components/table';
 import { useTableDataAdapter } from '@/components/table/hooks/useTableDataAdapter';
 import { PageBar } from '@/components/page-bar';
@@ -207,7 +211,7 @@ function TransactionsPage() {
             aria-label="Refresh"
             onClick={refresh}
           >
-            <RotateCw className={loading ? 'disabled animate-spin' : ''} size={18} />
+            <RefreshButtonIcon className={loading ? 'disabled animate-spin' : ''} />
           </PageBar.ActionButton>
           <PageBar.ActionButton
             ref={downloadButtonRef}
@@ -215,7 +219,7 @@ function TransactionsPage() {
             onClick={() => setDownloadOpen((o) => !o)}
           >
             <span className="relative inline-flex">
-              <Download size={20} />
+              <DownloadButtonIcon />
               {hasProcessingDownloads && (
                 <span
                   aria-label="Download in progress"
@@ -229,7 +233,7 @@ function TransactionsPage() {
             aria-label="Column preferences"
             onClick={() => setColumnsOpen((o) => !o)}
           >
-            <Columns size={20} />
+            <ColumnPreferenceButtonIcon />
           </PageBar.ActionButton>
         </PageBar.Actions>
       </PageBar>

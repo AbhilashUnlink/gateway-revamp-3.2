@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="calendar">
+<path id="Vector" d="M6.66663 1.66699V4.16699" stroke="var(--stroke-0, #4D4D4D)" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M13.3334 1.66699V4.16699" stroke="var(--stroke-0, #4D4D4D)" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M2.91667 7.575H17.0833" stroke="var(--stroke-0, #4D4D4D)" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M17.5 7.08366V14.167C17.5 16.667 16.25 18.3337 13.3333 18.3337H6.66667C3.75 18.3337 2.5 16.667 2.5 14.167V7.08366C2.5 4.58366 3.75 2.91699 6.66667 2.91699H13.3333C16.25 2.91699 17.5 4.58366 17.5 7.08366Z" stroke="var(--stroke-0, #4D4D4D)" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<g id="Vector_5" opacity="0">
+</g>
+<path id="Vector_6" d="M13.0789 11.4167H13.0864" stroke="var(--stroke-0, #4D4D4D)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_7" d="M13.0789 13.9167H13.0864" stroke="var(--stroke-0, #4D4D4D)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_8" d="M9.99624 11.4167H10.0037" stroke="var(--stroke-0, #4D4D4D)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_9" d="M9.99624 13.9167H10.0037" stroke="var(--stroke-0, #4D4D4D)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_10" d="M6.91193 11.4167H6.91941" stroke="var(--stroke-0, #4D4D4D)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_11" d="M6.91193 13.9167H6.91941" stroke="var(--stroke-0, #4D4D4D)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>

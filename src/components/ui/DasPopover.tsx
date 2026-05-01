@@ -14,7 +14,11 @@ interface DasPopoverSubProps {
   className?: string;
 }
 
-interface DasPopoverContentProps extends DasPopoverSubProps {
+type PopoverPanelRenderProps = { open: boolean; close: () => void };
+
+interface DasPopoverContentProps {
+  children: React.ReactNode | ((bag: PopoverPanelRenderProps) => React.ReactNode);
+  className?: string;
   align?: 'left' | 'right';
 }
 
@@ -50,7 +54,7 @@ function DasPopoverContent({ children, align = 'left', className }: DasPopoverCo
           className
         )}
       >
-        {children}
+        {children as React.ReactNode}
       </PopoverPanel>
     </Transition>
   );

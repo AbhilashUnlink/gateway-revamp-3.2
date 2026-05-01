@@ -7,12 +7,14 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'w-full cursor-pointer border-0 bg-[var(--btn-primary)] text-[var(--btn-primary-text)] hover:bg-[var(--btn-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60',
+          'w-full cursor-pointer border-0 bg-[var(--brand-color)] text-[#ffffff] hover:bg-[var(--brand-color-hover)] disabled:cursor-not-allowed disabled:opacity-60',
         ghost: 'bg-white text-[#1a1a1a] shadow-[0px_4px_9px_0px_rgba(0,0,0,0.1)] hover:opacity-90',
         outline:
           'border border-[#f7941d] bg-white text-[#f7941d] shadow-[0px_4px_9px_0px_rgba(0,0,0,0.1)] hover:opacity-90',
         icon: 'bg-transparent text-[#1a1a1a] hover:opacity-70',
         link: 'bg-transparent hover:underline shadow-none rounded-none border-none cursor-pointer',
+        'language-option':
+          'w-full justify-start gap-2 border-b border-[#e5e5e5] last:border-b-0 text-sm text-[#1a1a1a] hover:bg-brand-light data-[selected=true]:bg-brand-light',
       },
 
       size: {
@@ -20,6 +22,7 @@ const buttonVariants = cva(
         sm: 'h-9 px-3 text-xs rounded-xl',
         default: 'h-12 px-4 text-sm font-semibold uppercase rounded-2xl',
         lg: 'h-12 px-6 text-base rounded-2xl',
+        'menu-item': 'p-3 rounded-none',
       },
     },
 

@@ -24,7 +24,7 @@ function LoginPage() {
         <AuthHeading>
           <AuthHeading.Title>
             {t('login.sign_in_to')}{' '}
-            <span className="font-bold text-[28px] text-(--btn-primary)">
+            <span className="font-bold text-[28px] text-(var(--brand-color))">
               {t('login.payment_options')}
             </span>
           </AuthHeading.Title>
