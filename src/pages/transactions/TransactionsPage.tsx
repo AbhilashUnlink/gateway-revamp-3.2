@@ -91,6 +91,10 @@ function TransactionsPage() {
   const filtersKey = useMemo(() => JSON.stringify(filters), [filters]);
 
   useEffect(() => {
+    // Wait for the user's stats currency preference to hydrate before firing
+    // the list request. This avoids a duplicate call: one with a hardcoded
+    // fallback, then another once the preference loads.
+    if (!userCurrency) return;
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersKey, userCurrency, refreshCount]);
