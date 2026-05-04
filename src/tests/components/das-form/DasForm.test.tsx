@@ -74,6 +74,6 @@ describe('DasForm', () => {
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     // react-hook-form passes (values, event) — assert on values only.
-    expect(onSubmit.mock.calls[0][0]).toMatchObject({ name: 'Ada' });
+    expect(onSubmit.mock.calls[0]?.[0]).toMatchObject({ name: 'Ada' });
   });
 });

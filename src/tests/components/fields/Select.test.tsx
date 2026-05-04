@@ -23,7 +23,9 @@ const OPTIONS = [
 
 function open() {
   // The trigger is the only button on the screen until the menu opens.
-  fireEvent.click(screen.getAllByRole('button')[0]);
+  const [trigger] = screen.getAllByRole('button');
+  if (!trigger) throw new Error('No trigger button found');
+  fireEvent.click(trigger);
 }
 
 describe('Select', () => {

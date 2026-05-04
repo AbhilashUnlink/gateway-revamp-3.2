@@ -43,7 +43,7 @@ export const refreshToken = createAsyncThunk(
   'auth/refreshToken',
   async (payload: unknown, thunkAPI) => {
     try {
-      const res = await apiService.auth.postRefreshToken(payload);
+      const res = await apiService.auth.refreshToken(payload);
       return res.data as { accessToken?: string; refreshToken?: string };
     } catch (err) {
       return thunkAPI.rejectWithValue((err as Error).message ?? 'Token refresh failed');

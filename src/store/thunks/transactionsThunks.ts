@@ -15,7 +15,7 @@ export const fetchTransactionsList = createAsyncThunk(
   async (params: TransactionListParams, thunkAPI) => {
     try {
       const payload: TableApiPayload = {
-        StatsCurrency: params.statsCurrency ?? 'PHP',
+        StatsCurrency: params.statsCurrency ?? 'USD',
         take: params.limit,
         skip: (params.page - 1) * params.limit,
         TimeZone: params.timeZone ?? 'Asia/Calcutta',
@@ -111,30 +111,6 @@ export const downloadTransactionReport = createAsyncThunk(
   async (payload: unknown, thunkAPI) => {
     try {
       const res = await apiService.transactions.postTransactionReportDownload(payload);
-      return res.data;
-    } catch (err) {
-      return thunkAPI.rejectWithValue((err as Error).message);
-    }
-  }
-);
-
-export const voidTransaction = createAsyncThunk(
-  'transactions/void',
-  async (payload: unknown, thunkAPI) => {
-    try {
-      const res = await apiService.transactions.postVoid(payload);
-      return res.data;
-    } catch (err) {
-      return thunkAPI.rejectWithValue((err as Error).message);
-    }
-  }
-);
-
-export const captureTransaction = createAsyncThunk(
-  'transactions/capture',
-  async (payload: unknown, thunkAPI) => {
-    try {
-      const res = await apiService.transactions.capture(payload);
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue((err as Error).message);

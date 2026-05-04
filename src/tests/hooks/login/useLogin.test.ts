@@ -7,6 +7,7 @@ import { AxiosHeaders } from 'axios';
 
 const mockNavigate = vi.fn();
 const mockDispatch = vi.fn();
+const mockToast = vi.hoisted(() => ({ error: vi.fn(), success: vi.fn(), info: vi.fn() }));
 // vi.hoisted ensures this complex mock is available when vi.mock factories run
 const mockLoginUser = vi.hoisted(() => Object.assign(vi.fn(), { fulfilled: { match: vi.fn() } }));
 
@@ -37,6 +38,10 @@ vi.mock('@/utils/redirectByRole', () => ({
   getRedirectPath: vi.fn(),
 }));
 
+vi.mock('@/hooks/useToast', () => ({
+  useToast: () => mockToast,
+}));
+
 vi.mock('@/i18n', () => ({
   default: { t: (key: string) => key },
 }));
@@ -47,6 +52,9 @@ describe('useLogin', () => {
     mockDispatch.mockClear();
     mockLoginUser.mockClear();
     mockLoginUser.fulfilled.match.mockClear();
+    mockToast.error.mockClear();
+    mockToast.success.mockClear();
+    mockToast.info.mockClear();
     vi.mocked(apiService.auth.checkMfaExist).mockClear();
     vi.mocked(apiService.auth.mfaGenerate).mockClear();
     vi.mocked(getRedirectPath).mockReturnValue('/dashboard');
@@ -79,7 +87,7 @@ describe('useLogin', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/admin');
   });
 
-  it('sets error from payload on login failure', async () => {
+  it('surfaces the rejected payload via toast.error on login failure', async () => {
     mockDispatch.mockResolvedValue({ payload: 'Invalid credentials' });
     mockLoginUser.fulfilled.match.mockReturnValue(false);
 
@@ -88,10 +96,10 @@ describe('useLogin', () => {
       await result.current.handleSubmit({ username: 'user@example.com', password: 'wrong' });
     });
 
-    expect(result.current.error).toBe('Invalid credentials');
+    expect(mockToast.error).toHaveBeenCalledWith('Invalid credentials');
   });
 
-  it('clears error at the start of a new submit', async () => {
+  it('does not call toast.error on a successful subsequent submit', async () => {
     mockDispatch
       .mockResolvedValueOnce({ payload: 'Error' })
       .mockResolvedValueOnce({ payload: { Groups: [] } });
@@ -101,12 +109,13 @@ describe('useLogin', () => {
     await act(async () => {
       await result.current.handleSubmit({ username: 'user@example.com', password: 'pass' });
     });
-    expect(result.current.error).toBe('Error');
+    expect(mockToast.error).toHaveBeenCalledWith('Error');
 
+    mockToast.error.mockClear();
     await act(async () => {
       await result.current.handleSubmit({ username: 'user@example.com', password: 'pass' });
     });
-    expect(result.current.error).toBeNull();
+    expect(mockToast.error).not.toHaveBeenCalled();
   });
 
   it('checks MFA for internal user (@paymentoptions.com)', async () => {
@@ -193,7 +202,7 @@ describe('useLogin', () => {
     });
   });
 
-  it('sets error message when an API call throws', async () => {
+  it('shows toast.error with the thrown message when an API call throws', async () => {
     vi.mocked(apiService.auth.checkMfaExist).mockRejectedValue(new Error('Network error'));
 
     const { result } = renderHook(() => useLogin());
@@ -204,6 +213,6 @@ describe('useLogin', () => {
       });
     });
 
-    expect(result.current.error).toBe('Network error');
+    expect(mockToast.error).toHaveBeenCalledWith('Network error');
   });
 });

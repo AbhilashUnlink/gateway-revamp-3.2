@@ -22,7 +22,9 @@ const LONG_OPTIONS = Array.from({ length: 8 }, (_, i) => ({
 }));
 
 function openMenu() {
-  fireEvent.click(screen.getAllByRole('button')[0]);
+  const [trigger] = screen.getAllByRole('button');
+  if (!trigger) throw new Error('No trigger button found');
+  fireEvent.click(trigger);
 }
 
 describe('MultiSelect', () => {

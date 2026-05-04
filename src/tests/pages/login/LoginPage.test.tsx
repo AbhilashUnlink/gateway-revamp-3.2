@@ -35,7 +35,6 @@ describe('LoginPage', () => {
     mockHandleSubmit.mockClear();
     vi.mocked(useLogin).mockReturnValue({
       handleSubmit: mockHandleSubmit,
-      error: null,
       loading: false,
     });
   });
@@ -116,7 +115,6 @@ describe('LoginPage', () => {
   it('shows submitting text while loading', () => {
     vi.mocked(useLogin).mockReturnValue({
       handleSubmit: mockHandleSubmit,
-      error: null,
       loading: true,
     });
     renderPage();
@@ -126,21 +124,10 @@ describe('LoginPage', () => {
   it('disables submit button while loading', () => {
     vi.mocked(useLogin).mockReturnValue({
       handleSubmit: mockHandleSubmit,
-      error: null,
       loading: true,
     });
     renderPage();
     expect(screen.getByRole('button', { name: 'login_form.submitting' })).toBeDisabled();
-  });
-
-  it('shows API error message', () => {
-    vi.mocked(useLogin).mockReturnValue({
-      handleSubmit: mockHandleSubmit,
-      error: 'Login failed',
-      loading: false,
-    });
-    renderPage();
-    expect(screen.getByText('Login failed')).toBeInTheDocument();
   });
 
   it('toggles password visibility on button click', async () => {
