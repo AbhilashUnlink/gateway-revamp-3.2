@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { TabGroup, TabPanel, TabPanels } from '@headlessui/react';
 import { Button } from '@/components/ui/button';
-import { useChargebackHistory } from '@/hooks/useChargebackHistory';
+import { useChargebackHistory } from '@/hooks/transactions/useChargebackHistory';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
-import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
 import { useAppDispatch } from '@/store/hooks';
 import { fetchTransactionDetails } from '@/store/thunks/transactionDetailsThunks';
 import { DetailsHeader } from './components/DetailsHeader';
@@ -49,7 +49,7 @@ function TransactionDetailsPage() {
   );
 
   const lifecycle = useMemo(
-    () => (data ? buildLifecycleSummary(data, t) : { lifecycleLabel: '—', balanceLabel: null }),
+    () => (data ? buildLifecycleSummary(data, t) : { lifecycleLabel: 'â€”', balanceLabel: null }),
     [data, t]
   );
 

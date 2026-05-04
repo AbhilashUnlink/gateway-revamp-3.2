@@ -1,10 +1,9 @@
- 
-import { useCallback, useMemo, useState } from 'react';
+﻿import { useCallback, useMemo, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import DasDrawer from '@/components/ui/DasDrawer';
-import { useMerchantDetails } from '@/hooks/useMerchantDetails';
+import { useMerchantDetails } from '@/hooks/transactions/useMerchantDetails';
 import { DrawerEntityHeader } from '../shared/DrawerEntityHeader';
 import { DrawerFieldGrid, DrawerSection, type DrawerFieldConfig } from '../shared/DrawerFieldGrid';
 import { DrawerStateView } from '../shared/DrawerStateView';

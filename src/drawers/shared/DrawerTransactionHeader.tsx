@@ -1,9 +1,9 @@
-import { Share2, ExternalLink, XCircle } from 'lucide-react';
+﻿import { Share2, ExternalLink, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { CopyButton } from '@/components/ui/CopyButton';
-import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
-import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';
+import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
 import { useNavigate } from 'react-router-dom';
 import { EditButtonIcon } from '@/assets/icons/action-buttons';
 

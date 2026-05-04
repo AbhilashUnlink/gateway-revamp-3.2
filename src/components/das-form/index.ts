@@ -1,4 +1,4 @@
-export { DasForm } from './DasForm';
+export { DasForm } from './das-form';
 export { useDasFormContext } from './DasFormContext';
 export type {
   FormSchema,

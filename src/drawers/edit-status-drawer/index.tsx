@@ -1,13 +1,13 @@
-import { useTranslation } from 'react-i18next';
+﻿import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import DasDrawer from '@/components/ui/DasDrawer';
 import { Button } from '@/components/ui/button';
-import { DasForm } from '@/components/DasForm';
-import type { FormSchema } from '@/components/DasForm';
+import { DasForm } from '@/components/das-form';
+import type { FormSchema } from '@/components/das-form';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
-import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
-import { useEditStatus } from '@/hooks/useEditStatus';
-import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';
+import { useEditStatus } from '@/hooks/transactions/useEditStatus';
+import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
 
 const FORM_ID = 'edit-status-form';

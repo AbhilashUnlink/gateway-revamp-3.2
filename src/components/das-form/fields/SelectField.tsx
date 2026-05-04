@@ -1,5 +1,5 @@
 import { useFormContext, Controller } from 'react-hook-form';
-import { SearchableSelect } from '@/components/filter/controls/SearchableSelect';
+import { Select } from '@/components/fields/Select';
 import type { SelectFieldSchema } from '@/types/form/form.types';
 
 interface SelectFieldProps {
@@ -27,7 +27,7 @@ export function SelectField({ field }: SelectFieldProps) {
         control={control}
         rules={field.rules}
         render={({ field: rhfField }) => (
-          <SearchableSelect
+          <Select
             id={field.name}
             value={(rhfField.value as string) ?? ''}
             onChange={rhfField.onChange}

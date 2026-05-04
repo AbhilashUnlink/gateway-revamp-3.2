@@ -75,7 +75,7 @@ function relativeRange(unit: 'minutes' | 'hours' | 'days', amount: number): Valu
 
 // ── Component ────────────────────────────────────────────────────────────
 
-export function DateRangeValue({ value, onChange }: Props) {
+export function DateRange({ value, onChange }: Props) {
   const formatUserDate = useUserDateFormat();
   const formatRange = (from?: string, to?: string): string => {
     if (!from && !to) return '';

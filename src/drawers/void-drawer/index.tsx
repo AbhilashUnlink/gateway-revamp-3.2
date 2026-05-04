@@ -1,12 +1,12 @@
-import { useTranslation } from 'react-i18next';
+﻿import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import DasDrawer from '@/components/ui/DasDrawer';
 import { Button } from '@/components/ui/button';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
-import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
-import { useVoid } from '@/hooks/useVoid';
+import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';
+import { useVoid } from '@/hooks/transactions/useVoid';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
-import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
 
 export default function VoidDrawer({ type }: DrawerComponentProps) {
   const { t } = useTranslation();

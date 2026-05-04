@@ -4,7 +4,7 @@ interface Props {
   placeholder?: string;
 }
 
-export function TextValue({ value, onChange, placeholder }: Props) {
+export function TextInput({ value, onChange, placeholder }: Props) {
   return (
     <input
       type="text"

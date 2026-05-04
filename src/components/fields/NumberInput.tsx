@@ -4,7 +4,7 @@ interface Props {
   placeholder?: string;
 }
 
-export function NumberValue({ value, onChange, placeholder }: Props) {
+export function NumberInput({ value, onChange, placeholder }: Props) {
   return (
     <input
       type="number"

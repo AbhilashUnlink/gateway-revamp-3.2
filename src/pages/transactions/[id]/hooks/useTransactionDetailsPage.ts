@@ -1,14 +1,14 @@
-import { useEffect, useMemo } from 'react';
+﻿import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useChargebackHistory } from '@/hooks/useChargebackHistory';
-import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { useChargebackHistory } from '@/hooks/transactions/useChargebackHistory';
+import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
 import { useAppDispatch } from '@/store/hooks';
 import { fetchTransactionDetails } from '@/store/thunks/transactionDetailsThunks';
 import { buildLifecycleSummary, buildSections } from '../utils/buildSections';
 import type { InfoSectionConfig, LifecycleSummary } from '../types';
 
-const EMPTY_LIFECYCLE: LifecycleSummary = { lifecycleLabel: '—', balanceLabel: null };
+const EMPTY_LIFECYCLE: LifecycleSummary = { lifecycleLabel: 'â€”', balanceLabel: null };
 
 export function useTransactionDetailsPage() {
   const { id } = useParams<{ id: string }>();

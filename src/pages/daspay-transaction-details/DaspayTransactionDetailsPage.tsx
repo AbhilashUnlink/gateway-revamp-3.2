@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
 import { fetchTransactionDetails } from '@/store/thunks/transactionDetailsThunks';
-import { useTransactionActions } from '@/hooks/useTransactionActions';
-import TransactionDetails from '@/drawers/TransactionDetailsDrawer/components/TransactionDetails';
+import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
+import TransactionDetails from '@/drawers/transaction-details-drawer/components/TransactionDetails';
 
 const DaspayTransactionDetailsPage = () => {
   const dispatch = useAppDispatch();
