@@ -28,7 +28,7 @@ export class LoginPage {
   }
 
   async goto() {
-    await this.page.goto(TEST_CONFIG.routes.login);
+    await this.page.goto(TEST_CONFIG.routes.login, { waitUntil: 'domcontentloaded' });
     await expect(this.username).toBeVisible();
   }
 
