@@ -114,6 +114,11 @@ test.describe('Transactions table — action button visibility', () => {
           }
         } finally {
           if (snap.index + 1 < snapshots.length) {
+            if (!page.url().includes(TEST_CONFIG.routes.transactions)) {
+              await transactionsPage.goto();
+            } else if (page.url().match(/\/transactions\/[^/?]+/)) {
+              await transactionsPage.returnToList();
+            }
             await transactionsPage.loadAtLeast(snap.index + 2);
           }
         }

@@ -16,16 +16,7 @@ export class TransactionDrawerPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.root = page
-      .getByTestId('transaction-drawer')
-      .or(page.locator('[role="dialog"]'))
-      .or(
-        page
-          .locator('div')
-          .filter({ hasText: /transaction\s*ref\s*id/i })
-          .last()
-      )
-      .first();
+    this.root = page.getByTestId('transaction-drawer').or(page.locator('[role="dialog"]')).first();
     this.closeButton = this.root.getByRole('button', { name: /close/i }).first();
     this.refIdText = this.root.locator('span', { hasText: /^[0-9a-f-]{8,}$/i }).first();
   }

@@ -160,6 +160,7 @@ export const requestDownload = createAsyncThunk<
       ...payload,
     });
     void thunkAPI.dispatch(fetchDownloadList());
+    return;
   } catch (err) {
     return thunkAPI.rejectWithValue((err as Error).message || 'Failed to request download');
   }

@@ -32,7 +32,7 @@ export default function DrawerManager() {
   const Content = entry.component;
 
   return createPortal(
-    <div className="fixed inset-0" style={{ zIndex: 50 }}>
+    <div className="fixed inset-0" style={{ zIndex: 50 }} data-testid="transaction-drawer">
       <div
         className="absolute inset-0 bg-black/30 transition-opacity duration-300 ease-out"
         onClick={handleClose}

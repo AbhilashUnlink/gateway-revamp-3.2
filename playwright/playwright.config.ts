@@ -1,8 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:5173';
-const ROOT = __dirname;
+const ROOT = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   testDir: path.join(ROOT, 'tests'),
@@ -31,12 +32,10 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
   ],
-  webServer: process.env.CI
-    ? {
-        command: 'npm run dev',
-        url: BASE_URL,
-        reuseExistingServer: false,
-        timeout: 120_000,
-      }
-    : undefined,
+  webServer: {
+    command: 'npm run dev',
+    url: BASE_URL,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
 });

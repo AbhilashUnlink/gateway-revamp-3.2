@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '@/store';
 import '@/styles/globals.css';
+import 'react-datepicker/dist/react-datepicker.min.css';
 import '@/i18n';
 import App from './App.tsx';
 

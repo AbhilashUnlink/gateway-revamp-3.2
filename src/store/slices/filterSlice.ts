@@ -51,7 +51,8 @@ const filterSlice = createSlice({
     ) {
       const s = state.byScreen[action.payload.screen];
       const idx = s.draftRules.findIndex((r) => r.id === action.payload.id);
-      if (idx >= 0) s.draftRules[idx] = { ...s.draftRules[idx], ...action.payload.patch };
+      const existing = s.draftRules[idx];
+      if (existing) s.draftRules[idx] = { ...existing, ...action.payload.patch };
     },
     removeRule(state, action: PayloadAction<{ screen: FilterScreen; id: string }>) {
       const s = state.byScreen[action.payload.screen];

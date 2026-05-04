@@ -57,6 +57,13 @@ export class TransactionsPage {
   }
 
   async loadAtLeast(targetCount: number): Promise<number> {
+    const url = this.page.url();
+    const onListRoute = new RegExp(`${TEST_CONFIG.routes.transactions}(?:/?($|\\?))`).test(url);
+    if (!onListRoute) {
+      throw new Error(
+        `loadAtLeast called while not on the transactions list route. Current URL: ${url}`
+      );
+    }
     log.info(`Loading rows via infinite scroll`, { targetCount });
     const rendered = await scrollUntilRowCount(this.page, {
       targetCount,
@@ -82,23 +89,12 @@ export class TransactionsPage {
     return snapshots;
   }
 
-  async openRow(index: number) {
-    const row = this.rows.nth(index);
-    await row.scrollIntoViewIfNeeded();
-    await Promise.all([
-      this.page.waitForURL(/\/transactions\/[^/]+/, { timeout: 15_000 }),
-      row.click(),
-    ]);
-  }
-
   /**
-   * Click the transaction-ref-id link in the first cell to open the global drawer
-   * (DrawerManager). This does NOT navigate the page — it adds ?drawer=details&id=...
-   *
-   * The first column (cellType: 'link-copy') renders a clickable <span> for the ref id
-   * next to a <button aria-label="Copy">. We must click the SPAN, not the button.
+   * Click the transaction-ref-id link in the first cell to navigate to the
+   * full details page (`/transactions/:id`). The ref-id span is the only
+   * navigation trigger in the row; clicks anywhere else open the drawer.
    */
-  async openDrawer(index: number) {
+  async openRow(index: number) {
     const row = this.rows.nth(index);
     await row.scrollIntoViewIfNeeded();
     const firstCell = row.locator('td').first();
@@ -107,7 +103,22 @@ export class TransactionsPage {
       .or(firstCell.locator('span.cursor-pointer'))
       .or(firstCell.locator('span').first())
       .first();
-    await Promise.all([this.page.waitForURL(/[?&]drawer=/, { timeout: 15_000 }), refLink.click()]);
+    await refLink.click();
+    await this.page.waitForURL(/\/transactions\/[^/]+(?:[?#]|$)/, { timeout: 15_000 });
+  }
+
+  /**
+   * Click anywhere on the row body (outside the first cell's ref-id link)
+   * to open the global drawer (DrawerManager). This does NOT navigate the
+   * page — it adds `?drawer=details&id=...`.
+   */
+  async openDrawer(index: number) {
+    const row = this.rows.nth(index);
+    await row.scrollIntoViewIfNeeded();
+    // Click a non-first cell — the first cell's ref-id span navigates instead.
+    const bodyCell = row.locator('td:not([colspan])').nth(1);
+    await bodyCell.click();
+    await this.page.waitForURL(/[?&]drawer=/, { timeout: 15_000 });
   }
 
   async returnToList() {
