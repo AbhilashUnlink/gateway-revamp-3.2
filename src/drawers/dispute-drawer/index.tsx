@@ -1,16 +1,16 @@
-import { useTranslation } from 'react-i18next';
+﻿import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import DasDrawer from '@/components/ui/DasDrawer';
 import { Button } from '@/components/ui/button';
-import { DasForm } from '@/components/DasForm';
-import type { FormSchema } from '@/components/DasForm';
+import { DasForm } from '@/components/das-form';
+import type { FormSchema } from '@/components/das-form';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
-import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
-import { useDispute } from '@/hooks/useDispute';
-import { CHARGEBACK_STAGE_OPTIONS } from '@/hooks/useChargebackHistory';
+import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';
+import { useDispute } from '@/hooks/transactions/useDispute';
+import { CHARGEBACK_STAGE_OPTIONS } from '@/hooks/transactions/useChargebackHistory';
 import { useAppSelector } from '@/store/hooks';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
-import { useTransactionActions } from '@/hooks/useTransactionActions';
+import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
 import type { RootState } from '@/store';
 
 const FORM_ID = 'dispute-form';

@@ -1,4 +1,4 @@
-import { useDrawerControl } from './useDrawerControl';
+import { useDrawerControl } from '@/hooks/useDrawerControl';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
 
 export function useDrawerTransaction({ type, data }: Pick<DrawerComponentProps, 'type' | 'data'>) {

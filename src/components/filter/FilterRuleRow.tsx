@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Trash2 } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
 import { selectOptionsByKey } from '@/store/slices/gatewayConfigSlice';
-import { TextValue } from './controls/TextValue';
-import { NumberValue } from './controls/NumberValue';
-import { MultiSelectValue } from './controls/MultiSelectValue';
-import { DateRangeValue } from './controls/DateRangeValue';
-import { SearchableSelect } from './controls/SearchableSelect';
+import { TextInput } from '@/components/fields/TextInput';
+import { NumberInput } from '@/components/fields/NumberInput';
+import { MultiSelect } from '@/components/fields/MultiSelect';
+import { DateRange } from '@/components/fields/DateRange';
+import { Select } from '@/components/fields/Select';
 import { inferOperator } from './operators';
 import type { FilterField, FilterFieldOption, FilterRule, FilterValue } from './types';
 
@@ -76,7 +76,7 @@ export function FilterRuleRow({ rule, fields, takenFieldIds, onChange, onRemove 
 
   return (
     <div className="grid grid-cols-[1fr_1fr_40px] items-center gap-4">
-      <SearchableSelect
+      <Select
         value={rule.field}
         onChange={handleField}
         options={fieldPickerOptions}
@@ -86,16 +86,16 @@ export function FilterRuleRow({ rule, fields, takenFieldIds, onChange, onRemove 
 
       <div className="min-w-0">
         {!field && (
-          <TextValue value="" onChange={() => {}} placeholder={t('filter.value', 'Value')} />
+          <TextInput value="" onChange={() => {}} placeholder={t('filter.value', 'Value')} />
         )}
         {field?.type === 'text' && (
-          <TextValue value={rule.value as string} onChange={(v) => handleValue(v)} />
+          <TextInput value={rule.value as string} onChange={(v) => handleValue(v)} />
         )}
         {field?.type === 'number' && (
-          <NumberValue value={rule.value as string} onChange={(v) => handleValue(v)} />
+          <NumberInput value={rule.value as string} onChange={(v) => handleValue(v)} />
         )}
         {field?.type === 'select' && (
-          <SearchableSelect
+          <Select
             value={rule.value as string}
             onChange={(v) => handleValue(v)}
             options={fieldOptions ?? []}
@@ -103,14 +103,14 @@ export function FilterRuleRow({ rule, fields, takenFieldIds, onChange, onRemove 
           />
         )}
         {field?.type === 'multiSelect' && (
-          <MultiSelectValue
+          <MultiSelect
             value={(rule.value as string[]) ?? []}
             onChange={(v) => handleValue(v)}
             options={fieldOptions ?? []}
           />
         )}
         {field?.type === 'dateRange' && (
-          <DateRangeValue
+          <DateRange
             value={(rule.value as { from?: string; to?: string }) ?? {}}
             onChange={(v) => handleValue(v)}
           />

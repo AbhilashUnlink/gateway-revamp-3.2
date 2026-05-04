@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { DasForm } from '@/components/DasForm';
+import { DasForm } from '@/components/das-form';
 import { getLoginSchema } from './constants';
 import type { LoginFormValues } from '@/types/login/auth.types';
 

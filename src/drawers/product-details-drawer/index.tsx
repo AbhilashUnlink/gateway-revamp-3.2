@@ -1,9 +1,8 @@
- 
-import { useCallback, useMemo, type ReactNode } from 'react';
+﻿import { useCallback, useMemo, type ReactNode } from 'react';
 import DasDrawer from '@/components/ui/DasDrawer';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
-import { useProductDetails } from '@/hooks/useProductDetails';
+import { useProductDetails } from '@/hooks/transactions/useProductDetails';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { SCHEME_ICON_MAP } from '@/assets/icons/payment/schemeIconMap';
 import { DrawerEntityHeader } from '../shared/DrawerEntityHeader';

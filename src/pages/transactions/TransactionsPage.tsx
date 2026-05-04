@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { TransactionRow, TableFilter } from '@/types/transactions/transaction.types';
@@ -21,7 +21,7 @@ import {
 } from '@/store/slices/filterSlice';
 import { FilterPopover, buildFilterFields, serializeForTransactions } from '@/components/filter';
 import { DownloadPopover } from '@/components/transactions/DownloadPopover';
-import { useColumnPreferences } from '@/hooks/useColumnPreferences';
+import { useColumnPreferences } from '@/hooks/transactions/useColumnPreferences';
 import {
   buildTransactionColumns,
   transactionColumnIdToDisplayName,
@@ -70,7 +70,7 @@ function TransactionsPage() {
   );
   const { open } = useDrawerControl();
 
-  // Whole-row click → open the details drawer.
+  // Whole-row click â†’ open the details drawer.
   // The Transaction Ref ID link inside the row navigates to the full page.
   const handleRowClick = (row: TransactionRow) => {
     open({
@@ -87,7 +87,7 @@ function TransactionsPage() {
 
   // SINGLE source of truth for the fetch trigger: the serialized filter payload.
   // Keying on JSON.stringify(filters) ensures we re-fetch only when filter
-  // values actually change — not on every render or callback identity churn.
+  // values actually change â€” not on every render or callback identity churn.
   const filtersKey = useMemo(() => JSON.stringify(filters), [filters]);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ function TransactionsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersKey, userCurrency, refreshCount]);
 
-  // Full schema — picker-hidden columns are kept here so they always render.
+  // Full schema â€” picker-hidden columns are kept here so they always render.
   // The popover's column list filters them out separately.
   const columnConfigs = useMemo(
     () =>
@@ -167,29 +167,29 @@ function TransactionsPage() {
           <PageBar.StatsPill>
             <PageBar.StatItem
               label={t('transactions_page.total_count')}
-              value={stats.totalCount || '—'}
+              value={stats.totalCount || 'â€”'}
             />
             <div className="h-6 w-0.5 bg-gray-200" />
             {/* <PageBar.StatItem
               label={t('transactions_page.total_amount')}
-              value={stats.totalAmount || '—'}
+              value={stats.totalAmount || 'â€”'}
               currencyPrefix={stats.currency || undefined}
             />  <div className="h-6 w-0.5 bg-gray-200" /> */}
             <PageBar.StatItem
               label={t('transactions_page.total_sales')}
-              value={stats.totalSales || '—'}
+              value={stats.totalSales || 'â€”'}
               currencyPrefix={stats.currency || undefined}
             />
             <div className="h-6 w-0.5 bg-gray-200" />
             <PageBar.StatItem
               label={t('transactions_page.total_refund')}
-              value={stats.totalRefund || '—'}
+              value={stats.totalRefund || 'â€”'}
               currencyPrefix={stats.currency || undefined}
             />
             <div className="h-6 w-0.5 bg-gray-200" />
             <PageBar.StatItem
               label={t('transactions_page.approval_ratio')}
-              value={stats.approvalRatio ? `${stats.approvalRatio} %` : '—'}
+              value={stats.approvalRatio ? `${stats.approvalRatio} %` : 'â€”'}
             />
           </PageBar.StatsPill>
           <PageBar.FilterButton

@@ -1,4 +1,4 @@
-import { fieldComponentMap } from '@/components/DasForm/fieldMapper';
+import { fieldComponentMap } from '@/components/das-form/fieldMapper';
 import type { FieldSchema } from '@/types/form/form.types';
 import { cn } from '@/utils/cn';
 

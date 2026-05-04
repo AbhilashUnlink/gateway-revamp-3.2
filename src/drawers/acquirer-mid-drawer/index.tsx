@@ -1,8 +1,7 @@
- 
-import { useMemo } from 'react';
+﻿import { useMemo } from 'react';
 import DasDrawer from '@/components/ui/DasDrawer';
 import { cn } from '@/utils/cn';
-import { useAcquirerDetails } from '@/hooks/useAcquirerDetails';
+import { useAcquirerDetails } from '@/hooks/transactions/useAcquirerDetails';
 import { DrawerEntityHeader } from '../shared/DrawerEntityHeader';
 import { DrawerFieldGrid, DrawerSection, type DrawerFieldConfig } from '../shared/DrawerFieldGrid';
 import { DrawerStateView } from '../shared/DrawerStateView';

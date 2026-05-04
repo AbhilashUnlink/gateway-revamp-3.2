@@ -1,13 +1,13 @@
-import { lazy, type ComponentType } from 'react';
-const TransactionDetailsDrawer = lazy(() => import('@/drawers/TransactionDetailsDrawer'));
-const RefundDrawer = lazy(() => import('@/drawers/RefundDrawer'));
-const CaptureDrawer = lazy(() => import('@/drawers/CaptureDrawer'));
-const VoidDrawer = lazy(() => import('@/drawers/VoidDrawer'));
-const DisputeDrawer = lazy(() => import('@/drawers/DisputeDrawer'));
-const EditStatusDrawer = lazy(() => import('@/drawers/EditStatusDrawer'));
-const ProductDetailsDrawer = lazy(() => import('@/drawers/ProductDetailsDrawer'));
-const AcquirerMidDrawer = lazy(() => import('@/drawers/AcquirerMidDrawer'));
-const MerchantDetailsDrawer = lazy(() => import('@/drawers/MerchantDetailsDrawer'));
+﻿import { lazy, type ComponentType } from 'react';
+const TransactionDetailsDrawer = lazy(() => import('@/drawers/transaction-details-drawer'));
+const RefundDrawer = lazy(() => import('@/drawers/refund-drawer'));
+const CaptureDrawer = lazy(() => import('@/drawers/capture-drawer'));
+const VoidDrawer = lazy(() => import('@/drawers/void-drawer'));
+const DisputeDrawer = lazy(() => import('@/drawers/dispute-drawer'));
+const EditStatusDrawer = lazy(() => import('@/drawers/edit-status-drawer'));
+const ProductDetailsDrawer = lazy(() => import('@/drawers/product-details-drawer'));
+const AcquirerMidDrawer = lazy(() => import('@/drawers/acquirer-mid-drawer'));
+const MerchantDetailsDrawer = lazy(() => import('@/drawers/merchant-details-drawer'));
 
 export interface DrawerComponentProps {
   type: string;

@@ -1,10 +1,10 @@
-import { memo, useCallback } from 'react';
+﻿import { memo, useCallback } from 'react';
 import { Download } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { Button } from '@/components/ui/button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
-import { useHashcardCheck } from '@/hooks/useHashcardCheck';
+import { useHashcardCheck } from '@/hooks/transactions/useHashcardCheck';
 import type { InfoFieldAction, InfoFieldConfig } from '../types';
 import { StatusBadge } from './primitives';
 
