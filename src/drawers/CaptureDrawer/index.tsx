@@ -20,12 +20,11 @@ interface CaptureFormValues {
   consent: boolean;
 }
 
-export default function CaptureDrawer({ type, data }: DrawerComponentProps) {
+export default function CaptureDrawer({ type }: DrawerComponentProps) {
   const { t } = useTranslation();
-  const { handleClose } = useDrawerTransaction({ type, data });
+  const { handleClose } = useDrawerTransaction({ type });
   const { submitCapture, loading } = useCapture(handleClose);
   const { data: transactionDetail } = useTransactionActions();
-  console.log(transactionDetail, 'transactionDetail');
 
   const { amount, remainingAmount } = useMemo(
     () => calculateTransactionAmounts(transactionDetail, 'CAPTURE'),
@@ -34,7 +33,8 @@ export default function CaptureDrawer({ type, data }: DrawerComponentProps) {
 
   const originalAmount = amount.toFixed(2);
   const remainingAmountDisplay = remainingAmount.toFixed(2);
-  const currency = (data?.currency as string) ?? transactionDetail?.CurrencyCode ?? 'USD';
+  const currency =
+    (transactionDetail?.CurrencyCode as string) ?? transactionDetail?.CurrencyCode ?? 'USD';
 
   const schema: FormSchema = {
     fieldGap: 4,
@@ -94,17 +94,26 @@ export default function CaptureDrawer({ type, data }: DrawerComponentProps) {
   };
 
   const onSubmit = (values: CaptureFormValues) =>
-    submitCapture({
-      id: (data?.transactionId as string) ?? '',
-      captureAmount: parseFloat(values.captureAmount),
-      notes: values.reference,
-      merchant_id: (data?.dasMid as string) ?? '',
-    });
+    submitCapture(
+      {
+        'X-Authorization': `${transactionDetail?.SecretKey as string}`,
+      },
+      {
+        id: (transactionDetail?.TransactionRefID as string) ?? '',
+        captureAmount: parseFloat(values.captureAmount),
+        notes: values.reference,
+        merchant_id: (transactionDetail?.DASMID as string) ?? '',
+      }
+    );
 
   return (
     <>
       <DasDrawer.Header>
-        <DrawerTransactionHeader activeTab="capture" type={type} data={data} />
+        <DrawerTransactionHeader
+          activeTab="capture"
+          type={type}
+          data={{ transactionRefId: transactionDetail?.TransactionRefID }}
+        />
       </DasDrawer.Header>
 
       <DasDrawer.Body>

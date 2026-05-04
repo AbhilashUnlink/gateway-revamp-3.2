@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next';
 import type { TransactionDetailsData } from '@/types/transactions/transactionDetails.types';
 import type { InfoSectionConfig, LifecycleSummary } from '../types';
-import { formatCurrency } from './formatters';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 const PARTIAL_REFUND_STATES = new Set(['PARTIALLYREFUNDED', 'PARTIALLY_REFUNDED']);
 

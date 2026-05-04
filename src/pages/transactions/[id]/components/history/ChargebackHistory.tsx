@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { CopyButton } from '@/components/ui/CopyButton';
 import type { ChargebackCase } from '@/types/transactions/chargeback.types';
 import { FieldCell, HistoryCard, StatusBadge } from '../primitives';
-import { formatDateOnly, formatDateTime24, shortenCaseId } from '../../utils';
+import { useUserDateFormat } from '@/hooks/useUserDateFormat';
+import { shortenId } from '@/utils/shortenId';
 
 interface ChargebackCardProps {
   data: ChargebackCase;
@@ -12,6 +13,7 @@ interface ChargebackCardProps {
 
 const ChargebackCard = memo(function ChargebackCard({ data }: ChargebackCardProps) {
   const { t } = useTranslation();
+  const formatDate = useUserDateFormat();
 
   return (
     <HistoryCard.Root>
@@ -23,7 +25,7 @@ const ChargebackCard = memo(function ChargebackCard({ data }: ChargebackCardProp
           <FieldCell label={t('transaction_details_page.case_id')}>
             <div className="flex items-center gap-2">
               <span className="truncate text-sm font-semibold leading-5 text-[#1a1a1a] underline">
-                {shortenCaseId(data.caseId)}
+                {shortenId(data.caseId)}
               </span>
               <CopyButton value={data.caseId} ariaLabel={t('drawer.copy')} />
             </div>
@@ -34,11 +36,11 @@ const ChargebackCard = memo(function ChargebackCard({ data }: ChargebackCardProp
           </FieldCell>
 
           <FieldCell label={t('transaction_details_page.issued_date')}>
-            {formatDateTime24(data.issuedAt)}
+            {formatDate(data.issuedAt) || 'N/A'}
           </FieldCell>
 
           <FieldCell align="end" label={t('transaction_details_page.due_date')}>
-            {formatDateOnly(null)}
+            N/A
           </FieldCell>
 
           <FieldCell label={t('transaction_details_page.arn')}>{data.arn ?? 'N/A'}</FieldCell>

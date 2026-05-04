@@ -10,23 +10,18 @@ import { useTransactionActions } from '@/hooks/useTransactionActions';
 import { useAppDispatch } from '@/store/hooks';
 import { fetchTransactionDetails } from '@/store/thunks/transactionDetailsThunks';
 import { DetailsHeader } from './components/DetailsHeader';
-import { LifecycleTimeline } from './components/LifecycleTimeline';
+import { TransactionLifecycle } from '@/components/transactions/TransactionLifecycle';
 import { PageTabsList } from './components/PageTabs';
 import { PAGE_TABS } from './components/PageTabs.config';
-import { ChargebackHistory } from './components/ChargebackHistory';
-import { SubscriptionHistory } from './components/SubscriptionHistory';
-import { TokenizationHistory } from './components/TokenizationHistory';
-import { AuditLog } from './components/AuditLog';
+import { ChargebackHistory } from './components/history/ChargebackHistory';
+import { SubscriptionHistory } from './components/history/SubscriptionHistory';
+import { TokenizationHistory } from './components/history/TokenizationHistory';
+import { AuditLog } from './components/history/AuditLog';
 import { InfoFilterPills } from './components/InfoFilterPills';
 import { InfoSection, InfoSectionBody, InfoSectionHeader } from './components/InfoSection';
 import { buildLifecycleSummary, buildSections } from './utils/buildSections';
 import type { InfoFilter, InfoSectionConfig } from './types';
-
-function parseStartingCycle(value: string | undefined): number | undefined {
-  if (!value) return undefined;
-  const match = String(value).match(/\d+/);
-  return match ? Number(match[0]) : undefined;
-}
+import { parseStartingCycle } from './utils/parseStartingCycle';
 
 function TransactionDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -58,7 +53,7 @@ function TransactionDetailsPage() {
     [data, t]
   );
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="flex h-[calc(100vh-80px)] items-center justify-center gap-2 text-sm text-[#808080]">
         <Loader2 size={16} className="animate-spin" />
@@ -153,7 +148,12 @@ function TransactionDetailsPage() {
           {PAGE_TABS.map((tab) => (
             <TabPanel key={tab.id} className="px-6 py-6">
               {tab.id === 'transaction-history' && (
-                <LifecycleTimeline items={data.TransactionHistory ?? []} />
+                <TransactionLifecycle
+                  orientation="horizontal"
+                  items={data.TransactionHistory ?? []}
+                  activeUuid={id ?? ''}
+                  loading={loading}
+                />
               )}
               {tab.id === 'chargeback-history' && (
                 <ChargebackHistory
@@ -169,7 +169,10 @@ function TransactionDetailsPage() {
                 />
               )}
               {tab.id === 'tokenization-history' && (
-                <TokenizationHistory items={data.TokenizedTransactionHistory ?? []} />
+                <TokenizationHistory
+                  items={data.TokenizedTransactionHistory ?? []}
+                  activeUuid={id ?? ''}
+                />
               )}
               {tab.id === 'audit-log' && <AuditLog items={data.TransactionLog ?? []} />}
             </TabPanel>
@@ -189,14 +192,19 @@ function TransactionDetailsPage() {
               </div>
               <div className="mt-4 flex items-start gap-6">
                 {visibleSections.map((section) => (
-                  <InfoSectionBody key={`b-${section.id}`} section={section} layout="column" />
+                  <InfoSectionBody
+                    key={`b-${section.id}`}
+                    section={section}
+                    layout="column"
+                    loading={loading}
+                  />
                 ))}
               </div>
             </>
           ) : (
             <div className="pt-6">
               {visibleSections.map((section) => (
-                <InfoSection key={section.id} section={section} layout={layout} />
+                <InfoSection key={section.id} section={section} layout={layout} loading={loading} />
               ))}
             </div>
           )}

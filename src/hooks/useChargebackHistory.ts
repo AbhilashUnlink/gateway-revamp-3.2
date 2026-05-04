@@ -9,13 +9,18 @@ import type {
 
 const CLOSED_STATUSES = new Set(['CASECLOSED', 'LOSTFUND', 'CLOSED', 'WONFUND']);
 
-const STAGE_LABELS: Record<string, string> = {
+export const STAGE_LABELS: Record<string, string> = {
   FirstChargeback: 'First Chargeback',
   SecondChargeback: 'Second Chargeback',
   AutoRepresentment: 'Auto Representment',
   PreArbitration: 'Pre-Arbitration',
   Arbitration: 'Arbitration',
 };
+
+export const CHARGEBACK_STAGE_OPTIONS = Object.entries(STAGE_LABELS).map(([value, label]) => ({
+  label,
+  value,
+}));
 
 function humanizeStage(key: string): string {
   if (STAGE_LABELS[key]) return STAGE_LABELS[key];
@@ -37,6 +42,7 @@ function flattenCases(group: ChargebackStageGroup): ChargebackCase[] {
     );
     const latest = sorted[0];
     const oldest = sorted[sorted.length - 1];
+    if (!latest || !oldest) continue;
     const tone = deriveStatusTone(latest.Status);
 
     cases.push({

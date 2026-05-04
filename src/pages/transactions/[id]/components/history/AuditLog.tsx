@@ -1,8 +1,8 @@
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FieldCell, HistoryCard, StatusBadge } from '../primitives';
-import { formatDateTime24 } from '../../utils';
-import { isSuccessStatus } from '../../utils/status';
+import { useUserDateFormat } from '@/hooks/useUserDateFormat';
+import { isSuccessStatus } from '@/pages/transactions/[id]/utils/status';
 import type { AuditEntry } from '../../types';
 
 const getUpdatedAt = (e: AuditEntry) => e.UpdatedAt ?? e.updatedAt ?? e.CreatedAt ?? '';
@@ -13,6 +13,7 @@ interface AuditCardProps {
 
 const AuditCard = memo(function AuditCard({ entry }: AuditCardProps) {
   const { t } = useTranslation();
+  const formatDate = useUserDateFormat();
 
   const updatedBy = entry.UpdatedBy ?? entry.updatedBy ?? entry.CreatedBy ?? 'N/A';
   const updateDate = getUpdatedAt(entry);
@@ -29,7 +30,7 @@ const AuditCard = memo(function AuditCard({ entry }: AuditCardProps) {
         <HistoryCard.Grid>
           <FieldCell label={t('transaction_details_page.updated_by')}>{updatedBy}</FieldCell>
           <FieldCell align="end" label={t('transaction_details_page.update_date')}>
-            {updateDate ? formatDateTime24(updateDate) : 'N/A'}
+            {updateDate ? formatDate(updateDate) : 'N/A'}
           </FieldCell>
           <FieldCell label={t('transaction_details_page.auth_code')}>{authCode}</FieldCell>
         </HistoryCard.Grid>

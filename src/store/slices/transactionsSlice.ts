@@ -19,6 +19,7 @@ interface TransactionsState {
   loading: boolean;
   error: string | null;
   stats: TransactionStats;
+  refreshCount: number;
 }
 
 const initialStats: TransactionStats = {
@@ -37,6 +38,7 @@ const initialState: TransactionsState = {
   loading: false,
   error: null,
   stats: initialStats,
+  refreshCount: 0,
 };
 
 const transactionsSlice = createSlice({
@@ -52,6 +54,9 @@ const transactionsSlice = createSlice({
     },
     appendRows(state, action: PayloadAction<TransactionRow[]>) {
       state.rows.push(...action.payload);
+    },
+    bumpRefreshCount(state) {
+      state.refreshCount += 1;
     },
   },
   extraReducers: (builder) => {
@@ -75,6 +80,6 @@ const transactionsSlice = createSlice({
   },
 });
 
-export const { resetTransactions, appendRows } = transactionsSlice.actions;
+export const { resetTransactions, appendRows, bumpRefreshCount } = transactionsSlice.actions;
 export const selectTotalCount = (state: RootState) => state.transactions.stats.totalCount ?? 0;
 export default transactionsSlice.reducer;

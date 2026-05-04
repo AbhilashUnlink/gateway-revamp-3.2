@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { FieldCell, HistoryCard, StatusBadge } from '../primitives';
-import { formatDateTime12, isSuccessStatus, shortenId } from '../../utils';
+import { useUserDateFormat } from '@/hooks/useUserDateFormat';
+import { shortenId } from '@/utils/shortenId';
+import { isSuccessStatus } from '@/pages/transactions/[id]/utils/status';
 import type { TokenizedItem } from '../../types';
 
 interface TokenCardProps {
@@ -13,6 +15,7 @@ interface TokenCardProps {
 
 const TokenCard = memo(function TokenCard({ item, isActive }: TokenCardProps) {
   const { t } = useTranslation();
+  const formatDate = useUserDateFormat();
 
   const refId = String(item.TransactionRefID ?? item.trackid ?? item.uuid ?? '');
   const status = (item.Status ?? item.status ?? '').toString();
@@ -46,11 +49,11 @@ const TokenCard = memo(function TokenCard({ item, isActive }: TokenCardProps) {
           </FieldCell>
 
           <FieldCell label={t('transaction_details_page.transaction_date')}>
-            {formatDateTime12(createdAt)}
+            {formatDate(createdAt)}
           </FieldCell>
 
           <FieldCell align="end" label={t('transaction_details_page.update_date')}>
-            {formatDateTime12(updatedAt)}
+            {formatDate(updatedAt)}
           </FieldCell>
         </HistoryCard.Grid>
       </HistoryCard.Body>
@@ -60,9 +63,10 @@ const TokenCard = memo(function TokenCard({ item, isActive }: TokenCardProps) {
 
 interface TokenizationHistoryProps {
   items: unknown[];
+  activeUuid?: string;
 }
 
-export function TokenizationHistory({ items }: TokenizationHistoryProps) {
+export function TokenizationHistory({ items, activeUuid }: TokenizationHistoryProps) {
   const { t } = useTranslation();
 
   const list = useMemo(() => {
@@ -86,7 +90,7 @@ export function TokenizationHistory({ items }: TokenizationHistoryProps) {
         <TokenCard
           key={`${item.uuid ?? item.trackid ?? idx}-${idx}`}
           item={item}
-          isActive={idx === 0}
+          isActive={activeUuid ? item.uuid === activeUuid : idx === 0}
         />
       ))}
     </div>

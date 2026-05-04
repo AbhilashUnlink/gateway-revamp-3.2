@@ -1,10 +1,11 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import routingConfig from '@/config/routingConfig.json';
 import { loadComponent } from './resolver';
 import { ProtectedRoute } from './ProtectedRoute';
 import NotFoundPage from '@/pages/not-found/NotFoundPage';
 import { useAppSelector } from '@/store/hooks';
+import { getRedirectPath } from '@/utils/redirectByRole';
 const DrawerManager = lazy(() => import('@/components/drawer/DrawerManager'));
 
 const useAuth = () => {
@@ -12,6 +13,12 @@ const useAuth = () => {
   const userGroups = useAppSelector((s) => s.auth?.signInData?.Groups);
   return { isAuthenticated, userGroups };
 };
+
+function RootRedirect() {
+  const { isAuthenticated, userGroups } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return <Navigate to={getRedirectPath(userGroups ?? [])} replace />;
+}
 
 function Router() {
   const { isAuthenticated, userGroups } = useAuth();
@@ -47,6 +54,7 @@ function Router() {
             />
           );
         })}
+        <Route path="/" element={<RootRedirect />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>

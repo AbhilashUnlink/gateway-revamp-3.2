@@ -6,19 +6,22 @@ import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeade
 import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
 import { useVoid } from '@/hooks/useVoid';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
-import { useAppSelector } from '@/store/hooks';
-import { selectTransactionDetailsData } from '@/store/slices/transactionDetailsSlice';
+import { useTransactionActions } from '@/hooks/useTransactionActions';
 
 export default function VoidDrawer({ type }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { handleClose } = useDrawerTransaction({ type });
   const { submitVoid, loading } = useVoid(handleClose);
-  const data = useAppSelector(selectTransactionDetailsData);
+  const { data: transactionDetail } = useTransactionActions();
+
   const handleSubmit = () =>
-    submitVoid({
-      id: (data?.TransactionRefID as string) ?? '',
-      merchant_id: (data?.MerchantID as string) ?? '',
-    });
+    submitVoid(
+      { 'X-Authorization': `${transactionDetail?.SecretKey as string}` },
+      {
+        id: (transactionDetail?.TransactionRefID as string) ?? '',
+        merchant_id: (transactionDetail?.DASMID as string) ?? '',
+      }
+    );
 
   return (
     <>
@@ -27,7 +30,7 @@ export default function VoidDrawer({ type }: DrawerComponentProps) {
           activeTab="void"
           type={type}
           data={{
-            transactionRefId: data?.TransactionRefID,
+            transactionRefId: transactionDetail?.TransactionRefID,
           }}
         />
       </DasDrawer.Header>

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiService } from '@/utils';
 import { useToast } from '@/hooks/useToast';
+import { useAppDispatch } from '@/store/hooks';
+import { bumpRefreshCount } from '@/store/slices/transactionsSlice';
 
 interface RefundPayload {
   id: string;
@@ -14,12 +16,14 @@ export function useRefund(onSuccess?: () => void) {
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const toast = useToast();
+  const dispatch = useAppDispatch();
 
-  const submitRefund = async (payload: RefundPayload) => {
+  const submitRefund = async (headers: Record<string, string>, payload: RefundPayload) => {
     setLoading(true);
     try {
-      await apiService.transactions.refund(payload);
+      await apiService.transactions.refund(headers, payload);
       toast.success(t('drawer.refund_success'));
+      dispatch(bumpRefreshCount());
       onSuccess?.();
     } catch (err) {
       const axiosMessage = (err as { response?: { data?: { message?: string } } })?.response?.data

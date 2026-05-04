@@ -46,6 +46,7 @@ function Fields({ layout, children }: FieldsProps) {
 interface InfoSectionProps {
   section: InfoSectionConfig;
   layout: Layout;
+  loading?: boolean;
 }
 
 export const InfoSectionHeader = memo(function InfoSectionHeader({
@@ -64,26 +65,31 @@ export const InfoSectionHeader = memo(function InfoSectionHeader({
 export const InfoSectionBody = memo(function InfoSectionBody({
   section,
   layout,
+  loading = false,
 }: InfoSectionProps) {
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       <Fields layout={layout}>
         {section.fields.map((field, idx) => (
-          <InfoFieldItem key={`${section.id}-${idx}`} field={field} />
+          <InfoFieldItem key={`${section.id}-${idx}`} field={field} loading={loading} />
         ))}
       </Fields>
     </div>
   );
 });
 
-const InfoSectionComponent = memo(function InfoSection({ section, layout }: InfoSectionProps) {
+const InfoSectionComponent = memo(function InfoSection({
+  section,
+  layout,
+  loading = false,
+}: InfoSectionProps) {
   const { t } = useTranslation();
   return (
     <Root>
       <Title>{t(section.titleKey)}</Title>
       <Fields layout={layout}>
         {section.fields.map((field, idx) => (
-          <InfoFieldItem key={`${section.id}-${idx}`} field={field} />
+          <InfoFieldItem key={`${section.id}-${idx}`} field={field} loading={loading} />
         ))}
       </Fields>
     </Root>

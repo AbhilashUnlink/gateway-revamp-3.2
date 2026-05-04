@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiService } from '@/utils';
 import { useToast } from '@/hooks/useToast';
+import { useAppDispatch } from '@/store/hooks';
+import { bumpRefreshCount } from '@/store/slices/transactionsSlice';
 
 interface CapturePayload {
   id: string;
@@ -14,12 +16,14 @@ export function useCapture(onSuccess?: () => void) {
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const toast = useToast();
+  const dispatch = useAppDispatch();
 
-  const submitCapture = async (payload: CapturePayload) => {
+  const submitCapture = async (headers: Record<string, string>, payload: CapturePayload) => {
     setLoading(true);
     try {
-      await apiService.transactions.capture(payload);
+      await apiService.transactions.capture(headers, payload);
       toast.success(t('drawer.capture_success'));
+      dispatch(bumpRefreshCount());
       onSuccess?.();
     } catch (err) {
       const axiosMessage = (err as { response?: { data?: { message?: string } } })?.response?.data
