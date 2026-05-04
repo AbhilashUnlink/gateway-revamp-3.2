@@ -114,7 +114,7 @@ export type TableFilter = {
 };
 
 export interface TableApiPayload {
-  StatsCurrency: string;
+  StatsCurrency?: string;
   take: number;
   skip: number;
   TimeZone: string;

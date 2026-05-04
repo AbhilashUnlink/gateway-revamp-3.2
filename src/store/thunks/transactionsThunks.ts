@@ -15,11 +15,11 @@ export const fetchTransactionsList = createAsyncThunk(
   async (params: TransactionListParams, thunkAPI) => {
     try {
       const payload: TableApiPayload = {
-        StatsCurrency: params.statsCurrency ?? 'USD',
         take: params.limit,
         skip: (params.page - 1) * params.limit,
         TimeZone: params.timeZone ?? 'Asia/Calcutta',
         filter: params.filters ?? [],
+        ...(params.statsCurrency ? { StatsCurrency: params.statsCurrency } : {}),
       };
 
       const res = await apiService.transactions.listV2(payload);
