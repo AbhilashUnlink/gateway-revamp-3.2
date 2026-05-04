@@ -15,10 +15,6 @@ const FORM_ID = 'edit-status-form';
 const STATUS_OPTIONS = [
   { label: 'Successful', value: 'SUCCESSFUL' },
   { label: 'Not Successful', value: 'NOTSUCCESSFUL' },
-  { label: 'Pending', value: 'PENDING' },
-  { label: 'Review', value: 'REVIEW' },
-  { label: 'Declined', value: 'DECLINED' },
-  { label: 'Error', value: 'ERROR' },
 ];
 
 interface EditStatusFormValues {
@@ -32,8 +28,7 @@ export default function EditStatusDrawer({ type, data }: DrawerComponentProps) {
   const { handleClose } = useDrawerTransaction({ type, data });
   const { submitEditStatus, loading } = useEditStatus(handleClose);
   const { data: details } = useTransactionActions();
-
-  const transactionId = String(details?.TransactionID ?? data?.transactionId ?? '');
+  const transactionId = String(details?.TransactionRefID ?? '');
   const currentAuthCode = details?.AuthCode ?? '';
 
   const schema: FormSchema = {
