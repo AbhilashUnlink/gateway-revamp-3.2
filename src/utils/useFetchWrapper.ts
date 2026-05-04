@@ -138,7 +138,7 @@ export function useFetchWrapper(): AxiosInstance {
       const url = config.url ?? '';
       const isPublicRoute = PUBLIC_ROUTES.some((route) => url.includes(route));
 
-      config.headers = config.headers ?? {};
+      config.headers ??= {} as InternalAxiosRequestConfig['headers'];
       config.headers['X-Api-Key'] = X_API_KEY;
 
       if (isPublicRoute) return config;

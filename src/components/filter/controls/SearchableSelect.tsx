@@ -10,6 +10,12 @@ interface Props {
   placeholder?: string;
   /** Option values that should appear greyed-out and unselectable. */
   disabledValues?: string[];
+  /** Override classes on the trigger button (e.g. height/padding for forms). */
+  triggerClassName?: string;
+  /** Render an error border + focus ring. */
+  invalid?: boolean;
+  disabled?: boolean;
+  id?: string;
 }
 
 interface MenuPosition {
@@ -27,6 +33,10 @@ export function SearchableSelect({
   options,
   placeholder,
   disabledValues = [],
+  triggerClassName,
+  invalid,
+  disabled,
+  id,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -108,10 +118,18 @@ export function SearchableSelect({
     <div className="relative w-full">
       <button
         ref={triggerRef}
+        id={id}
         type="button"
+        disabled={disabled}
         title={currentLabel || undefined}
         onClick={() => (open ? closeMenu() : setOpen(true))}
-        className="flex h-10 w-full items-center gap-2 overflow-hidden rounded-lg border border-[#e5e5e5] bg-white px-3 text-sm text-[#1a1a1a] outline-none focus:border-[#1a1a1a]"
+        className={[
+          'flex w-full items-center gap-2 overflow-hidden rounded-lg border bg-white text-sm text-[#1a1a1a] outline-none disabled:cursor-not-allowed disabled:bg-[#fafafa]',
+          invalid
+            ? 'border-red-400 focus:ring-1 focus:ring-red-300/40'
+            : 'border-[#e5e5e5] focus:ring-1 focus:ring-[#f7941d]',
+          triggerClassName ?? 'h-10 px-3',
+        ].join(' ')}
       >
         <span className={`min-w-0 flex-1 truncate text-left ${value ? '' : 'text-[#808080]'}`}>
           {currentLabel || placeholder || 'Select…'}

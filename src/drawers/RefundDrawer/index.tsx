@@ -11,7 +11,6 @@ import { useRefund } from '@/hooks/useRefund';
 import { useTransactionActions } from '@/hooks/useTransactionActions';
 import { calculateTransactionAmounts } from '@/utils/calculateTransactionAmounts';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
-
 const FORM_ID = 'refund-form';
 
 interface RefundFormValues {
@@ -20,9 +19,9 @@ interface RefundFormValues {
   consent: boolean;
 }
 
-export default function RefundDrawer({ type, data }: DrawerComponentProps) {
+export default function RefundDrawer({ type }: DrawerComponentProps) {
   const { t } = useTranslation();
-  const { handleClose } = useDrawerTransaction({ type, data });
+  const { handleClose } = useDrawerTransaction({ type });
   const { submitRefund, loading } = useRefund(handleClose);
   const { data: transactionDetail } = useTransactionActions();
 
@@ -33,7 +32,8 @@ export default function RefundDrawer({ type, data }: DrawerComponentProps) {
 
   const originalAmount = amount.toFixed(2);
   const remainingAmountDisplay = remainingAmount.toFixed(2);
-  const currency = (data?.currency as string) ?? transactionDetail?.CurrencyCode ?? 'USD';
+  const currency =
+    (transactionDetail?.CurrencyCode as string) ?? transactionDetail?.CurrencyCode ?? 'USD';
 
   const schema: FormSchema = {
     fieldGap: 4,
@@ -81,17 +81,26 @@ export default function RefundDrawer({ type, data }: DrawerComponentProps) {
   };
 
   const onSubmit = (values: RefundFormValues) =>
-    submitRefund({
-      id: (data?.transactionId as string) ?? '',
-      refundAmount: parseFloat(values.refundAmount),
-      notes: values.reference,
-      merchant_id: (data?.dasMid as string) ?? '',
-    });
+    submitRefund(
+      {
+        'X-Authorization': `${transactionDetail?.SecretKey as string}`,
+      },
+      {
+        id: (transactionDetail?.TransactionRefID as string) ?? '',
+        refundAmount: parseFloat(values.refundAmount),
+        notes: values.reference,
+        merchant_id: (transactionDetail?.DASMID as string) ?? '',
+      }
+    );
 
   return (
     <>
       <DasDrawer.Header>
-        <DrawerTransactionHeader activeTab="refund" type={type} data={data} />
+        <DrawerTransactionHeader
+          activeTab="refund"
+          type={type}
+          data={{ transactionRefId: transactionDetail?.TransactionRefID }}
+        />
       </DasDrawer.Header>
 
       <DasDrawer.Body>
@@ -103,7 +112,7 @@ export default function RefundDrawer({ type, data }: DrawerComponentProps) {
             onSubmit={onSubmit}
             className="gap-0"
             defaultValues={{
-              refundAmount: remainingAmount > 0 ? remainingAmountDisplay : '',
+              refundAmount: '',
               reference: '',
               consent: false,
             }}

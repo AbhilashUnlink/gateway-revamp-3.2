@@ -7,7 +7,11 @@ import type { FormSchema } from '@/components/DasForm';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
 import { useDrawerTransaction } from '@/hooks/useDrawerTransaction';
 import { useDispute } from '@/hooks/useDispute';
+import { CHARGEBACK_STAGE_OPTIONS } from '@/hooks/useChargebackHistory';
+import { useAppSelector } from '@/store/hooks';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
+import { useTransactionActions } from '@/hooks/useTransactionActions';
+import type { RootState } from '@/store';
 
 const FORM_ID = 'dispute-form';
 
@@ -18,10 +22,29 @@ interface DisputeFormValues {
   DueDate: string;
 }
 
-export default function DisputeDrawer({ type, data }: DrawerComponentProps) {
+interface ReasonCodeEntry {
+  ReasonCode: string;
+  ReasonCodeDescription: string;
+}
+type ReasonCodeMap = Record<string, ReasonCodeEntry[]>;
+
+export default function DisputeDrawer({ type }: DrawerComponentProps) {
   const { t } = useTranslation();
-  const { handleClose } = useDrawerTransaction({ type, data });
+  const { data } = useTransactionActions();
+  const { handleClose } = useDrawerTransaction({ type });
   const { submitDispute, loading } = useDispute(handleClose);
+  const reasonCodeMap = useAppSelector(
+    (state: RootState) =>
+      state.gatewayConfig.config?.chargebackReasonCode as ReasonCodeMap | undefined
+  );
+  const scheme = data?.Scheme ?? '';
+  const reasonCodeFormattedOptions =
+    reasonCodeMap && scheme && reasonCodeMap[scheme]
+      ? reasonCodeMap[scheme].map((item) => ({
+          label: item.ReasonCodeDescription,
+          value: item.ReasonCode,
+        }))
+      : [];
 
   const schema: FormSchema = {
     fieldGap: 4,
@@ -31,7 +54,7 @@ export default function DisputeDrawer({ type, data }: DrawerComponentProps) {
         name: 'CaseType',
         label: t('drawer.case_type'),
         placeholder: 'Select',
-        options: [],
+        options: CHARGEBACK_STAGE_OPTIONS,
         rules: { required: true },
         required: true,
       },
@@ -40,7 +63,7 @@ export default function DisputeDrawer({ type, data }: DrawerComponentProps) {
         name: 'ReasonCode',
         label: t('drawer.reason_description'),
         placeholder: 'Select',
-        options: [],
+        options: reasonCodeFormattedOptions,
         rules: { required: true },
         required: true,
       },
@@ -57,8 +80,8 @@ export default function DisputeDrawer({ type, data }: DrawerComponentProps) {
         type: 'display',
         name: 'disputeAmountDisplay',
         label: t('drawer.dispute_amount'),
-        value: String(data?.amount ?? '0'),
-        suffix: (data?.currency as string) ?? 'USD',
+        value: String(data?.Amount ?? '0'),
+        suffix: data?.CurrencyCode ?? 'USD',
         required: true,
       },
       {
@@ -73,7 +96,7 @@ export default function DisputeDrawer({ type, data }: DrawerComponentProps) {
         type: 'display',
         name: 'orderIdDisplay',
         label: t('drawer.order_id'),
-        value: (data?.transactionId as string) ?? '',
+        value: data?.TransactionRefID ?? '',
         required: true,
       },
     ],
@@ -81,30 +104,34 @@ export default function DisputeDrawer({ type, data }: DrawerComponentProps) {
 
   const onSubmit = (values: DisputeFormValues) =>
     submitDispute({
-      TransactionID: (data?.transactionId as string) ?? '',
-      uuid: (data?.transactionId as string) ?? '',
-      Scheme: (data?.paymentScheme as string) ?? '',
-      CardNumber: (data?.cardNumber as string) ?? '',
-      Date: (data?.transactionDate as string) ?? '',
-      amount: Number(data?.amount ?? 0),
-      AcquirerCode: (data?.acquirer as string) ?? '',
-      AuthCode: (data?.authCode as string) ?? null,
-      CurrencyCode: (data?.currency as string) ?? '',
-      TransactionType: (data?.transactionType as string) ?? '',
+      TransactionID: data?.TransactionRefID ?? '',
+      uuid: data?.TransactionRefID ?? '',
+      Scheme: data?.Scheme ?? '',
+      CardNumber: data?.CardNumber ?? '',
+      Date: data?.Date ?? '',
+      amount: Number(data?.Amount ?? 0),
+      AcquirerCode: data?.AcquirerCode ?? '',
+      AuthCode: data?.AuthCode ?? null,
+      CurrencyCode: data?.CurrencyCode ?? '',
+      TransactionType: data?.TransactionType ?? '',
       IssuedDate: new Date().toISOString(),
       CaseType: values.CaseType,
       ARN: values.ARN,
       ReasonCode: values.ReasonCode,
       DueDate: new Date(values.DueDate).toISOString(),
-      DASMID: (data?.dasMid as string) ?? '',
+      DASMID: data?.DASMID ?? '',
       TimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      Currency: (data?.currency as string) ?? '',
+      Currency: data?.CurrencyCode ?? '',
     });
 
   return (
     <>
       <DasDrawer.Header>
-        <DrawerTransactionHeader activeTab="dispute" type={type} data={data} />
+        <DrawerTransactionHeader
+          activeTab="dispute"
+          type={type}
+          data={{ transactionRefId: data?.TransactionRefID ?? '' }}
+        />
       </DasDrawer.Header>
 
       <DasDrawer.Body>

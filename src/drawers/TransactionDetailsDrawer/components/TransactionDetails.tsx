@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { DasAccordion } from '@/components/ui/accordian';
+import { TransactionLifecycle } from '@/components/transactions/TransactionLifecycle';
+import { useDrawerControl } from '@/hooks/useDrawerControl';
+import { useDrawerParams } from '@/hooks/useDrawerParams';
 import type { TransactionDetailsData } from '@/types/transactions/transactionDetails.types';
-import { TransactionHistory } from './TransactionHistory';
 import { TransactionInformation } from './TransactionInformation';
 import { MerchantInformation } from './MerchantInformation';
 import { PaymentCardInformation } from './PaymentCardInformation';
@@ -16,6 +18,9 @@ interface TransactionDetailsProps {
 
 function TransactionDetails({ data, loading, error }: TransactionDetailsProps) {
   const { t } = useTranslation();
+  const { open } = useDrawerControl();
+  const { getIdFromUrl } = useDrawerParams();
+  const activeUuid = getIdFromUrl() ?? '';
 
   if (loading) {
     return (
@@ -34,10 +39,19 @@ function TransactionDetails({ data, loading, error }: TransactionDetailsProps) {
     );
   }
 
+  const handleSelect = (uuid: string) => {
+    open({ type: 'details', data: { transactionRefId: uuid } });
+  };
+
   return (
     <div className="flex flex-col gap-6 p-6">
       <DasAccordion title={t('transaction_details.transaction_history')} defaultOpen>
-        <TransactionHistory items={data.TransactionHistory} />
+        <TransactionLifecycle
+          orientation="vertical"
+          items={data.TransactionHistory}
+          activeUuid={activeUuid}
+          onSelect={handleSelect}
+        />
       </DasAccordion>
 
       <DasAccordion title={t('transaction_details.transaction_information')}>

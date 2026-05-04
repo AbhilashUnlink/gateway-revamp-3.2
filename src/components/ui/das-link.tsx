@@ -5,6 +5,7 @@ import { cn } from '@/utils/cn';
 const linkVariants = cva('transition-opacity underline underline-offset-2', {
   variants: {
     variant: {
+      card: 'underline-none',
       primary: 'text-[var(--brand-color)] hover:opacity-80',
       subtle: 'text-[var(--text)] hover:opacity-70',
     },

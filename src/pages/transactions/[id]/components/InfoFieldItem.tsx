@@ -11,6 +11,7 @@ import { StatusBadge } from './primitives';
 interface InfoFieldItemProps {
   field: InfoFieldConfig;
   className?: string;
+  loading?: boolean;
 }
 
 function useFieldActionHandler(action: InfoFieldAction | undefined) {
@@ -54,7 +55,11 @@ function useFieldActionHandler(action: InfoFieldAction | undefined) {
   }, [action, open, checkHashcard]);
 }
 
-export const InfoFieldItem = memo(function InfoFieldItem({ field, className }: InfoFieldItemProps) {
+export const InfoFieldItem = memo(function InfoFieldItem({
+  field,
+  className,
+  loading = false,
+}: InfoFieldItemProps) {
   const display =
     field.value !== undefined && field.value !== null && field.value !== ''
       ? String(field.value)
@@ -66,8 +71,10 @@ export const InfoFieldItem = memo(function InfoFieldItem({ field, className }: I
   return (
     <div className={cn('flex h-11 flex-col gap-1', className)}>
       <span className="text-sm leading-5 text-[#808080]">{field.label}</span>
-      <div className="flex items-center gap-2">
-        {field.badge ? (
+      <div className="flex h-5 items-center gap-2">
+        {loading ? (
+          <span className="h-3 w-24 animate-pulse rounded bg-neutral-200" />
+        ) : field.badge ? (
           <StatusBadge label={field.badge.label} tone={field.badge.tone} />
         ) : isClickable ? (
           <Button
@@ -89,8 +96,8 @@ export const InfoFieldItem = memo(function InfoFieldItem({ field, className }: I
             {display}
           </span>
         )}
-        {field.copyable && !isMissing && !field.badge && <CopyButton value={display} />}
-        {field.downloadable && !isMissing && (
+        {!loading && field.copyable && !isMissing && !field.badge && <CopyButton value={display} />}
+        {!loading && field.downloadable && !isMissing && (
           <button
             type="button"
             className="shrink-0 text-[#808080] hover:text-[#1a1a1a]"

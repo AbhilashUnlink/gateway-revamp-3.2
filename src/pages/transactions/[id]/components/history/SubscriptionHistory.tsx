@@ -4,7 +4,9 @@ import { cn } from '@/utils/cn';
 import { CopyButton } from '@/components/ui/CopyButton';
 import type { TransactionHistoryItem } from '@/types/transactions/transactionDetails.types';
 import { FieldCell, HistoryCard, StatusBadge } from '../primitives';
-import { formatDateTime12, isSuccessStatus, shortenId } from '../../utils';
+import { useUserDateFormat } from '@/hooks/useUserDateFormat';
+import { shortenId } from '@/utils/shortenId';
+import { isSuccessStatus } from '@/pages/transactions/[id]/utils/status';
 
 interface SubscriptionCycleCardProps {
   item: TransactionHistoryItem;
@@ -18,6 +20,7 @@ const SubscriptionCycleCard = memo(function SubscriptionCycleCard({
   isActive,
 }: SubscriptionCycleCardProps) {
   const { t } = useTranslation();
+  const formatDate = useUserDateFormat();
   const refId = item.trackid ?? item.uuid;
   const success = isSuccessStatus(item.status);
 
@@ -50,11 +53,11 @@ const SubscriptionCycleCard = memo(function SubscriptionCycleCard({
           </FieldCell>
 
           <FieldCell label={t('transaction_details_page.transaction_date')}>
-            {formatDateTime12(item.CreatedAt)}
+            {formatDate(item.CreatedAt)}
           </FieldCell>
 
           <FieldCell align="end" label={t('transaction_details_page.update_date')}>
-            {formatDateTime12(item.CreatedAt)}
+            {formatDate(item.CreatedAt)}
           </FieldCell>
 
           <FieldCell label={t('transaction_details_page.status')}>

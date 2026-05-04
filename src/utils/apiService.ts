@@ -109,9 +109,12 @@ export const apiService = {
       Api().post(`transactions/transaction-column-preference/delete/${params.uuid}`),
     getTransactionColumnPreferenceById: (params: { uuid: string }) =>
       Api().get(`transactions/transaction-column-preference/${params.uuid}`),
-    postVoid: (data?: unknown) => Api().post(`transactions/void`, data),
-    capture: (data?: unknown) => Api().post(`transactions/capture`, data),
-    refund: (data?: unknown) => Api().post(`transactions/refund`, data),
+    postVoid: (headers?: Record<string, string>, data?: unknown) =>
+      Api().post(`transactions/void`, data, { headers }),
+    capture: (headers?: Record<string, string>, data?: unknown) =>
+      Api().post(`transactions/capture`, data, { headers }),
+    refund: (headers?: Record<string, string>, data?: unknown) =>
+      Api().post(`transactions/refund`, data, { headers }),
     postUpdateStatus: (data?: unknown) => Api().post(`transactions/update-status`, data),
     postTransactionDownloadingScheduleCreate: (data?: unknown) =>
       Api().post(`transactions/transaction-downloading-schedule/create`, data),

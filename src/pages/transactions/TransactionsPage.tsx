@@ -63,6 +63,7 @@ function TransactionsPage() {
   );
 
   const userCurrency = useAppSelector(selectUserCurrencyType);
+  const refreshCount = useAppSelector((s) => s.transactions.refreshCount);
   const { rows, loading, hasMore, stats, loadMore, refresh } = useTableDataAdapter(
     filters,
     userCurrency ?? undefined
@@ -92,7 +93,7 @@ function TransactionsPage() {
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersKey, userCurrency]);
+  }, [filtersKey, userCurrency, refreshCount]);
 
   // Full schema — picker-hidden columns are kept here so they always render.
   // The popover's column list filters them out separately.
