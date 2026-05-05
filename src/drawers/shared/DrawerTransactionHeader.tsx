@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { DasIcon } from '@/components/ui/DasIcon';
 import { CopyButton } from '@/components/ui/CopyButton';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';
 import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
 import { useNavigate } from 'react-router-dom';
@@ -43,17 +44,23 @@ export function DrawerTransactionHeader({
     data,
   });
   const {
+    data: storeData,
+    loading: actionsLoading,
     showRefund: apiShowRefund,
     showCapture: apiShowCapture,
     showVoid: apiShowVoid,
     showDispute: apiShowDispute,
-    showEditStatus,
+    showEditStatus: apiShowEditStatus,
   } = useTransactionActions();
+
+  const isStale = !storeData || storeData.TransactionRefID !== transactionRefId;
+  const actionsLoadingForTx = actionsLoading || isStale;
 
   const showRefund = showRefundOverride ?? apiShowRefund;
   const showCapture = showCaptureOverride ?? apiShowCapture;
   const showVoid = showVoidOverride ?? apiShowVoid;
   const showDispute = showDisputeOverride ?? apiShowDispute;
+  const showEditStatus = apiShowEditStatus;
 
   const goTo = (tab: DrawerTab) => navigateTo(TAB_TO_DRAWER_TYPE[tab]);
   const navigate = useNavigate();
@@ -117,63 +124,75 @@ export function DrawerTransactionHeader({
             {t('drawer.details')}
           </Button>
 
-          {showRefund && (
-            <Button
-              type="button"
-              variant={activeTab === 'refund' ? 'outline' : 'ghost'}
-              className="w-22.5"
-              onClick={activeTab !== 'refund' ? () => goTo('refund') : undefined}
-            >
-              {t('drawer.refund')}
-            </Button>
-          )}
+          {actionsLoadingForTx ? (
+            <div className="flex mt-2 gap-3">
+              <Skeleton className="h-9 w-32 rounded-md" />
+            </div>
+          ) : (
+            <>
+              {showRefund && (
+                <Button
+                  type="button"
+                  variant={activeTab === 'refund' ? 'outline' : 'ghost'}
+                  className="w-22.5"
+                  onClick={activeTab !== 'refund' ? () => goTo('refund') : undefined}
+                >
+                  {t('drawer.refund')}
+                </Button>
+              )}
 
-          {showVoid && (
-            <Button
-              type="button"
-              variant={activeTab === 'void' ? 'outline' : 'ghost'}
-              className="w-22.5"
-              onClick={activeTab !== 'void' ? () => goTo('void') : undefined}
-            >
-              {t('drawer.void')}
-            </Button>
-          )}
+              {showVoid && (
+                <Button
+                  type="button"
+                  variant={activeTab === 'void' ? 'outline' : 'ghost'}
+                  className="w-22.5"
+                  onClick={activeTab !== 'void' ? () => goTo('void') : undefined}
+                >
+                  {t('drawer.void')}
+                </Button>
+              )}
 
-          {showCapture && (
-            <Button
-              type="button"
-              variant={activeTab === 'capture' ? 'outline' : 'ghost'}
-              className="w-22.5"
-              onClick={activeTab !== 'capture' ? () => goTo('capture') : undefined}
-            >
-              {t('drawer.capture')}
-            </Button>
-          )}
+              {showCapture && (
+                <Button
+                  type="button"
+                  variant={activeTab === 'capture' ? 'outline' : 'ghost'}
+                  className="w-22.5"
+                  onClick={activeTab !== 'capture' ? () => goTo('capture') : undefined}
+                >
+                  {t('drawer.capture')}
+                </Button>
+              )}
 
-          {showDispute && (
-            <Button
-              type="button"
-              variant={activeTab === 'dispute' ? 'outline' : 'ghost'}
-              className="w-22.5"
-              onClick={activeTab !== 'dispute' ? () => goTo('dispute') : undefined}
-            >
-              {t('drawer.dispute')}
-            </Button>
+              {showDispute && (
+                <Button
+                  type="button"
+                  variant={activeTab === 'dispute' ? 'outline' : 'ghost'}
+                  className="w-22.5"
+                  onClick={activeTab !== 'dispute' ? () => goTo('dispute') : undefined}
+                >
+                  {t('drawer.dispute')}
+                </Button>
+              )}
+            </>
           )}
         </div>
 
-        {showEditStatus && (
-          <Button
-            type="button"
-            variant={activeTab === 'edit-status' ? 'outline' : 'ghost'}
-            onClick={activeTab !== 'edit-status' ? () => navigateTo('edit-status') : undefined}
-            className="gap-2 shadow-none drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.1)]"
-          >
-            <EditButtonIcon
-              className={activeTab === 'edit-status' ? 'text-(var(--brand-color))' : ''}
-            />
-            {t('drawer.edit_status')}
-          </Button>
+        {actionsLoadingForTx ? (
+          <Skeleton className="h-9 w-32 rounded-md" />
+        ) : (
+          showEditStatus && (
+            <Button
+              type="button"
+              variant={activeTab === 'edit-status' ? 'outline' : 'ghost'}
+              onClick={activeTab !== 'edit-status' ? () => navigateTo('edit-status') : undefined}
+              className="gap-2 shadow-none drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.1)]"
+            >
+              <EditButtonIcon
+                className={activeTab === 'edit-status' ? 'text-(var(--brand-color))' : ''}
+              />
+              {t('drawer.edit_status')}
+            </Button>
+          )
         )}
       </div>
     </>

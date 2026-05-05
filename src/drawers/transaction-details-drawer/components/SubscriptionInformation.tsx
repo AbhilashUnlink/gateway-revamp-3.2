@@ -4,13 +4,14 @@ import type { TransactionDetailsData } from '@/types/transactions/transactionDet
 
 interface Props {
   data: TransactionDetailsData;
+  loading?: boolean;
 }
 
-export function SubscriptionInformation({ data }: Props) {
+export function SubscriptionInformation({ data, loading }: Props) {
   const { t } = useTranslation();
   const sub = data.SubscriptionDetails;
 
-  if (!sub) {
+  if (!loading && !sub) {
     return <p className="text-sm text-[#808080]">{t('transaction_details.no_subscription')}</p>;
   }
 
@@ -18,14 +19,35 @@ export function SubscriptionInformation({ data }: Props) {
     <InfoGrid>
       <InfoField
         label={t('transaction_details.subscription_id')}
-        value={sub.SubscriptionID}
+        value={sub?.SubscriptionID}
         copyable
+        loading={loading}
       />
-      <InfoField label={t('transaction_details.subscription_plan')} value={sub.Plan} />
-      <InfoField label={t('transaction_details.billing_cycle')} value={sub.BillingCycle} />
-      <InfoField label={t('transaction_details.next_billing')} value={sub.NextBilling} />
-      <InfoField label={t('transaction_details.cycle_billed')} value={sub.CycleBilled} />
-      <InfoField label={t('transaction_details.subscription_status')} value={sub.Status} />
+      <InfoField
+        label={t('transaction_details.subscription_plan')}
+        value={sub?.Plan}
+        loading={loading}
+      />
+      <InfoField
+        label={t('transaction_details.billing_cycle')}
+        value={sub?.BillingCycle}
+        loading={loading}
+      />
+      <InfoField
+        label={t('transaction_details.next_billing')}
+        value={sub?.NextBilling}
+        loading={loading}
+      />
+      <InfoField
+        label={t('transaction_details.cycle_billed')}
+        value={sub?.CycleBilled}
+        loading={loading}
+      />
+      <InfoField
+        label={t('transaction_details.subscription_status')}
+        value={sub?.Status}
+        loading={loading}
+      />
     </InfoGrid>
   );
 }
