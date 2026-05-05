@@ -21,8 +21,7 @@ function TransactionDetails({ data, loading, error }: TransactionDetailsProps) {
   const { open } = useDrawerControl();
   const { getIdFromUrl } = useDrawerParams();
   const activeUuid = getIdFromUrl() ?? '';
-  const isStaleForActive = !!data && data.TransactionRefID !== activeUuid;
-  const showFullLoader = loading && (!data || isStaleForActive);
+  const showFullLoader = loading && !data;
 
   if (showFullLoader) {
     return (
