@@ -4,6 +4,7 @@ import { DasSpinner } from '@/components/ui/DasSpinner';
 import { TransactionLifecycle } from '@/components/transactions/TransactionLifecycle';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { useDrawerParams } from '@/hooks/useDrawerParams';
+import { useAppSelector } from '@/store/hooks';
 import type { TransactionDetailsData } from '@/types/transactions/transactionDetails.types';
 import { TransactionInformation } from './TransactionInformation';
 import { MerchantInformation } from './MerchantInformation';
@@ -21,7 +22,9 @@ function TransactionDetails({ data, loading, error }: TransactionDetailsProps) {
   const { open } = useDrawerControl();
   const { getIdFromUrl } = useDrawerParams();
   const activeUuid = getIdFromUrl() ?? '';
-  const showFullLoader = loading && !data;
+  const wasAlreadyOpen = useAppSelector((s) => s.drawers.wasAlreadyOpen);
+  const idMatches = !!data && data.TransactionRefID === activeUuid;
+  const showFullLoader = !wasAlreadyOpen && !idMatches;
 
   if (showFullLoader) {
     return (

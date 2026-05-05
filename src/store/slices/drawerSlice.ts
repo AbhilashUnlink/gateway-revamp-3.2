@@ -7,10 +7,12 @@ export interface DrawerEntry {
 
 interface DrawersState {
   current: DrawerEntry | null;
+  wasAlreadyOpen: boolean;
 }
 
 const initialState: DrawersState = {
   current: null,
+  wasAlreadyOpen: false,
 };
 
 const drawerSlice = createSlice({
@@ -18,10 +20,12 @@ const drawerSlice = createSlice({
   initialState,
   reducers: {
     openDrawer(state, action: PayloadAction<DrawerEntry>) {
+      state.wasAlreadyOpen = state.current !== null;
       state.current = action.payload;
     },
     closeDrawer(state) {
       state.current = null;
+      state.wasAlreadyOpen = false;
     },
   },
 });
