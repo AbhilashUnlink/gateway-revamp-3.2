@@ -1,4 +1,3 @@
-import { Mail, Lock } from 'lucide-react';
 import type { TFunction } from 'i18next';
 import type { FormSchema } from '@/types/form/form.types';
 
@@ -14,7 +13,7 @@ export const getLoginSchema = (t: TFunction): FormSchema => ({
       type: 'input',
       inputType: 'text',
       placeholder: t('login_form.email_placeholder'),
-      icon: Mail,
+      icon: 'mail',
       rules: {
         required: t('login_form.email_required'),
         validate: (val: string) =>
@@ -26,7 +25,7 @@ export const getLoginSchema = (t: TFunction): FormSchema => ({
       type: 'input',
       inputType: 'password',
       placeholder: t('login_form.password_placeholder'),
-      icon: Lock,
+      icon: 'lock',
       rules: {
         required: t('login_form.password_required'),
       },

@@ -1,9 +1,9 @@
-import { ReceiptText, Archive, Calendar, Coins, FileText } from 'lucide-react';
+import type { DasIconName } from '@/components/ui/DasIcon';
 
 export interface TabConfig {
   id: string;
   labelKey: string;
-  Icon: typeof ReceiptText;
+  icon: DasIconName;
   enabled: boolean;
 }
 
@@ -11,31 +11,31 @@ export const PAGE_TABS: TabConfig[] = [
   {
     id: 'transaction-history',
     labelKey: 'transaction_details_page.tab_transaction_history',
-    Icon: ReceiptText,
+    icon: 'receipt-text',
     enabled: true,
   },
   {
     id: 'chargeback-history',
     labelKey: 'transaction_details_page.tab_chargeback_history',
-    Icon: Archive,
+    icon: 'archive',
     enabled: true,
   },
   {
     id: 'subscription-history',
     labelKey: 'transaction_details_page.tab_subscription_history',
-    Icon: Calendar,
+    icon: 'calendar',
     enabled: true,
   },
   {
     id: 'tokenization-history',
     labelKey: 'transaction_details_page.tab_tokenization_history',
-    Icon: Coins,
+    icon: 'coins',
     enabled: true,
   },
   {
     id: 'audit-log',
     labelKey: 'transaction_details_page.tab_audit_log',
-    Icon: FileText,
+    icon: 'file-text',
     enabled: true,
   },
 ];

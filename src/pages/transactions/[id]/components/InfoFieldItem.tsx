@@ -1,6 +1,6 @@
 ﻿import { memo, useCallback } from 'react';
-import { Download } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { DasIcon } from '@/components/ui/DasIcon';
 import { Button } from '@/components/ui/button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
@@ -98,13 +98,15 @@ export const InfoFieldItem = memo(function InfoFieldItem({
         )}
         {!loading && field.copyable && !isMissing && !field.badge && <CopyButton value={display} />}
         {!loading && field.downloadable && !isMissing && (
-          <button
+          <Button
             type="button"
-            className="shrink-0 text-[#808080] hover:text-[#1a1a1a]"
+            variant="icon"
+            size="icon"
+            className="shrink-0 text-[#808080] hover:text-[#1a1a1a] hover:opacity-100"
             aria-label="download"
           >
-            <Download size={14} />
-          </button>
+            <DasIcon name="download" size={14} />
+          </Button>
         )}
       </div>
     </div>

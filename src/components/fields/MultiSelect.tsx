@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, Search, X } from 'lucide-react';
 import type { FilterFieldOption } from '@/components/filter/types';
+import { DasIcon } from '@/components/ui/DasIcon';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   value: string[];
@@ -139,7 +140,7 @@ export function MultiSelect({ value, onChange, options, placeholder }: Props) {
             </>
           )}
         </div>
-        <ChevronDown size={16} className="shrink-0 text-[#808080]" />
+        <DasIcon name="chevron-down" size={16} className="shrink-0 text-[#808080]" />
       </button>
 
       {open &&
@@ -159,7 +160,7 @@ export function MultiSelect({ value, onChange, options, placeholder }: Props) {
           >
             {showSearch && (
               <div className="flex items-center gap-2 border-b border-[#f0f0f0] px-3 py-2">
-                <Search size={14} className="shrink-0 text-[#808080]" />
+                <DasIcon name="search" size={14} className="shrink-0 text-[#808080]" />
                 <input
                   ref={searchRef}
                   type="text"
@@ -169,17 +170,19 @@ export function MultiSelect({ value, onChange, options, placeholder }: Props) {
                   className="h-7 min-w-0 flex-1 bg-transparent text-sm text-[#1a1a1a] outline-none"
                 />
                 {query && (
-                  <button
+                  <Button
                     type="button"
+                    variant="icon"
+                    size="icon"
                     onClick={() => {
                       setQuery('');
                       searchRef.current?.focus();
                     }}
                     aria-label="Clear search"
-                    className="shrink-0 text-[#808080] hover:text-[#1a1a1a]"
+                    className="shrink-0 text-[#808080] hover:text-[#1a1a1a] hover:opacity-100"
                   >
-                    <X size={14} />
-                  </button>
+                    <DasIcon name="x" size={14} />
+                  </Button>
                 )}
               </div>
             )}

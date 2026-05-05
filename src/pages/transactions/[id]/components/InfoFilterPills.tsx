@@ -1,6 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
+import { Button } from '@/components/ui/button';
 import { FILTER_PILLS, type FilterPill } from '../constants';
 import type { InfoFilter } from '../types';
 
@@ -15,18 +16,19 @@ const PillButton = memo(function PillButton({ pill, selected, onSelect }: PillBu
   const handleClick = useCallback(() => onSelect(pill.value), [onSelect, pill.value]);
 
   return (
-    <button
+    <Button
       type="button"
+      variant={selected ? 'primary' : 'chip'}
       onClick={handleClick}
       className={cn(
-        'inline-flex h-7 items-center px-4 text-sm leading-5 transition-colors',
+        'h-7 w-auto px-4 text-sm leading-5 normal-case font-normal',
         selected
-          ? 'rounded-2xl bg-[#f7941d] text-white drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.06)]'
-          : 'rounded-full border border-[#1a1a1a] text-[#1a1a1a] hover:bg-white/60'
+          ? 'rounded-2xl bg-[#f7941d] text-white drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.06)] hover:bg-[#f7941d]'
+          : 'rounded-full border-[#1a1a1a] hover:bg-white/60'
       )}
     >
       {t(pill.labelKey)}
-    </button>
+    </Button>
   );
 });
 

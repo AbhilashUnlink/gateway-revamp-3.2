@@ -1,5 +1,5 @@
-import { Globe, Sun, Moon, Bell, ChevronDown } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
+import { DasIcon } from '@/components/ui/DasIcon';
 import poLogo from '@/assets/payment-options.svg';
 import { cn } from '@/utils/cn';
 import { UserProfilePopover } from '@/components/ui/UserProfilePopover';
@@ -46,33 +46,32 @@ export function AppBar() {
       <div className="flex items-center gap-3 py-3">
         {/* Timezone */}
         <BarSection>
-          <button
-            type="button"
-            className="flex items-center gap-2.5 text-[#1a1a1a] transition-opacity hover:opacity-70"
-          >
-            <Globe size={24} className="shrink-0 text-[#1a1a1a]" />
+          <Button type="button" variant="icon" size="inline" className="gap-2.5">
+            <DasIcon name="globe" size={24} className="shrink-0 text-[#1a1a1a]" />
             <span className="text-xs font-medium capitalize whitespace-nowrap">{timezone}</span>
-            <ChevronDown size={12} className="shrink-0" />
-          </button>
+            <DasIcon name="chevron-down" size={12} className="shrink-0" />
+          </Button>
         </BarSection>
 
         {/* Theme toggle */}
         <BarSection>
-          <button
+          <Button
             type="button"
+            variant="icon"
+            size="icon"
             onClick={toggleTheme}
             aria-label="Toggle theme"
             className={cn(
-              'flex size-6 items-center justify-center rounded-full transition-opacity hover:opacity-70',
+              'size-6 rounded-full',
               theme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-[#d3caba]'
             )}
           >
             {theme === 'dark' ? (
-              <Moon size={16} className="text-white" />
+              <DasIcon name="moon" size={16} className="text-white" />
             ) : (
-              <Sun size={16} className="text-[#1a1a1a]" />
+              <DasIcon name="sun" size={16} className="text-[#1a1a1a]" />
             )}
-          </button>
+          </Button>
         </BarSection>
 
         {/* Language */}
@@ -84,7 +83,7 @@ export function AppBar() {
         <BarSection>
           <div className="relative">
             <Button type="button" variant={'link'} aria-label="Notifications">
-              <Bell size={24} className="text-[#1a1a1a]" />
+              <DasIcon name="bell" size={24} className="text-[#1a1a1a]" />
             </Button>
             <span className="absolute top-2 right-4 flex size-2 rounded-full bg-[#f7941d]" />
           </div>

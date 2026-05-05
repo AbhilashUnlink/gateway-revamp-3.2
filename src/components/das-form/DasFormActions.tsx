@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
-import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DasSpinner } from '@/components/ui/DasSpinner';
 import { useDasFormContext } from './DasFormContext';
 import { cn } from '@/utils/cn';
 import type { ActionSchema } from '@/types/form/form.types';
@@ -33,7 +33,7 @@ export function DasFormActions({ className }: DasFormActionsProps) {
             <Button key="submit" type="submit" variant="primary" disabled={!isValid || busy}>
               {busy ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <DasSpinner className="h-4 w-4" />
                   {action.loadingLabel ?? action.label}
                 </span>
               ) : (

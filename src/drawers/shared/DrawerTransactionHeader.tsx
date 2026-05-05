@@ -1,6 +1,6 @@
-﻿import { Share2, ExternalLink, XCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+﻿import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { DasIcon } from '@/components/ui/DasIcon';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';
 import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
@@ -81,7 +81,7 @@ export function DrawerTransactionHeader({
                 className="flex h-8 w-8 items-center justify-center"
               />
               <Button variant="icon" size="icon" type="button" aria-label={t('drawer.share')}>
-                <Share2 size={16} />
+                <DasIcon name="share-2" size={16} />
               </Button>
               <Button
                 variant="icon"
@@ -90,7 +90,7 @@ export function DrawerTransactionHeader({
                 aria-label={t('drawer.open_new_window')}
                 onClick={handleOpenTransactionDetailsWithDrawer}
               >
-                <ExternalLink size={16} />
+                <DasIcon name="external-link" size={16} />
               </Button>
             </div>
           </div>
@@ -101,7 +101,7 @@ export function DrawerTransactionHeader({
             onClick={handleClose}
             aria-label={t('drawer.close')}
           >
-            <XCircle size={24} />
+            <DasIcon name="x-circle" size={24} />
           </Button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react';
+import { DasSpinner } from '@/components/ui/DasSpinner';
 
 interface DrawerStateViewProps {
   loading?: boolean;
@@ -14,7 +14,7 @@ export function DrawerStateView({
   if (loading) {
     return (
       <div className="flex items-center justify-center gap-2 py-8 text-sm text-[#808080]">
-        <Loader2 size={16} className="animate-spin" />
+        <DasSpinner />
         {loadingLabel}
       </div>
     );

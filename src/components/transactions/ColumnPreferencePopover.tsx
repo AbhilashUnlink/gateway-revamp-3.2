@@ -9,7 +9,8 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { CircleX, Loader2, Move, Plus, Search, Table, Trash2 } from 'lucide-react';
+import { DasSpinner } from '@/components/ui/DasSpinner';
+import { DasIcon } from '@/components/ui/DasIcon';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   createColumnPreferenceList,
@@ -384,19 +385,14 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
         {/* Header — soft orange tint */}
         <div className="flex h-[66px] shrink-0 items-center gap-2 rounded-t-2xl bg-[#fff6e6] px-4 py-1.5">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white">
-            <Table size={16} className="text-[#1a1a1a]" />
+            <DasIcon name="table" size={16} className="text-[#1a1a1a]" />
           </div>
           <h3 className="flex-1 text-base font-semibold leading-5 text-[#1a1a1a]">
             {t('columns.title')}
           </h3>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="text-[#1a1a1a] transition-opacity hover:opacity-70"
-          >
-            <CircleX size={24} strokeWidth={1.5} />
-          </button>
+          <Button type="button" variant="icon" size="icon" onClick={onClose} aria-label="Close">
+            <DasIcon name="circle-x" size={24} strokeWidth={1.5} />
+          </Button>
         </div>
 
         {/* Body — two columns */}
@@ -443,7 +439,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
                 <div className="flex flex-col gap-2 border-t border-[#e5e5e5] pt-3">
                   <span className="inline-flex w-fit items-center gap-2 text-sm font-semibold leading-5 text-[#1a1a1a]">
                     {t('columns.add_new')}
-                    <Plus size={16} />
+                    <DasIcon name="plus" size={16} />
                   </span>
                   <input
                     type="text"
@@ -507,7 +503,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
                   placeholder={t('columns.search')}
                   className="h-full flex-1 bg-transparent text-xs leading-[15px] text-[#1a1a1a] outline-none placeholder:text-[#808080]"
                 />
-                <Search size={16} className="text-[#808080]" />
+                <DasIcon name="search" size={16} className="text-[#808080]" />
               </div>
 
               {/* List */}
@@ -532,20 +528,22 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
                         isDragOver && !rowLocked && 'rounded ring-1 ring-[#f7941d]'
                       )}
                     >
-                      <button
+                      <Button
                         type="button"
+                        variant="icon"
+                        size="icon"
                         aria-label={t('columns.drag_to_reorder')}
                         title={t('columns.drag_to_reorder')}
                         disabled={rowLocked}
                         className={cn(
-                          'flex size-4 shrink-0 items-center justify-center text-[#808080]',
+                          'size-4 shrink-0 text-[#808080]',
                           rowLocked
                             ? 'cursor-not-allowed opacity-30'
                             : 'cursor-grab hover:text-[#1a1a1a]'
                         )}
                       >
-                        <Move size={14} />
-                      </button>
+                        <DasIcon name="move" size={14} />
+                      </Button>
                       <span
                         className="min-w-0 flex-1 truncate text-sm leading-5 text-[#1a1a1a]"
                         title={col.displayName}
@@ -590,11 +588,11 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
               </Button>
               <Button
                 type="button"
+                variant="danger"
                 onClick={handleConfirmDelete}
                 disabled={saving}
-                className="bg-[#ff4343] hover:bg-[#e23838]"
               >
-                {saving && <Loader2 size={14} className="mr-1.5 animate-spin" />}
+                {saving && <DasSpinner size={14} className="mr-1.5" />}
                 {t('columns.delete')}
               </Button>
             </div>
@@ -672,8 +670,10 @@ function CustomListRow({
       <span className="min-w-0 flex-1 truncate text-sm leading-5 text-[#1a1a1a]" title={label}>
         {label}
       </span>
-      <button
+      <Button
         type="button"
+        variant="icon"
+        size="icon"
         onClick={(e) => {
           e.stopPropagation();
           onDelete();
@@ -681,10 +681,10 @@ function CustomListRow({
         disabled={deleteDisabled}
         aria-label="Delete"
         title={deleteTitle}
-        className="text-[#f7941d] transition-opacity hover:text-[#ff4343] disabled:cursor-not-allowed disabled:opacity-30"
+        className="text-[#f7941d] hover:text-[#ff4343] hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-30"
       >
-        <Trash2 size={20} />
-      </button>
+        <DasIcon name="trash-2" size={20} />
+      </Button>
       <Toggle checked={selected} onChange={() => onSelect()} ariaLabel={label} />
     </div>
   );

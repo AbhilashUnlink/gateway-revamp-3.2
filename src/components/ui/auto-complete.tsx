@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { DasIcon } from './DasIcon';
 
 const people = [
   { id: 1, name: 'Wade Cooper' },
@@ -36,7 +36,11 @@ export default function AutoComplete() {
               onChange={(event) => setQuery(event.target.value)}
             />
             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronsUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+              <DasIcon
+                name="chevrons-up-down"
+                className="h-5 w-5 text-gray-400"
+                aria-hidden="true"
+              />
             </Combobox.Button>
           </div>
           <Transition
@@ -75,7 +79,7 @@ export default function AutoComplete() {
                               active ? 'text-white' : 'text-teal-600'
                             }`}
                           >
-                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                            <DasIcon name="check" className="h-5 w-5" aria-hidden="true" />
                           </span>
                         ) : null}
                       </>

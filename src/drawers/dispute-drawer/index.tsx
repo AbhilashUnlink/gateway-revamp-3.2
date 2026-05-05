@@ -1,6 +1,6 @@
 ﻿import { useTranslation } from 'react-i18next';
-import { Loader2 } from 'lucide-react';
 import DasDrawer from '@/components/ui/DasDrawer';
+import { DasSpinner } from '@/components/ui/DasSpinner';
 import { Button } from '@/components/ui/button';
 import { DasForm } from '@/components/das-form';
 import type { FormSchema } from '@/components/das-form';
@@ -161,7 +161,7 @@ export default function DisputeDrawer({ type }: DrawerComponentProps) {
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <DasSpinner className="h-4 w-4" />
                 {t('drawer.submit')}
               </span>
             ) : (

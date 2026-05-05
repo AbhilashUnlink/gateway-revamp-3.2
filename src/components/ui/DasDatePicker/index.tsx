@@ -1,6 +1,6 @@
 import DatePicker from 'react-datepicker';
-import { CalendarDays } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { DasIcon } from '@/components/ui/DasIcon';
 
 interface DasDatePickerProps {
   id?: string;
@@ -38,7 +38,8 @@ export function DasDatePicker({
         wrapperClassName="w-full"
         popperClassName="z-50"
       />
-      <CalendarDays
+      <DasIcon
+        name="calendar-days"
         size={20}
         className="pointer-events-none absolute right-4 text-[#808080]"
         aria-hidden="true"

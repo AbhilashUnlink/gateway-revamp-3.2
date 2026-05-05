@@ -1,11 +1,46 @@
 import { memo } from 'react';
-import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { CopyButton } from '@/components/ui/CopyButton';
 import type { ChargebackCase } from '@/types/transactions/chargeback.types';
-import { FieldCell, HistoryCard, StatusBadge } from '../primitives';
+import { FieldCell, HistoryCard, HistoryState, StatusBadge } from '../primitives';
 import { useUserDateFormat } from '@/hooks/useUserDateFormat';
 import { shortenId } from '@/utils/shortenId';
+
+interface ChargebackHistoryProps {
+  cases: ChargebackCase[];
+  loading: boolean;
+  error: string | null;
+}
+
+export function ChargebackHistory({ cases, loading, error }: ChargebackHistoryProps) {
+  const { t } = useTranslation();
+
+  if (loading) {
+    return (
+      <HistoryState variant="loading">
+        {t('transaction_details_page.chargeback_loading')}
+      </HistoryState>
+    );
+  }
+
+  if (error) {
+    return <HistoryState variant="error">{error}</HistoryState>;
+  }
+
+  if (cases.length === 0) {
+    return (
+      <HistoryState variant="empty">{t('transaction_details_page.chargeback_empty')}</HistoryState>
+    );
+  }
+
+  return (
+    <div className="flex gap-6 overflow-x-auto pb-2">
+      {cases.map((c) => (
+        <ChargebackCard key={`${c.stageKey}-${c.caseId}`} data={c} />
+      ))}
+    </div>
+  );
+}
 
 interface ChargebackCardProps {
   data: ChargebackCase;
@@ -65,44 +100,3 @@ const ChargebackCard = memo(function ChargebackCard({ data }: ChargebackCardProp
     </HistoryCard.Root>
   );
 });
-
-interface ChargebackHistoryProps {
-  cases: ChargebackCase[];
-  loading: boolean;
-  error: string | null;
-}
-
-export function ChargebackHistory({ cases, loading, error }: ChargebackHistoryProps) {
-  const { t } = useTranslation();
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center gap-2 py-8 text-sm text-[#808080]">
-        <Loader2 size={16} className="animate-spin" />
-        {t('transaction_details_page.chargeback_loading')}
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center py-8 text-sm text-[#ff4343]">{error}</div>
-    );
-  }
-
-  if (cases.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-8 text-sm text-[#808080]">
-        {t('transaction_details_page.chargeback_empty')}
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex gap-6 overflow-x-auto pb-2">
-      {cases.map((c) => (
-        <ChargebackCard key={`${c.stageKey}-${c.caseId}`} data={c} />
-      ))}
-    </div>
-  );
-}

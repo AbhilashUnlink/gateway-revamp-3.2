@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
-import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { DasIcon } from '@/components/ui/DasIcon';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 import type { InputFieldSchema } from '@/types/form/form.types';
 
@@ -16,7 +17,7 @@ export function InputField({ field }: InputFieldProps) {
   } = useFormContext();
   const [showPassword, setShowPassword] = useState(false);
 
-  const Icon = field.icon;
+  const iconName = field.icon;
   const suffix = field.suffix;
   const isPassword = field.inputType === 'password';
   const resolvedType = isPassword
@@ -34,8 +35,9 @@ export function InputField({ field }: InputFieldProps) {
         </label>
       )}
       <div className="relative flex items-center">
-        {Icon && (
-          <Icon
+        {iconName && (
+          <DasIcon
+            name={iconName}
             className="pointer-events-none absolute left-4 h-5 w-5 shrink-0 text-[#f7941d]"
             aria-hidden="true"
           />
@@ -55,7 +57,7 @@ export function InputField({ field }: InputFieldProps) {
                 'h-13 w-full rounded-lg border border-[#e5e5e5] bg-white',
                 'text-sm leading-5 text-neutral-800 placeholder:text-[#808080]',
                 'outline-none focus:ring-2 focus:ring-[#f7941d]/40 box-border',
-                Icon ? 'pl-12' : 'pl-4',
+                iconName ? 'pl-12' : 'pl-4',
                 isPassword ? 'pr-12' : suffix ? 'pr-14' : 'pr-4',
                 error && 'border-red-400 focus:ring-red-300/40'
               )}
@@ -65,15 +67,21 @@ export function InputField({ field }: InputFieldProps) {
           )}
         />
         {isPassword && (
-          <button
+          <Button
             type="button"
+            variant="icon"
+            size="icon"
             tabIndex={-1}
             onClick={() => setShowPassword((v) => !v)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="absolute right-4 text-[#808080] transition-colors hover:text-[#1a1a1a]"
+            className="absolute right-4 text-[#808080] hover:text-[#1a1a1a] hover:opacity-100"
           >
-            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-          </button>
+            {showPassword ? (
+              <DasIcon name="eye-off" className="h-5 w-5" />
+            ) : (
+              <DasIcon name="eye" className="h-5 w-5" />
+            )}
+          </Button>
         )}
         {!isPassword && suffix && (
           <span className="pointer-events-none absolute right-4 text-sm font-medium text-[#808080]">

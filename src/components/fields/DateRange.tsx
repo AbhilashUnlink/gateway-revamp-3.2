@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Calendar } from 'lucide-react';
 import { useUserDateFormat } from '@/hooks/useUserDateFormat';
+import { DasIcon } from '@/components/ui/DasIcon';
+import { Button } from '@/components/ui/button';
 
 interface Value {
   from?: string;
@@ -170,7 +171,7 @@ export function DateRange({ value, onChange }: Props) {
         onClick={() => (open ? setOpen(false) : openPopover())}
         className="flex h-10 w-full items-center gap-2 overflow-hidden rounded-lg border border-[#e5e5e5] bg-white px-3 text-sm text-[#1a1a1a] outline-none focus:border-[#1a1a1a]"
       >
-        <Calendar size={14} className="shrink-0 text-[#808080]" />
+        <DasIcon name="calendar" size={14} className="shrink-0 text-[#808080]" />
         <span className={`min-w-0 flex-1 truncate text-left ${display ? '' : 'text-[#808080]'}`}>
           {display || 'Select date range…'}
         </span>
@@ -284,21 +285,24 @@ export function DateRange({ value, onChange }: Props) {
                   </div>
 
                   <div className="flex justify-end gap-2 border-t border-[#f0f0f0] pt-3">
-                    <button
+                    <Button
                       type="button"
+                      variant="subtle"
+                      size="compact"
                       onClick={() => setOpen(false)}
-                      className="rounded-lg px-3 py-1.5 text-sm text-[#1a1a1a] hover:bg-[#fafafa]"
                     >
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      variant="dark"
+                      size="compact"
                       onClick={applyAbsolute}
                       disabled={!fromDate || !toDate}
-                      className="rounded-lg bg-[#1a1a1a] px-4 py-1.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
+                      className="px-4 font-medium"
                     >
                       Apply
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -349,15 +353,10 @@ function RelativeGroup({
       </div>
       <div className="flex flex-wrap gap-2">
         {items.map((n) => (
-          <button
-            key={n}
-            type="button"
-            onClick={() => onPick(n)}
-            className="h-8 rounded-full border border-[#e5e5e5] bg-white px-3 text-xs font-medium text-[#1a1a1a] hover:border-[#1a1a1a] hover:bg-[#fafafa]"
-          >
+          <Button key={n} type="button" variant="chip" size="pill" onClick={() => onPick(n)}>
             {n}
             {suffix}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

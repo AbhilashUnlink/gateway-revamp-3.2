@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Check, Copy } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { DasIcon } from './DasIcon';
+import { Button } from './button';
 
 interface CopyButtonProps {
   /** The string value to copy. The button does nothing when this is empty. */
@@ -37,17 +38,23 @@ export function CopyButton({ value, size = 14, ariaLabel = 'Copy', className }: 
   };
 
   return (
-    <button
+    <Button
       type="button"
+      variant="icon"
+      size="icon"
       onClick={handleCopy}
       disabled={disabled}
       aria-label={ariaLabel}
       className={cn(
-        'shrink-0 text-neutral-400 transition-colors hover:text-[#f7941d] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
+        'shrink-0 text-neutral-400 hover:text-[#f7941d] hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40',
         className
       )}
     >
-      {copied ? <Check size={size} className="text-[#1e8f1f]" /> : <Copy size={size} />}
-    </button>
+      {copied ? (
+        <DasIcon name="check" size={size} className="text-[#1e8f1f]" />
+      ) : (
+        <DasIcon name="copy" size={size} />
+      )}
+    </Button>
   );
 }

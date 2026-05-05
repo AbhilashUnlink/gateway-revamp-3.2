@@ -17,7 +17,7 @@ const persistConfig = {
   storage,
   // `columnPreferences` is persisted via its own nested persistReducer in
   // rootReducer.ts (only the `byScreen` slice survives reloads).
-  whitelist: ['auth', 'user', 'permissions', 'settings', 'ui', 'filters'],
+  whitelist: ['auth', 'user', 'permissions', 'settings', 'ui', 'filters', 'gatewayConfig'],
 };
 
 export default persistConfig;

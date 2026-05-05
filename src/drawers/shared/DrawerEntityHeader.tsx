@@ -1,6 +1,6 @@
-import { XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { DasIcon } from '@/components/ui/DasIcon';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 
@@ -39,7 +39,7 @@ export function DrawerEntityHeader({ label, value, copyable = true }: DrawerEnti
           onClick={close}
           aria-label={t('drawer.close')}
         >
-          <XCircle size={24} />
+          <DasIcon name="x-circle" size={24} />
         </Button>
       </div>
     </div>

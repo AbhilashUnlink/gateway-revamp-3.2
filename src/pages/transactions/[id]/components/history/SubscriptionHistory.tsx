@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 import { CopyButton } from '@/components/ui/CopyButton';
 import type { TransactionHistoryItem } from '@/types/transactions/transactionDetails.types';
-import { FieldCell, HistoryCard, StatusBadge } from '../primitives';
+import { FieldCell, HistoryCard, HistoryState, StatusBadge } from '../primitives';
 import { useUserDateFormat } from '@/hooks/useUserDateFormat';
 import { shortenId } from '@/utils/shortenId';
 import { isSuccessStatus } from '@/pages/transactions/[id]/utils/status';
@@ -87,9 +87,9 @@ export function SubscriptionHistory({ items, startingCycle }: SubscriptionHistor
 
   if (recurring.length === 0) {
     return (
-      <div className="flex items-center justify-center py-8 text-sm text-[#808080]">
+      <HistoryState variant="empty">
         {t('transaction_details_page.subscription_history_empty')}
-      </div>
+      </HistoryState>
     );
   }
 

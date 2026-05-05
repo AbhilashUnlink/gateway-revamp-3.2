@@ -26,6 +26,7 @@ interface DownloadsState {
   list: DownloadEntry[];
   totalCount: number;
   loading: boolean;
+  loaded: boolean;
   requesting: boolean;
   /** JobIDs currently fetching their signed download URL. */
   fetchingByJobId: Record<string, boolean>;
@@ -36,6 +37,7 @@ const initialState: DownloadsState = {
   list: [],
   totalCount: 0,
   loading: false,
+  loaded: false,
   requesting: false,
   fetchingByJobId: {},
   error: null,
@@ -77,7 +79,11 @@ function extractList(payload: unknown): ListPayload {
   return { records: [], total_count: 0 };
 }
 
-export const fetchDownloadList = createAsyncThunk<ListPayload, void, { rejectValue: string }>(
+export const fetchDownloadList = createAsyncThunk<
+  ListPayload,
+  void | { force?: boolean },
+  { rejectValue: string; state: RootState }
+>(
   'downloads/fetchList',
   async (_, thunkAPI) => {
     try {
@@ -91,6 +97,14 @@ export const fetchDownloadList = createAsyncThunk<ListPayload, void, { rejectVal
     } catch (err) {
       return thunkAPI.rejectWithValue((err as Error).message || 'Failed to load download list');
     }
+  },
+  {
+    condition: (arg, { getState }) => {
+      const { loading, loaded } = getState().downloads;
+      if (loading) return false;
+      if (loaded && !(arg && typeof arg === 'object' && arg.force)) return false;
+      return true;
+    },
   }
 );
 
@@ -159,7 +173,7 @@ export const requestDownload = createAsyncThunk<
       TimeZone: tz,
       ...payload,
     });
-    void thunkAPI.dispatch(fetchDownloadList());
+    void thunkAPI.dispatch(fetchDownloadList({ force: true }));
     return;
   } catch (err) {
     return thunkAPI.rejectWithValue((err as Error).message || 'Failed to request download');
@@ -180,6 +194,7 @@ const downloadsSlice = createSlice({
       })
       .addCase(fetchDownloadList.fulfilled, (state, action) => {
         state.loading = false;
+        state.loaded = true;
         state.list = action.payload.records;
         state.totalCount = action.payload.total_count;
       })
