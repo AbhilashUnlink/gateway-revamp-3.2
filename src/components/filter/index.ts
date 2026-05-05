@@ -1,4 +1,4 @@
-export { FilterPopover } from './FilterPopover';
+export { FilterPopover } from './filter-popover';
 export { buildFilterFields } from './buildFilterFields';
 export { serializeFilters, serializeForTransactions, serializeForMerchants } from './serializers';
 export { inferOperator, OPERATORS } from './operators';
