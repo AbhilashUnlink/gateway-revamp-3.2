@@ -1,39 +1,27 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { TransactionRow, TableFilter } from '@/types/transactions/transaction.types';
-import {
-  ColumnPreferenceButtonIcon,
-  DownloadButtonIcon,
-  RefreshButtonIcon,
-} from '@/assets/icons/action-buttons';
+import { RefreshButtonIcon } from '@/assets/icons/action-buttons';
 import { DataTable } from '@/components/table';
 import { useTableDataAdapter } from '@/components/table/hooks/useTableDataAdapter';
 import { PageBar } from '@/components/page-bar';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  openFilter,
-  selectAppliedRules,
-  makeSelectAppliedCount,
-  selectFilterIsOpen,
-  closeFilter,
-} from '@/store/slices/filterSlice';
+import { selectAppliedRules } from '@/store/slices/filterSlice';
 import { FilterPopover, buildFilterFields, serializeForTransactions } from '@/components/filter';
-import { DownloadPopover } from '@/components/transactions/DownloadPopover';
+import { DownloadPopover } from '@/components/transactions/download-popover';
 import { useColumnPreferences } from '@/hooks/transactions/useColumnPreferences';
 import {
   buildTransactionColumns,
   transactionColumnIdToDisplayName,
 } from './transactionTableSchema';
-import { ColumnPreferencePopover } from '@/components/transactions/ColumnPreferencePopover';
+import { ColumnPreferencePopover } from '@/components/transactions/column-preference-popover';
 import {
-  fetchColumnPreferenceLists,
   selectActiveColumnPreferenceList,
   setColumnPreference,
   resetColumnPreference,
 } from '@/store/slices/columnPreferencesSlice';
-import { fetchDownloadList, selectHasProcessingDownloads } from '@/store/slices/downloadsSlice';
 import { selectUserCurrencyType } from '@/store/slices/gatewayConfigSlice';
 import {
   filterHiddenColumns,
@@ -46,16 +34,9 @@ function TransactionsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const filterButtonRef = useRef<HTMLButtonElement>(null);
-  const downloadButtonRef = useRef<HTMLButtonElement>(null);
-  const columnsButtonRef = useRef<HTMLButtonElement>(null);
-  const [downloadOpen, setDownloadOpen] = useState(false);
-  const [columnsOpen, setColumnsOpen] = useState(false);
   const userEmail = useAppSelector((s) => s.auth.signInData.email);
-  const hasProcessingDownloads = useAppSelector(selectHasProcessingDownloads);
 
   const appliedRules = useAppSelector(selectAppliedRules(SCREEN));
-  const appliedCount = useAppSelector(useMemo(() => makeSelectAppliedCount(SCREEN), []));
 
   const filters: TableFilter[] = useMemo(
     () => serializeForTransactions(appliedRules) as unknown as TableFilter[],
@@ -111,17 +92,6 @@ function TransactionsPage() {
 
   const filterFields = useMemo(() => buildFilterFields(columnConfigs), [columnConfigs]);
 
-  // Lazy-load the saved column-preference lists only when the popover opens.
-  useEffect(() => {
-    if (columnsOpen) dispatch(fetchColumnPreferenceLists());
-  }, [dispatch, columnsOpen]);
-
-  // Lazy-load the download list only when the popover opens. The slice
-  // re-fetches on its own when a new download is requested.
-  useEffect(() => {
-    if (downloadOpen) dispatch(fetchDownloadList());
-  }, [dispatch, downloadOpen]);
-
   // Sync the active backend list's `columns_json` into the local visibility /
   // order slice so the table reflects it on load and whenever the
   // backend-confirmed selection changes.
@@ -160,8 +130,6 @@ function TransactionsPage() {
     [columnConfigs]
   );
 
-  const filterIsOpen = useAppSelector(selectFilterIsOpen(SCREEN));
-
   return (
     <div className="px-6 pb-6 h-[calc(100vh-80px)] flex flex-col">
       <PageBar>
@@ -196,18 +164,7 @@ function TransactionsPage() {
               value={stats.approvalRatio ? `${stats.approvalRatio} %` : 'â€”'}
             />
           </PageBar.StatsPill>
-          <PageBar.FilterButton
-            ref={filterButtonRef}
-            label={t('transactions_page.filters')}
-            count={appliedCount}
-            onClick={() => {
-              if (filterIsOpen) {
-                dispatch(closeFilter(SCREEN));
-              } else {
-                dispatch(openFilter(SCREEN));
-              }
-            }}
-          />
+          <FilterPopover screen={SCREEN} fields={filterFields} />
         </PageBar.Actions>
 
         <PageBar.Actions gap="md">
@@ -218,28 +175,14 @@ function TransactionsPage() {
           >
             <RefreshButtonIcon className={loading ? 'disabled animate-spin' : ''} />
           </PageBar.ActionButton>
-          <PageBar.ActionButton
-            ref={downloadButtonRef}
-            aria-label="Download"
-            onClick={() => setDownloadOpen((o) => !o)}
-          >
-            <span className="relative inline-flex">
-              <DownloadButtonIcon />
-              {hasProcessingDownloads && (
-                <span
-                  aria-label="Download in progress"
-                  className="absolute -right-1 -top-1 h-2 w-2 animate-pulse rounded-full bg-[#f7941d] ring-2 ring-white"
-                />
-              )}
-            </span>
-          </PageBar.ActionButton>
-          <PageBar.ActionButton
-            ref={columnsButtonRef}
-            aria-label="Column preferences"
-            onClick={() => setColumnsOpen((o) => !o)}
-          >
-            <ColumnPreferenceButtonIcon />
-          </PageBar.ActionButton>
+          <DownloadPopover
+            filters={filters}
+            defaultEmail={userEmail}
+            totalCount={stats.totalCount}
+            appliedRules={appliedRules}
+            fields={filterFields}
+          />
+          <ColumnPreferencePopover screen={SCREEN} columns={columnPreferenceItems} />
         </PageBar.Actions>
       </PageBar>
 
@@ -251,25 +194,6 @@ function TransactionsPage() {
         onLoadMore={loadMore}
         onRowClick={handleRowClick}
         className="flex-1 mt-4"
-      />
-
-      <FilterPopover screen={SCREEN} fields={filterFields} anchorRef={filterButtonRef} />
-      <DownloadPopover
-        open={downloadOpen}
-        onClose={() => setDownloadOpen(false)}
-        anchorRef={downloadButtonRef}
-        filters={filters}
-        defaultEmail={userEmail}
-        totalCount={stats.totalCount}
-        appliedRules={appliedRules}
-        fields={filterFields}
-      />
-      <ColumnPreferencePopover
-        open={columnsOpen}
-        onClose={() => setColumnsOpen(false)}
-        anchorRef={columnsButtonRef}
-        screen={SCREEN}
-        columns={columnPreferenceItems}
       />
     </div>
   );

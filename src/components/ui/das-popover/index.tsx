@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, type ComponentPropsWithoutRef, type ElementType, type ReactNode } from 'react';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { cn } from '@/utils/cn';
 
@@ -9,10 +9,19 @@ interface DasPopoverProps {
   className?: string;
 }
 
-interface DasPopoverSubProps {
-  children: React.ReactNode;
+type DasPopoverTriggerOwnProps = {
+  children?: ReactNode;
   className?: string;
-}
+};
+
+/**
+ * Polymorphic over `as` — additional props are typed against the chosen
+ * element (defaults to `<button>`), so e.g. `as={PageBar.FilterButton}`
+ * accepts that component's own props (label, count, …).
+ */
+type DasPopoverTriggerProps<T extends ElementType = 'button'> = DasPopoverTriggerOwnProps & {
+  as?: T;
+} & Omit<ComponentPropsWithoutRef<T>, keyof DasPopoverTriggerOwnProps | 'as'>;
 
 type PopoverPanelRenderProps = { open: boolean; close: () => void };
 
@@ -30,8 +39,22 @@ function DasPopover({ children, className }: DasPopoverProps) {
 
 // ── Sub Components ────────────────────────────────────────────────────────
 
-function DasPopoverTrigger({ children, className }: DasPopoverSubProps) {
-  return <PopoverButton className={cn('focus:outline-none', className)}>{children}</PopoverButton>;
+function DasPopoverTrigger<T extends ElementType = 'button'>({
+  children,
+  className,
+  as,
+  ...rest
+}: DasPopoverTriggerProps<T>) {
+  return (
+    <PopoverButton
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      as={as as any}
+      className={cn('focus:outline-none', className)}
+      {...(rest as object)}
+    >
+      {children}
+    </PopoverButton>
+  );
 }
 
 function DasPopoverContent({ children, align = 'left', className }: DasPopoverContentProps) {
