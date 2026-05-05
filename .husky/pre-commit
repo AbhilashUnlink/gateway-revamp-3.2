@@ -1,1 +1,9 @@
+branch="$(git rev-parse --abbrev-ref HEAD)"
+case "$branch" in
+  dev|pre-dev|prod|pre-prod)
+    echo "✖ Direct commits to '$branch' are not allowed. Create a feature branch and open a PR." >&2
+    exit 1
+    ;;
+esac
+
 npx lint-staged

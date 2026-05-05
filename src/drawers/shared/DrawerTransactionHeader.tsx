@@ -125,12 +125,9 @@ export function DrawerTransactionHeader({
           </Button>
 
           {actionsLoadingForTx ? (
-            <>
-              <Skeleton className="h-9 w-22.5 rounded-md" />
-              <Skeleton className="h-9 w-22.5 rounded-md" />
-              <Skeleton className="h-9 w-22.5 rounded-md" />
-              <Skeleton className="h-9 w-22.5 rounded-md" />
-            </>
+            <div className="flex mt-2 gap-3">
+              <Skeleton className="h-9 w-32 rounded-md" />
+            </div>
           ) : (
             <>
               {showRefund && (
