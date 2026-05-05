@@ -163,7 +163,7 @@ export const downloadReportByJobId = createAsyncThunk<
 export const requestDownload = createAsyncThunk<
   void,
   RequestDownloadPayload,
-  { rejectValue: string }
+  { rejectValue: string; state: RootState }
 >('downloads/request', async (payload, thunkAPI) => {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
