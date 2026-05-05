@@ -84,6 +84,7 @@ export function DataTable({
           columnConfigs={columnConfigs}
           stickyOffsets={stickyOffsets}
           stickyEdgeIndex={stickyEdgeIndex}
+          backgroundColor="bg-[var(--brand-color-soft)]"
         />
         <tbody>
           {table.getRowModel().rows.map((row) => (
