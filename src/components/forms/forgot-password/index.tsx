@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 import { Button } from '@/components/ui/button';
 
 const emailRegex =

@@ -9,8 +9,8 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { DasSpinner } from '@/components/ui/DasSpinner';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasSpinner } from '@/components/ui/das-spinner';
+import { DasIcon } from '@/components/ui/das-icon';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   createColumnPreferenceList,
@@ -206,7 +206,7 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     if (!open) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft(buildDraftForKey(activeKey));
-     
+
     setSearchQuery('');
     // Only re-sync when the popover opens or the underlying list set changes;
     // user clicks on rows sync the draft synchronously via selectListKey.

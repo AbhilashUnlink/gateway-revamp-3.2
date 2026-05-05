@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
-import { DasIcon } from './DasIcon';
+import { DasIcon } from './das-icon';
 
 const people = [
   { id: 1, name: 'Wade Cooper' },

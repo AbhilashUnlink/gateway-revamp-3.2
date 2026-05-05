@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
-import { CopyButton } from '@/components/ui/CopyButton';
+import { CopyButton } from '@/components/ui/copy-button';
 import { FieldCell, HistoryCard, HistoryState, StatusBadge } from '../primitives';
 import { useUserDateFormat } from '@/hooks/useUserDateFormat';
 import { shortenId } from '@/utils/shortenId';

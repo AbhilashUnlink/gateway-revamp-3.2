@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { updateSettings } from '@/store/slices/settingsSlice';
-import DasPopover from '@/components/ui/DasPopover';
+import DasPopover from '@/components/ui/das-popover';
 import { Button } from '@/components/ui/button';
 import { FlagGB, FlagJP } from './flags';
 import { cn } from '@/utils/cn';

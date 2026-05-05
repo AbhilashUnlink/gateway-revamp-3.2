@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { DasIcon } from './DasIcon';
+import { DasIcon } from './das-icon';
 
 export default function DropDown() {
   return (

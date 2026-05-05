@@ -1,8 +1,8 @@
 import { useAppSelector } from '@/store/hooks';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 import poLogo from '@/assets/payment-options.svg';
 import { cn } from '@/utils/cn';
-import { UserProfilePopover } from '@/components/ui/UserProfilePopover';
+import { UserProfilePopover } from '@/components/ui/user-profile-popover';
 import LanguageSelect from '@/components/language-select/language-select';
 import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/button';

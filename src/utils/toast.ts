@@ -1,7 +1,7 @@
 import { toast as hotToast } from 'react-hot-toast';
 import { createElement } from 'react';
-import { ToastCard } from '@/components/ui/Toast';
-import type { ToastVariant } from '@/components/ui/Toast';
+import { ToastCard } from '@/components/ui/toast';
+import type { ToastVariant } from '@/components/ui/toast';
 
 interface ToastOptions {
   description?: string;

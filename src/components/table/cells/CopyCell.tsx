@@ -1,6 +1,6 @@
 import { cn } from '@/utils/cn';
 import type { CellData } from '@/types/transactions/transaction.types';
-import { CopyButton } from '@/components/ui/CopyButton';
+import { CopyButton } from '@/components/ui/copy-button';
 import { isPresent } from '../utils/isPresent';
 
 interface CopyCellProps {

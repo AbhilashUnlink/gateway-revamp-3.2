@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { DasSpinner } from '@/components/ui/DasSpinner';
+import { DasSpinner } from '@/components/ui/das-spinner';
 
 type Variant = 'loading' | 'error' | 'empty';
 

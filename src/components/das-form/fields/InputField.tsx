@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 import type { InputFieldSchema } from '@/types/form/form.types';

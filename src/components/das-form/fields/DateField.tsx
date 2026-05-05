@@ -1,5 +1,5 @@
 import { useFormContext, Controller } from 'react-hook-form';
-import { DasDatePicker } from '@/components/ui/DasDatePicker';
+import { DasDatePicker } from '@/components/ui/das-date-picker';
 import type { DateFieldSchema } from '@/types/form/form.types';
 
 interface DateFieldProps {

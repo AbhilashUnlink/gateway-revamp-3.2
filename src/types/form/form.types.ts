@@ -1,5 +1,5 @@
 import type { RegisterOptions } from 'react-hook-form';
-import type { DasIconName } from '@/components/ui/DasIcon';
+import type { DasIconName } from '@/components/ui/das-icon';
 
 // ── Field types ───────────────────────────────────────────────────────────
 

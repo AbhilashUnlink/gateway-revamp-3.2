@@ -1,9 +1,9 @@
 ﻿import { memo, useCallback } from 'react';
 import { cn } from '@/utils/cn';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { CopyButton } from '@/components/ui/CopyButton';
+import { Skeleton } from '@/components/ui/skeleton';
+import { CopyButton } from '@/components/ui/copy-button';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { useHashcardCheck } from '@/hooks/transactions/useHashcardCheck';
 import type { InfoFieldAction, InfoFieldConfig } from '../types';

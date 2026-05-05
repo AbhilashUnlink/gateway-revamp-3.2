@@ -1,7 +1,7 @@
 ﻿import { useEffect, useCallback, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useAppSelector } from '@/store/hooks';
-import DasDrawer from '@/components/ui/DasDrawer';
+import DasDrawer from '@/components/ui/das-drawer';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { useTransactionDetailsFetcher } from '@/hooks/transactions/useTransactionDetailsFetcher';
 import { useDrawerUrlSync } from '@/hooks/useDrawerUrlSync';

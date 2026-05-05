@@ -1,8 +1,8 @@
 import { toast } from 'react-hot-toast';
 import type { Toast } from 'react-hot-toast';
 import { cn } from '@/utils/cn';
-import { DasIcon, type DasIconName } from './DasIcon';
-import { Button } from './button';
+import { DasIcon, type DasIconName } from '@/components/ui/das-icon';
+import { Button } from '@/components/ui/button';
 
 // ── Variant config ────────────────────────────────────────────────────────
 

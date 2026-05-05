@@ -1,6 +1,6 @@
 import DatePicker from 'react-datepicker';
 import { cn } from '@/utils/cn';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 
 interface DasDatePickerProps {
   id?: string;

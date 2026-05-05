@@ -1,4 +1,4 @@
-﻿import DasDrawer from '@/components/ui/DasDrawer';
+﻿import DasDrawer from '@/components/ui/das-drawer';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
 import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
