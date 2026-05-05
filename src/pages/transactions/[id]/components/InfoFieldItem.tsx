@@ -2,6 +2,7 @@
 import { cn } from '@/utils/cn';
 import { DasIcon } from '@/components/ui/DasIcon';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { useHashcardCheck } from '@/hooks/transactions/useHashcardCheck';
@@ -73,7 +74,7 @@ export const InfoFieldItem = memo(function InfoFieldItem({
       <span className="text-sm leading-5 text-[#808080]">{field.label}</span>
       <div className="flex h-5 items-center gap-2">
         {loading ? (
-          <span className="h-3 w-24 animate-pulse rounded bg-neutral-200" />
+          <Skeleton className="h-3 w-24" />
         ) : field.badge ? (
           <StatusBadge label={field.badge.label} tone={field.badge.tone} />
         ) : isClickable ? (

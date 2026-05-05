@@ -21,8 +21,10 @@ function TransactionDetails({ data, loading, error }: TransactionDetailsProps) {
   const { open } = useDrawerControl();
   const { getIdFromUrl } = useDrawerParams();
   const activeUuid = getIdFromUrl() ?? '';
+  const isStaleForActive = !!data && data.TransactionRefID !== activeUuid;
+  const showFullLoader = loading && (!data || isStaleForActive);
 
-  if (loading) {
+  if (showFullLoader) {
     return (
       <div className="flex h-full items-center justify-center gap-2 text-sm text-[#808080]">
         <DasSpinner />
@@ -31,13 +33,15 @@ function TransactionDetails({ data, loading, error }: TransactionDetailsProps) {
     );
   }
 
-  if (error || !data) {
+  if (!loading && (error || !data)) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-[#ff4343]">
         {error ?? t('transaction_details.error')}
       </div>
     );
   }
+
+  if (!data) return null;
 
   const handleSelect = (uuid: string) => {
     open({ type: 'details', data: { transactionRefId: uuid } });
@@ -55,19 +59,19 @@ function TransactionDetails({ data, loading, error }: TransactionDetailsProps) {
       </DasAccordion>
 
       <DasAccordion title={t('transaction_details.transaction_information')}>
-        <TransactionInformation data={data} />
+        <TransactionInformation data={data} loading={loading} />
       </DasAccordion>
 
       <DasAccordion title={t('transaction_details.merchant_information')}>
-        <MerchantInformation data={data} />
+        <MerchantInformation data={data} loading={loading} />
       </DasAccordion>
 
       <DasAccordion title={t('transaction_details.payment_card_information')}>
-        <PaymentCardInformation data={data} />
+        <PaymentCardInformation data={data} loading={loading} />
       </DasAccordion>
 
       <DasAccordion title={t('transaction_details.subscription_information')} noBorder>
-        <SubscriptionInformation data={data} />
+        <SubscriptionInformation data={data} loading={loading} />
       </DasAccordion>
     </div>
   );

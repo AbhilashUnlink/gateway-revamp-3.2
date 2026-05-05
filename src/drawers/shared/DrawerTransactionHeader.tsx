@@ -43,17 +43,21 @@ export function DrawerTransactionHeader({
     data,
   });
   const {
+    data: storeData,
     showRefund: apiShowRefund,
     showCapture: apiShowCapture,
     showVoid: apiShowVoid,
     showDispute: apiShowDispute,
-    showEditStatus,
+    showEditStatus: apiShowEditStatus,
   } = useTransactionActions();
 
-  const showRefund = showRefundOverride ?? apiShowRefund;
-  const showCapture = showCaptureOverride ?? apiShowCapture;
-  const showVoid = showVoidOverride ?? apiShowVoid;
-  const showDispute = showDisputeOverride ?? apiShowDispute;
+  const isStale = !!storeData && storeData.TransactionRefID !== transactionRefId;
+
+  const showRefund = showRefundOverride ?? (isStale ? false : apiShowRefund);
+  const showCapture = showCaptureOverride ?? (isStale ? false : apiShowCapture);
+  const showVoid = showVoidOverride ?? (isStale ? false : apiShowVoid);
+  const showDispute = showDisputeOverride ?? (isStale ? false : apiShowDispute);
+  const showEditStatus = isStale ? false : apiShowEditStatus;
 
   const goTo = (tab: DrawerTab) => navigateTo(TAB_TO_DRAWER_TYPE[tab]);
   const navigate = useNavigate();
