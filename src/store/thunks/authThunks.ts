@@ -2,6 +2,8 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiService } from '@/utils/apiService';
 import { clearPermissions } from '../slices/permissionSlice';
 import { clearProfile } from '../slices/userSlice';
+import { resetGatewayConfigFetched } from '../slices/gatewayConfigSlice';
+
 import type { RootState } from '@/store';
 import type {
   SignInData,
@@ -37,6 +39,7 @@ export const logoutUser = createAsyncThunk('auth/logoutUser', async (_, thunkAPI
   }
   thunkAPI.dispatch(clearPermissions());
   thunkAPI.dispatch(clearProfile());
+  thunkAPI.dispatch(resetGatewayConfigFetched());
 });
 
 export const refreshToken = createAsyncThunk(

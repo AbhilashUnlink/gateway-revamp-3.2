@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Mail } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { DasIcon } from '@/components/ui/DasIcon';
 import { Button } from '@/components/ui/button';
 
 const emailRegex =
@@ -29,7 +29,8 @@ export function ForgotPasswordForm({ onSubmit, loading, error }: ForgotPasswordF
     <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-10">
       <div className="flex flex-col gap-2">
         <div className="relative flex items-center">
-          <Mail
+          <DasIcon
+            name="mail"
             className="pointer-events-none absolute left-4 h-5 w-5 shrink-0 text-[#f7941d]"
             aria-hidden="true"
           />

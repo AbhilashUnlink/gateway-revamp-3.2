@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/cn';
 
@@ -17,15 +18,26 @@ const buttonVariants = cva(
           'w-full justify-start gap-2 border-b border-[#e5e5e5] last:border-b-0 text-sm text-[#1a1a1a] hover:bg-brand-light data-[selected=true]:bg-brand-light',
         'field-link':
           'bg-transparent text-left font-semibold text-[#1a1a1a] underline hover:text-brand cursor-pointer',
+        dark: 'bg-[#1a1a1a] text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40',
+        subtle: 'bg-transparent text-[#1a1a1a] hover:bg-[#fafafa]',
+        chip: 'border border-[#e5e5e5] bg-white text-[#1a1a1a] hover:border-[#1a1a1a] hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-40',
+        'menu-row':
+          'w-full justify-start gap-2 border-t border-[#e5e5e5] text-sm text-[#1a1a1a] hover:bg-neutral-50',
+        danger:
+          'bg-[#ff4343] text-white hover:bg-[#e23838] disabled:cursor-not-allowed disabled:opacity-60',
       },
 
       size: {
         icon: 'p-0',
+        xs: 'h-8 px-2.5 text-xs font-medium rounded-lg',
         sm: 'h-9 px-3 text-xs rounded-xl',
         default: 'h-12 px-4 text-sm font-semibold uppercase rounded-2xl',
         lg: 'h-12 px-6 text-base rounded-2xl',
         'menu-item': 'p-3 rounded-none',
+        'menu-row': 'px-3 py-5 rounded-none',
         inline: 'h-auto p-0 text-sm leading-5 rounded-none',
+        pill: 'h-8 px-3 text-xs font-medium rounded-full',
+        compact: 'rounded-lg px-3 py-1.5 text-sm',
       },
     },
 
@@ -39,6 +51,11 @@ const buttonVariants = cva(
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
 
-export function Button({ className, variant, size, ...props }: ButtonProps) {
-  return <button className={cn(buttonVariants({ variant, size }), className)} {...props} />;
-}
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { className, variant, size, ...props },
+  ref
+) {
+  return (
+    <button ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />
+  );
+});

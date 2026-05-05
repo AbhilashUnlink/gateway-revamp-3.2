@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 import { CopyButton } from '@/components/ui/CopyButton';
-import { FieldCell, HistoryCard, StatusBadge } from '../primitives';
+import { FieldCell, HistoryCard, HistoryState, StatusBadge } from '../primitives';
 import { useUserDateFormat } from '@/hooks/useUserDateFormat';
 import { shortenId } from '@/utils/shortenId';
 import { isSuccessStatus } from '@/pages/transactions/[id]/utils/status';
@@ -78,9 +78,9 @@ export function TokenizationHistory({ items, activeUuid }: TokenizationHistoryPr
 
   if (list.length === 0) {
     return (
-      <div className="flex items-center justify-center py-8 text-sm text-[#808080]">
+      <HistoryState variant="empty">
         {t('transaction_details_page.tokenization_history_empty')}
-      </div>
+      </HistoryState>
     );
   }
 

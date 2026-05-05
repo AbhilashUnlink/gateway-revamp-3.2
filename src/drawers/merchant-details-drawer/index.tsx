@@ -1,6 +1,6 @@
 ﻿import { useCallback, useMemo, useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DasIcon } from '@/components/ui/DasIcon';
 import { CopyButton } from '@/components/ui/CopyButton';
 import DasDrawer from '@/components/ui/DasDrawer';
 import { useMerchantDetails } from '@/hooks/transactions/useMerchantDetails';
@@ -84,7 +84,7 @@ function ApiKeyRow({ label, value }: ApiKeyRowProps) {
         aria-label={revealed ? 'Hide' : 'Reveal'}
         disabled={!value}
       >
-        {revealed ? <EyeOff size={18} /> : <Eye size={18} />}
+        {revealed ? <DasIcon name="eye-off" size={18} /> : <DasIcon name="eye" size={18} />}
       </Button>
       <CopyButton value={value} ariaLabel="Copy API key" />
     </div>

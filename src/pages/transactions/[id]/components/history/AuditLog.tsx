@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FieldCell, HistoryCard, StatusBadge } from '../primitives';
+import { FieldCell, HistoryCard, HistoryState, StatusBadge } from '../primitives';
 import { useUserDateFormat } from '@/hooks/useUserDateFormat';
 import { isSuccessStatus } from '@/pages/transactions/[id]/utils/status';
 import type { AuditEntry } from '../../types';
@@ -61,9 +61,7 @@ export function AuditLog({ items }: AuditLogProps) {
 
   if (list.length === 0) {
     return (
-      <div className="flex items-center justify-center py-8 text-sm text-[#808080]">
-        {t('transaction_details_page.audit_log_empty')}
-      </div>
+      <HistoryState variant="empty">{t('transaction_details_page.audit_log_empty')}</HistoryState>
     );
   }
 

@@ -1,7 +1,7 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
-import { ChevronDown } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { cn } from '@/utils/cn';
+import { DasIcon } from './DasIcon';
 
 interface DasAccordionProps {
   title: string;
@@ -30,7 +30,8 @@ export function DasAccordion({
     >
       <DisclosureButton className="flex w-full items-center justify-between">
         <span className="text-base font-semibold text-[#1a1a1a]">{title}</span>
-        <ChevronDown
+        <DasIcon
+          name="chevron-down"
           size={18}
           className="text-[#1a1a1a] transition-transform duration-200 group-data-[open]:rotate-180"
         />

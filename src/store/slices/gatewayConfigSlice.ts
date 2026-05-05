@@ -10,6 +10,7 @@ interface GatewayConfigState {
   config: GatewayConfig;
   loading: boolean;
   error: string | null;
+  alreadyFetched: boolean;
 }
 
 const initialState: GatewayConfigState = {
@@ -17,6 +18,7 @@ const initialState: GatewayConfigState = {
   config: null,
   loading: false,
   error: null,
+  alreadyFetched: false,
 };
 
 /**
@@ -69,6 +71,12 @@ const gatewayConfigSlice = createSlice({
   initialState,
   reducers: {
     resetGatewayConfig: () => initialState,
+    markGatewayConfigFetched: (state) => {
+      state.alreadyFetched = true;
+    },
+    resetGatewayConfigFetched: (state) => {
+      state.alreadyFetched = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -99,8 +107,12 @@ const gatewayConfigSlice = createSlice({
   },
 });
 
-export const { resetGatewayConfig } = gatewayConfigSlice.actions;
+export const { resetGatewayConfig, markGatewayConfigFetched, resetGatewayConfigFetched } =
+  gatewayConfigSlice.actions;
 export default gatewayConfigSlice.reducer;
+
+export const selectGatewayConfigAlreadyFetched = (state: RootState) =>
+  state.gatewayConfig.alreadyFetched;
 
 // ── Base selectors ────────────────────────────────────────────────────────
 

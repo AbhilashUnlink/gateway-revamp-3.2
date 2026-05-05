@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, Lock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { DasIcon } from '@/components/ui/DasIcon';
 import { Button } from '@/components/ui/button';
 import { PASSWORD_VALIDATION_PATTERN } from '@/constants/reset-password';
 
@@ -33,7 +33,8 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
       {/* New Password */}
       <div className="flex flex-col gap-2">
         <div className="relative flex items-center">
-          <Lock
+          <DasIcon
+            name="lock"
             className="pointer-events-none absolute left-4 h-5 w-5 shrink-0 text-[#f7941d]"
             aria-hidden="true"
           />
@@ -66,7 +67,11 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
                 : t('reset_password_form.show_password')
             }
           >
-            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            {showPassword ? (
+              <DasIcon name="eye-off" className="h-5 w-5" />
+            ) : (
+              <DasIcon name="eye" className="h-5 w-5" />
+            )}
           </Button>
         </div>
         {errors.Password ? <p className="text-xs text-red-400">{errors.Password.message}</p> : null}
@@ -75,7 +80,8 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
       {/* Confirm Password */}
       <div className="flex flex-col gap-2">
         <div className="relative flex items-center">
-          <Lock
+          <DasIcon
+            name="lock"
             className="pointer-events-none absolute left-4 h-5 w-5 shrink-0 text-[#f7941d]"
             aria-hidden="true"
           />
@@ -102,7 +108,11 @@ export function ResetPasswordForm({ onSubmit, loading, error }: ResetPasswordFor
                 : t('reset_password_form.show_password')
             }
           >
-            {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            {showConfirm ? (
+              <DasIcon name="eye-off" className="h-5 w-5" />
+            ) : (
+              <DasIcon name="eye" className="h-5 w-5" />
+            )}
           </Button>
         </div>
         {errors.ConfirmPassword ? (

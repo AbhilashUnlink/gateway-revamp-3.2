@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Bookmark, CircleX, Filter, Loader2, Plus, Trash2 } from 'lucide-react';
+import { DasSpinner } from '@/components/ui/DasSpinner';
+import { DasIcon } from '@/components/ui/DasIcon';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   addRule,
@@ -241,7 +242,7 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
       {/* Header */}
       <div className="flex h-16 shrink-0 items-center gap-2 bg-gradient-to-r from-[#fce4cc] via-[#fef1e0] to-white px-4 py-1.5">
         <div className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white">
-          <Filter size={14} className="text-[#1a1a1a]" />
+          <DasIcon name="filter" size={14} className="text-[#1a1a1a]" />
           <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded bg-[#1a1a1a] text-[8px] font-semibold leading-none text-white">
             {activeCount}
           </span>
@@ -249,14 +250,15 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
         <h3 className="flex-1 text-base font-semibold text-[#1a1a1a]">
           {t('filter.title', 'Advanced Filters')}
         </h3>
-        <button
+        <Button
           type="button"
+          variant="icon"
+          size="icon"
           onClick={handleClose}
-          className="text-[#1a1a1a] transition-opacity hover:opacity-70"
           aria-label={t('filter.close', 'Close')}
         >
-          <CircleX size={24} strokeWidth={1.5} />
-        </button>
+          <DasIcon name="circle-x" size={24} strokeWidth={1.5} />
+        </Button>
       </div>
 
       {/* Body */}
@@ -287,8 +289,10 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
         ))}
 
         <div className="border-t border-[#e5e5e5] pt-3">
-          <button
+          <Button
             type="button"
+            variant="link"
+            size="inline"
             onClick={handleAdd}
             disabled={!canAdd}
             title={
@@ -298,11 +302,11 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
                   ? t('filter.no_more_fields', 'All fields are already in use')
                   : undefined
             }
-            className="inline-flex items-center gap-2.5 text-sm font-semibold text-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-40"
+            className="gap-2.5 font-semibold text-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-40 hover:no-underline"
           >
             {t('filter.add_new', 'Add New')}
-            <Plus size={20} strokeWidth={1.5} />
-          </button>
+            <DasIcon name="plus" size={20} strokeWidth={1.5} />
+          </Button>
         </div>
       </div>
 
@@ -350,30 +354,36 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
                 placeholder={t('filter.preset_name', 'Filter name…')}
                 className="h-8 min-w-0 flex-1 rounded-lg border border-[#e5e5e5] bg-white px-3 text-sm text-[#1a1a1a] outline-none focus:border-[#1a1a1a]"
               />
-              <button
+              <Button
                 type="button"
+                variant="subtle"
+                size="xs"
                 onClick={() => {
                   setSavingMode(false);
                   setPresetName('');
                 }}
                 disabled={saving}
-                className="h-8 rounded-lg px-2.5 text-xs font-medium text-[#1a1a1a] hover:bg-white disabled:opacity-40"
+                className="hover:bg-white"
               >
                 {t('filter.cancel', 'Cancel')}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="dark"
+                size="xs"
                 onClick={handleSavePreset}
                 disabled={!presetName.trim() || saving}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-2.5 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
+                className="gap-1.5"
               >
-                {saving && <Loader2 size={12} className="animate-spin" />}
+                {saving && <DasSpinner size={12} />}
                 {t('filter.save', 'Save')}
-              </button>
+              </Button>
             </div>
           ) : (
-            <button
+            <Button
               type="button"
+              variant="chip"
+              size="xs"
               onClick={enterSaveMode}
               disabled={!canSave}
               title={
@@ -384,11 +394,11 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
                     )
                   : t('filter.save_as_preset', 'Save current as preset')
               }
-              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#e5e5e5] bg-white px-2.5 text-xs font-medium text-[#1a1a1a] hover:border-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#e5e5e5]"
+              className="gap-1.5 hover:bg-white disabled:hover:border-[#e5e5e5]"
             >
-              <Bookmark size={12} />
+              <DasIcon name="bookmark" size={12} />
               {t('filter.save', 'Save')}
-            </button>
+            </Button>
           )}
         </div>
 
@@ -403,23 +413,27 @@ export function FilterPopover({ screen, fields, anchorRef }: Props) {
                 key={p.uuid}
                 className="group flex items-center justify-between gap-2 rounded-lg border border-[#e5e5e5] bg-white px-3 py-1.5"
               >
-                <button
+                <Button
                   type="button"
+                  variant="link"
+                  size="inline"
                   onClick={() => handleLoadPreset(p.uuid)}
                   title={p.name}
-                  className="flex-1 truncate text-left text-sm text-[#1a1a1a] hover:text-[#f7941d]"
+                  className="flex-1 truncate justify-start text-[#1a1a1a] hover:text-[#f7941d] hover:no-underline"
                 >
                   {p.name}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="icon"
+                  size="icon"
                   onClick={() => handleDeletePreset(p.uuid)}
                   title={t('filter.delete_preset', 'Delete saved filter')}
                   aria-label="Delete"
-                  className="shrink-0 text-[#808080] opacity-0 transition-opacity hover:text-[#ff4343] group-hover:opacity-100"
+                  className="shrink-0 text-[#808080] opacity-0 hover:text-[#ff4343] hover:opacity-100 group-hover:opacity-100"
                 >
-                  <Trash2 size={14} />
-                </button>
+                  <DasIcon name="trash-2" size={14} />
+                </Button>
               </div>
             ))}
           </div>

@@ -1,6 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { DasIcon } from '@/components/ui/DasIcon';
+import { Button } from '@/components/ui/button';
 
 // ── Root ──────────────────────────────────────────────────────────────────
 
@@ -109,29 +110,26 @@ interface PageBarFilterButtonProps extends Omit<
 const PageBarFilterButton = forwardRef<HTMLButtonElement, PageBarFilterButtonProps>(
   function PageBarFilterButton({ count = 0, label, className, ...props }, ref) {
     return (
-      <button
+      <Button
         ref={ref}
         type="button"
+        variant="ghost"
         className={cn(
-          'flex h-12 items-center gap-2 px-4',
-          'bg-white rounded-2xl drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.04)]',
-          'transition-opacity hover:opacity-80',
+          'gap-2 px-4 text-[14px] drop-shadow-[0px_4px_4.5px_rgba(0,0,0,0.04)] hover:opacity-80',
           className
         )}
         {...props}
       >
         <div className="relative shrink-0">
-          <SlidersHorizontal size={20} className="text-[#1a1a1a]" />
+          <DasIcon name="sliders-horizontal" size={20} className="text-[#1a1a1a]" />
           {count > 0 && (
             <span className="absolute -top-1.5 -right-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-sm bg-[#1a1a1a] px-0.5 text-[10px] font-semibold leading-none text-white">
               {count}
             </span>
           )}
         </div>
-        <span className="text-[14px] font-semibold uppercase text-[#1a1a1a] whitespace-nowrap">
-          {label}
-        </span>
-      </button>
+        <span className="whitespace-nowrap">{label}</span>
+      </Button>
     );
   }
 );
@@ -145,19 +143,19 @@ interface PageBarActionButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
 const PageBarActionButton = forwardRef<HTMLButtonElement, PageBarActionButtonProps>(
   function PageBarActionButton({ children, className, ...props }, ref) {
     return (
-      <button
+      <Button
         ref={ref}
         type="button"
+        variant="ghost"
+        size="icon"
         className={cn(
-          'flex size-[48px] shrink-0 items-center justify-center',
-          'bg-white rounded-2xl shadow-[0px_4px_9px_0px_rgba(0,0,0,0.04)]',
-          'text-[#1a1a1a] transition-opacity hover:opacity-80',
+          'size-[48px] shrink-0 rounded-2xl text-[#1a1a1a] hover:opacity-80',
           className
         )}
         {...props}
       >
         {children}
-      </button>
+      </Button>
     );
   }
 );

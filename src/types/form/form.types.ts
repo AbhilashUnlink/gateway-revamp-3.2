@@ -1,4 +1,5 @@
 import type { RegisterOptions } from 'react-hook-form';
+import type { DasIconName } from '@/components/ui/DasIcon';
 
 // ── Field types ───────────────────────────────────────────────────────────
 
@@ -19,7 +20,7 @@ interface BaseFieldSchema {
 export interface InputFieldSchema extends BaseFieldSchema {
   type: 'input';
   inputType?: 'text' | 'password' | 'email' | 'number' | 'tel';
-  icon?: React.ElementType;
+  icon?: DasIconName;
   suffix?: string;
 }
 

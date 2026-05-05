@@ -1,7 +1,8 @@
-import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import type { Toast } from 'react-hot-toast';
 import { cn } from '@/utils/cn';
+import { DasIcon, type DasIconName } from './DasIcon';
+import { Button } from './button';
 
 // ── Variant config ────────────────────────────────────────────────────────
 
@@ -9,31 +10,31 @@ export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
 const VARIANT_STYLES: Record<
   ToastVariant,
-  { bg: string; border: string; text: string; Icon: React.ElementType }
+  { bg: string; border: string; text: string; icon: DasIconName }
 > = {
   success: {
     bg: 'bg-[#c6f3da]',
     border: 'border-[#1e8f1f]',
     text: 'text-[#1e8f1f]',
-    Icon: CheckCircle,
+    icon: 'check-circle',
   },
   error: {
     bg: 'bg-[#fde8e8]',
     border: 'border-[#e53935]',
     text: 'text-[#e53935]',
-    Icon: XCircle,
+    icon: 'x-circle',
   },
   warning: {
     bg: 'bg-[#fff6e6]',
     border: 'border-[#f7941d]',
     text: 'text-[#f7941d]',
-    Icon: AlertCircle,
+    icon: 'alert-circle',
   },
   info: {
     bg: 'bg-[#e3f2fd]',
     border: 'border-[#1565c0]',
     text: 'text-[#1565c0]',
-    Icon: Info,
+    icon: 'info',
   },
 };
 
@@ -50,7 +51,7 @@ export interface ToastCardProps {
 // ── Component ─────────────────────────────────────────────────────────────
 
 export function ToastCard({ t, variant, title, description, action }: ToastCardProps) {
-  const { bg, border, text, Icon } = VARIANT_STYLES[variant];
+  const { bg, border, text, icon } = VARIANT_STYLES[variant];
 
   return (
     <div
@@ -70,22 +71,20 @@ export function ToastCard({ t, variant, title, description, action }: ToastCardP
     >
       {/* Main row: icon + title + close */}
       <div className="flex items-center gap-3">
-        <Icon size={20} className={cn('shrink-0', text)} aria-hidden="true" />
+        <DasIcon name={icon} size={20} className={cn('shrink-0', text)} aria-hidden="true" />
 
         <p className={cn('flex-1 text-xs font-semibold leading-snug', text)}>{title}</p>
 
-        <button
+        <Button
           type="button"
+          variant="icon"
+          size="icon"
           aria-label="Dismiss notification"
           onClick={() => toast.dismiss(t.id)}
-          className={cn(
-            'shrink-0 rounded-md p-0.5 transition-opacity hover:opacity-60',
-            'focus-visible:outline-none focus-visible:ring-2',
-            text
-          )}
+          className={cn('shrink-0 rounded-md p-0.5 hover:opacity-60', text)}
         >
-          <X size={14} />
-        </button>
+          <DasIcon name="x" size={14} />
+        </Button>
       </div>
 
       {/* Optional description */}
@@ -98,20 +97,18 @@ export function ToastCard({ t, variant, title, description, action }: ToastCardP
       {/* Optional action */}
       {action && (
         <div className="pl-8">
-          <button
+          <Button
             type="button"
+            variant="link"
+            size="inline"
             onClick={() => {
               action.onClick();
               toast.dismiss(t.id);
             }}
-            className={cn(
-              'text-xs font-semibold underline-offset-2 hover:underline',
-              'focus-visible:outline-none focus-visible:ring-2 rounded',
-              text
-            )}
+            className={cn('text-xs font-semibold underline-offset-2 rounded', text)}
           >
             {action.label}
-          </button>
+          </Button>
         </div>
       )}
     </div>

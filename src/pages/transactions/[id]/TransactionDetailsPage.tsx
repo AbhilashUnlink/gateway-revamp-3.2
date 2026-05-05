@@ -1,8 +1,8 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Loader2 } from 'lucide-react';
 import { TabGroup, TabPanel, TabPanels } from '@headlessui/react';
+import { DasSpinner } from '@/components/ui/DasSpinner';
 import { Button } from '@/components/ui/button';
 import { useChargebackHistory } from '@/hooks/transactions/useChargebackHistory';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
@@ -56,7 +56,7 @@ function TransactionDetailsPage() {
   if (loading && !data) {
     return (
       <div className="flex h-[calc(100vh-80px)] items-center justify-center gap-2 text-sm text-[#808080]">
-        <Loader2 size={16} className="animate-spin" />
+        <DasSpinner />
         {t('transaction_details.loading')}
       </div>
     );

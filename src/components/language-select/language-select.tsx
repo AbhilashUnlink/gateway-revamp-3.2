@@ -1,5 +1,5 @@
-import { ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { DasIcon } from '@/components/ui/DasIcon';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { updateSettings } from '@/store/slices/settingsSlice';
 import DasPopover from '@/components/ui/DasPopover';
@@ -43,7 +43,7 @@ function LanguageSelect({ variant = 'dark' }: { variant?: Variant }) {
         )}
       >
         <span className="whitespace-nowrap text-xs font-medium">{current?.triggerLabel}</span>
-        <ChevronDown size={12} className="shrink-0" />
+        <DasIcon name="chevron-down" size={12} className="shrink-0" />
       </DasPopover.Trigger>
 
       <DasPopover.Content align="right" className="w-36 p-0">

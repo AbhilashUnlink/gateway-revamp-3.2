@@ -111,16 +111,16 @@ function TransactionsPage() {
 
   const filterFields = useMemo(() => buildFilterFields(columnConfigs), [columnConfigs]);
 
-  // Hydrate the saved column-preference lists once on mount.
+  // Lazy-load the saved column-preference lists only when the popover opens.
   useEffect(() => {
-    dispatch(fetchColumnPreferenceLists());
-  }, [dispatch]);
+    if (columnsOpen) dispatch(fetchColumnPreferenceLists());
+  }, [dispatch, columnsOpen]);
 
-  // Hydrate the download list once on mount so the action-button indicator can
-  // light up before the user opens the popover.
+  // Lazy-load the download list only when the popover opens. The slice
+  // re-fetches on its own when a new download is requested.
   useEffect(() => {
-    dispatch(fetchDownloadList());
-  }, [dispatch]);
+    if (downloadOpen) dispatch(fetchDownloadList());
+  }, [dispatch, downloadOpen]);
 
   // Sync the active backend list's `columns_json` into the local visibility /
   // order slice so the table reflects it on load and whenever the

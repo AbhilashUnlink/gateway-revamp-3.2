@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Trash2 } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
+import { DasIcon } from '@/components/ui/DasIcon';
+import { Button } from '@/components/ui/button';
 import { selectOptionsByKey } from '@/store/slices/gatewayConfigSlice';
 import { TextInput } from '@/components/fields/TextInput';
 import { NumberInput } from '@/components/fields/NumberInput';
@@ -117,14 +118,16 @@ export function FilterRuleRow({ rule, fields, takenFieldIds, onChange, onRemove 
         )}
       </div>
 
-      <button
+      <Button
         type="button"
+        variant="subtle"
+        size="icon"
         onClick={onRemove}
-        className="flex h-10 w-10 items-center justify-center rounded-lg text-[#808080] hover:bg-[#fafafa] hover:text-[#1a1a1a]"
+        className="h-10 w-10 text-[#808080] hover:text-[#1a1a1a]"
         aria-label="Remove filter"
       >
-        <Trash2 size={18} />
-      </button>
+        <DasIcon name="trash-2" size={18} />
+      </Button>
     </div>
   );
 }

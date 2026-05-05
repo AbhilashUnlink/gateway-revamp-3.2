@@ -1,7 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Download, Loader2, X, FileText, Timer, CircleX } from 'lucide-react';
+import { DasSpinner } from '@/components/ui/DasSpinner';
+import { DasIcon } from '@/components/ui/DasIcon';
+import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   downloadReportByJobId,
@@ -192,19 +194,20 @@ export function DownloadPopover({
       {/* Header — soft orange tint */}
       <div className="flex h-[66px] shrink-0 items-center gap-2 rounded-t-2xl bg-[#fff6e6] px-4 py-1.5">
         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white">
-          <Download size={16} className="text-[#1a1a1a]" />
+          <DasIcon name="download" size={16} className="text-[#1a1a1a]" />
         </div>
         <h3 className="flex-1 text-base font-semibold leading-5 text-[#1a1a1a]">
           {t('download.title')}
         </h3>
-        <button
+        <Button
           type="button"
+          variant="icon"
+          size="icon"
           onClick={onClose}
           aria-label={t('download.close')}
-          className="text-[#1a1a1a] transition-opacity hover:opacity-70"
         >
-          <CircleX size={24} strokeWidth={1.5} />
-        </button>
+          <DasIcon name="circle-x" size={24} strokeWidth={1.5} />
+        </Button>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-9 p-4">
@@ -215,15 +218,17 @@ export function DownloadPopover({
               <span className="font-normal">{t('download.total_records')} </span>
               <span className="font-semibold text-[#1a1a1a]">{totalRecords}</span>
             </div>
-            <button
+            <Button
               ref={filtersTriggerRef}
               type="button"
+              variant="link"
+              size="inline"
               onClick={() => hasAppliedFilters && setFiltersOpen((o) => !o)}
               disabled={!hasAppliedFilters}
               className="text-xs text-[#1a1a1a] underline disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t('download.view_applied_filters')}
-            </button>
+            </Button>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[#e5e5e5] bg-[#fff6e6] p-3">
@@ -246,15 +251,16 @@ export function DownloadPopover({
                 setFormat('excel');
               }}
             />
-            <button
+            <Button
               type="button"
+              variant="primary"
               onClick={submit}
               disabled={requesting}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#f7941d] px-4 text-sm font-semibold uppercase leading-5 text-white shadow-[0_4px_9px_rgba(0,0,0,0.1)] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-auto gap-2 shadow-[0_4px_9px_rgba(0,0,0,0.1)]"
             >
-              {requesting && <Loader2 size={14} className="animate-spin" />}
+              {requesting && <DasSpinner size={14} />}
               {t('download.request_download')}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -342,7 +348,7 @@ function HistoryList({
   if (loading && safeList.length === 0) {
     return (
       <div className="flex items-center justify-center gap-2 py-10 text-sm text-[#808080]">
-        <Loader2 size={14} className="animate-spin" />
+        <DasSpinner size={14} />
         {t('download.loading')}
       </div>
     );
@@ -351,7 +357,7 @@ function HistoryList({
   if (safeList.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 rounded-lg bg-[#fafafa] px-4 py-10 text-center">
-        <FileText size={28} className="text-[#bdbdbd]" />
+        <DasIcon name="file-text" size={28} className="text-[#bdbdbd]" />
         <span className="text-sm text-[#808080]">{t('download.empty')}</span>
       </div>
     );
@@ -414,7 +420,7 @@ function HistoryRow({
       <div className="flex items-center justify-between">
         {isProcessing ? (
           <div className="flex items-center gap-2">
-            <Timer size={16} className="text-[#1a1a1a]" />
+            <DasIcon name="timer" size={16} className="text-[#1a1a1a]" />
             <span className="text-xs text-[#1a1a1a]">{t('download.status_preparing')}</span>
           </div>
         ) : (
@@ -435,35 +441,39 @@ function HistoryRow({
                 : status || '—'}
           </span>
         )}
-        <button
+        <Button
           ref={triggerRef}
           type="button"
+          variant="link"
+          size="inline"
           onClick={() => hasItemFilters && setFiltersOpen((o) => !o)}
           disabled={!hasItemFilters}
           className="text-xs text-[#1a1a1a] underline disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('download.view_applied_filters')}
-        </button>
+        </Button>
       </div>
 
       <div className="flex items-center gap-2">
-        <FileText size={20} className="shrink-0 text-[#1e8f1f]" />
+        <DasIcon name="file-text" size={20} className="shrink-0 text-[#1e8f1f]" />
         <div className="min-w-0 flex-1 truncate text-sm text-[#1a1a1a]" title={fileName}>
           {fileName}
         </div>
-        <button
+        <Button
           type="button"
+          variant="primary"
+          size="icon"
           onClick={onDownload}
           disabled={!isReady || downloading || !item.JobID}
           aria-label={t('download.download_action')}
           title={item.ReportURL ? String(item.ReportURL) : undefined}
           className={cn(
-            'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-[#f7941d] text-white shadow-[0_4px_9px_rgba(0,0,0,0.04)] hover:opacity-90 disabled:cursor-not-allowed',
+            'h-6 w-6 shrink-0 rounded-sm shadow-[0_4px_9px_rgba(0,0,0,0.04)] disabled:cursor-not-allowed',
             !isReady && 'opacity-30'
           )}
         >
-          {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-        </button>
+          {downloading ? <DasSpinner size={14} /> : <DasIcon name="download" size={14} />}
+        </Button>
       </div>
 
       {filtersOpen && (
@@ -594,14 +604,16 @@ function AppliedFiltersPopover({
         <span className="flex-1 text-sm font-semibold leading-5 text-[#1a1a1a]">
           {t('download.applied_filters_title')}
         </span>
-        <button
+        <Button
           type="button"
+          variant="icon"
+          size="icon"
           onClick={onClose}
           aria-label={t('download.close')}
-          className="flex h-4 w-4 items-center justify-center text-[#1a1a1a] hover:opacity-70"
+          className="h-4 w-4"
         >
-          <X size={12} />
-        </button>
+          <DasIcon name="x" size={12} />
+        </Button>
       </div>
       <div className="flex max-h-[260px] flex-col gap-2 overflow-y-auto p-3">
         {entries.map((entry, idx) => (

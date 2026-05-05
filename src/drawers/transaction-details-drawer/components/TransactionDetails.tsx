@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Loader2 } from 'lucide-react';
 import { DasAccordion } from '@/components/ui/accordian';
+import { DasSpinner } from '@/components/ui/DasSpinner';
 import { TransactionLifecycle } from '@/components/transactions/TransactionLifecycle';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { useDrawerParams } from '@/hooks/useDrawerParams';
@@ -25,7 +25,7 @@ function TransactionDetails({ data, loading, error }: TransactionDetailsProps) {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center gap-2 text-sm text-[#808080]">
-        <Loader2 size={16} className="animate-spin" />
+        <DasSpinner />
         {t('transaction_details.loading')}
       </div>
     );

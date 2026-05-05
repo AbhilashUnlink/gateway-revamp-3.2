@@ -1,5 +1,6 @@
-import { Download } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { DasIcon } from '@/components/ui/DasIcon';
+import { Button } from '@/components/ui/button';
 import type { CellData } from '@/types/transactions/transaction.types';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { isPresent } from '../utils/isPresent';
@@ -27,16 +28,19 @@ export function ActionCell({ data, onDownload, className }: ActionCellProps) {
         <>
           <CopyButton value={data.primary} />
           {data.downloadable && (
-            <button
+            <Button
+              type="button"
+              variant="icon"
+              size="icon"
               onClick={(e) => {
                 e.stopPropagation();
                 onDownload?.(String(data.primary));
               }}
               aria-label="Download"
-              className="shrink-0 text-neutral-400 hover:text-[#f7941d] transition-colors focus-visible:outline-none"
+              className="shrink-0 text-neutral-400 hover:text-[#f7941d] hover:opacity-100"
             >
-              <Download size={14} />
-            </button>
+              <DasIcon name="download" size={14} />
+            </Button>
           )}
         </>
       )}
