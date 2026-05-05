@@ -24,7 +24,7 @@ export function HeaderCell({ config, className, stickyLeft, isStickyEdge }: Head
       }}
       className={cn(
         'px-6 pt-[11px] pb-1 text-left align-top whitespace-nowrap',
-        isSticky && 'sticky z-30 bg-[#fff8f0]',
+        isSticky && 'sticky z-30 bg-inherit',
         isStickyEdge && 'shadow-[8px_0_8px_-6px_rgba(0,0,0,0.12)]',
         className
       )}
