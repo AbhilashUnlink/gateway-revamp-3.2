@@ -191,17 +191,27 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
     setActiveKey(activeBackendList?.uuid ?? TRANSACTION_DEFAULT_KEY);
   }, [open, activeBackendList]);
 
-  useEffect(() => {
-    if (!open) return;
-    const columnsJson = isDefault ? null : (activeList?.columns_json ?? null);
+  const buildDraftForKey = (key: string): DraftItem[] => {
+    const isDefaultKey = key === TRANSACTION_DEFAULT_KEY;
+    const matchingList = lists.find((p) => p.uuid === key) ?? null;
+    const columnsJson = isDefaultKey ? null : (matchingList?.columns_json ?? null);
     const { orderedColumns, hiddenColumns } = getColumnsConfigFromColumnsJson(
       columnsJson,
       fallbackIds
     );
+    return buildDraft(columns, orderedColumns, hiddenColumns);
+  };
+
+  useEffect(() => {
+    if (!open) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDraft(buildDraft(columns, orderedColumns, hiddenColumns));
+    setDraft(buildDraftForKey(activeKey));
+     
     setSearchQuery('');
-  }, [open, isDefault, activeList, columns, fallbackIds]);
+    // Only re-sync when the popover opens or the underlying list set changes;
+    // user clicks on rows sync the draft synchronously via selectListKey.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, lists]);
 
   useEffect(() => {
     if (!open) return;
@@ -329,6 +339,8 @@ export function ColumnPreferencePopover({ open, onClose, anchorRef, screen, colu
   const selectListKey = (key: string) => {
     setActiveKey(key);
     setNewListName('');
+    setSearchQuery('');
+    setDraft(buildDraftForKey(key));
   };
 
   const isAdding = !!newListName.trim();
