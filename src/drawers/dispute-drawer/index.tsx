@@ -1,106 +1,23 @@
-﻿import { useTranslation } from 'react-i18next';
-import DasDrawer from '@/components/ui/DasDrawer';
-import { DasSpinner } from '@/components/ui/DasSpinner';
+import { useTranslation } from 'react-i18next';
+import DasDrawer from '@/components/ui/das-drawer';
+import { DasSpinner } from '@/components/ui/das-spinner';
 import { Button } from '@/components/ui/button';
-import { DasForm } from '@/components/das-form';
-import type { FormSchema } from '@/components/das-form';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
 import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';
 import { useDispute } from '@/hooks/transactions/useDispute';
-import { CHARGEBACK_STAGE_OPTIONS } from '@/hooks/transactions/useChargebackHistory';
-import { useAppSelector } from '@/store/hooks';
-import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
 import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
-import type { RootState } from '@/store';
-
-const FORM_ID = 'dispute-form';
-
-interface DisputeFormValues {
-  CaseType: string;
-  ReasonCode: string;
-  ARN: string;
-  DueDate: string;
-}
-
-interface ReasonCodeEntry {
-  ReasonCode: string;
-  ReasonCodeDescription: string;
-}
-type ReasonCodeMap = Record<string, ReasonCodeEntry[]>;
+import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
+import {
+  DisputeForm,
+  DISPUTE_FORM_ID,
+  type DisputeFormValues,
+} from '@/components/forms/transaction/DisputeForm';
 
 export default function DisputeDrawer({ type }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { data } = useTransactionActions();
   const { handleClose } = useDrawerTransaction({ type });
   const { submitDispute, loading } = useDispute(handleClose);
-  const reasonCodeMap = useAppSelector(
-    (state: RootState) =>
-      state.gatewayConfig.config?.chargebackReasonCode as ReasonCodeMap | undefined
-  );
-  const scheme = data?.Scheme ?? '';
-  const reasonCodeFormattedOptions =
-    reasonCodeMap && scheme && reasonCodeMap[scheme]
-      ? reasonCodeMap[scheme].map((item) => ({
-          label: item.ReasonCodeDescription,
-          value: item.ReasonCode,
-        }))
-      : [];
-
-  const schema: FormSchema = {
-    fieldGap: 4,
-    fields: [
-      {
-        type: 'select',
-        name: 'CaseType',
-        label: t('drawer.case_type'),
-        placeholder: 'Select',
-        options: CHARGEBACK_STAGE_OPTIONS,
-        rules: { required: true },
-        required: true,
-      },
-      {
-        type: 'select',
-        name: 'ReasonCode',
-        label: t('drawer.reason_description'),
-        placeholder: 'Select',
-        options: reasonCodeFormattedOptions,
-        rules: { required: true },
-        required: true,
-      },
-      {
-        type: 'input',
-        name: 'ARN',
-        inputType: 'text',
-        label: t('drawer.arn'),
-        placeholder: t('drawer.arn_placeholder'),
-        rules: { required: true },
-        required: true,
-      },
-      {
-        type: 'display',
-        name: 'disputeAmountDisplay',
-        label: t('drawer.dispute_amount'),
-        value: String(data?.Amount ?? '0'),
-        suffix: data?.CurrencyCode ?? 'USD',
-        required: true,
-      },
-      {
-        type: 'date',
-        name: 'DueDate',
-        label: t('drawer.due_date'),
-        placeholder: t('drawer.due_date_placeholder'),
-        rules: { required: true },
-        required: true,
-      },
-      {
-        type: 'display',
-        name: 'orderIdDisplay',
-        label: t('drawer.order_id'),
-        value: data?.TransactionRefID ?? '',
-        required: true,
-      },
-    ],
-  };
 
   const onSubmit = (values: DisputeFormValues) =>
     submitDispute({
@@ -135,27 +52,14 @@ export default function DisputeDrawer({ type }: DrawerComponentProps) {
       </DasDrawer.Header>
 
       <DasDrawer.Body>
-        <div className="flex flex-col gap-3 p-6">
-          <h2 className="text-base font-semibold text-[#1a1a1a]">
-            {t('drawer.dispute_drawer_title')}
-          </h2>
-          <DasForm
-            id={FORM_ID}
-            schema={schema}
-            onSubmit={onSubmit}
-            className="gap-0"
-            defaultValues={{ CaseType: '', ReasonCode: '', ARN: '', DueDate: '' }}
-          >
-            <DasForm.Fields />
-          </DasForm>
-        </div>
+        <DisputeForm transactionDetail={data} onSubmit={onSubmit} />
       </DasDrawer.Body>
 
       <DasDrawer.Footer>
         <div className="flex gap-3">
           <Button
             type="submit"
-            form={FORM_ID}
+            form={DISPUTE_FORM_ID}
             disabled={loading}
             className="flex-1 shadow-[0px_4px_9px_0px_rgba(0,0,0,0.1)]"
           >

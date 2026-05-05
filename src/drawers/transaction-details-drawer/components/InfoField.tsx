@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { CopyButton } from '@/components/ui/CopyButton';
-import { Skeleton } from '@/components/ui/Skeleton';
+import { CopyButton } from '@/components/ui/copy-button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface InfoFieldProps {
   label: string;

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { DasIcon } from '@/components/ui/DasIcon';
-import { CopyButton } from '@/components/ui/CopyButton';
+import { DasIcon } from '@/components/ui/das-icon';
+import { CopyButton } from '@/components/ui/copy-button';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 
 interface DrawerEntityHeaderProps {

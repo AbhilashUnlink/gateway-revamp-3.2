@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { cn } from '@/utils/cn';
-import { DasIcon } from './DasIcon';
+import { DasIcon } from './das-icon';
 import { Button } from './button';
 
 interface CopyButtonProps {

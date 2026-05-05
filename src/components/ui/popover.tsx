@@ -1,6 +1,6 @@
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { DasIcon } from './DasIcon';
+import { DasIcon } from './das-icon';
 
 const solutions = [
   {

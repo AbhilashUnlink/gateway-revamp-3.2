@@ -1,7 +1,7 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import type { ReactNode } from 'react';
 import { cn } from '@/utils/cn';
-import { DasIcon } from './DasIcon';
+import { DasIcon } from './das-icon';
 
 interface DasAccordionProps {
   title: string;

@@ -1,5 +1,5 @@
 import { cn } from '@/utils/cn';
-import { DasIcon } from './DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 
 interface DasSpinnerProps {
   size?: number;

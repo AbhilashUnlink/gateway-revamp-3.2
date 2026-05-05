@@ -1,4 +1,4 @@
-import { DasSpinner } from '@/components/ui/DasSpinner';
+import { DasSpinner } from '@/components/ui/das-spinner';
 
 interface DrawerStateViewProps {
   loading?: boolean;

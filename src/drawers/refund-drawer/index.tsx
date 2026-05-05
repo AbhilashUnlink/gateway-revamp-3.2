@@ -1,84 +1,23 @@
-﻿import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import DasDrawer from '@/components/ui/DasDrawer';
-import { DasSpinner } from '@/components/ui/DasSpinner';
+import DasDrawer from '@/components/ui/das-drawer';
+import { DasSpinner } from '@/components/ui/das-spinner';
 import { Button } from '@/components/ui/button';
-import { DasForm } from '@/components/das-form';
-import type { FormSchema } from '@/components/das-form';
+import { useTranslation } from 'react-i18next';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
 import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';
 import { useRefund } from '@/hooks/transactions/useRefund';
 import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
-import { calculateTransactionAmounts } from '@/utils/calculateTransactionAmounts';
 import type { DrawerComponentProps } from '@/components/drawer/drawerRegistry';
-const FORM_ID = 'refund-form';
-
-interface RefundFormValues {
-  refundAmount: string;
-  reference: string;
-  consent: boolean;
-}
+import {
+  RefundForm,
+  REFUND_FORM_ID,
+  type RefundFormValues,
+} from '@/components/forms/transaction/RefundForm';
 
 export default function RefundDrawer({ type }: DrawerComponentProps) {
   const { t } = useTranslation();
   const { handleClose } = useDrawerTransaction({ type });
   const { submitRefund, loading } = useRefund(handleClose);
   const { data: transactionDetail } = useTransactionActions();
-
-  const { amount, remainingAmount } = useMemo(
-    () => calculateTransactionAmounts(transactionDetail, 'REFUND'),
-    [transactionDetail]
-  );
-
-  const originalAmount = amount.toFixed(2);
-  const remainingAmountDisplay = remainingAmount.toFixed(2);
-  const currency =
-    (transactionDetail?.CurrencyCode as string) ?? transactionDetail?.CurrencyCode ?? 'USD';
-
-  const schema: FormSchema = {
-    fieldGap: 4,
-    fields: [
-      {
-        type: 'display',
-        name: 'originalAmountDisplay',
-        label: t('drawer.original_amount'),
-        value: originalAmount,
-        suffix: currency,
-        required: true,
-      },
-      {
-        type: 'display',
-        name: 'remainingAmountDisplay',
-        label: t('drawer.remaining'),
-        value: remainingAmountDisplay,
-        suffix: currency,
-        required: true,
-      },
-      {
-        type: 'input',
-        name: 'refundAmount',
-        inputType: 'number',
-        label: t('drawer.refund_amount'),
-        placeholder: t('drawer.refund_amount_placeholder'),
-        rules: { required: true, validate: (v: string) => parseFloat(v) > 0 },
-        hint: t('drawer.refund_hint'),
-        required: true,
-      },
-      {
-        type: 'textarea',
-        name: 'reference',
-        label: `${t('drawer.reference')} ${t('drawer.optional')}`,
-        maxLength: 128,
-        hint: t('drawer.reference_hint'),
-      },
-      {
-        type: 'checkbox',
-        name: 'consent',
-        label: t('drawer.consent_text'),
-        rules: { required: true },
-      },
-    ],
-  };
 
   const onSubmit = (values: RefundFormValues) =>
     submitRefund(
@@ -104,29 +43,14 @@ export default function RefundDrawer({ type }: DrawerComponentProps) {
       </DasDrawer.Header>
 
       <DasDrawer.Body>
-        <div className="flex flex-col gap-3 p-6">
-          <h2 className="text-base font-semibold text-[#1a1a1a]">{t('drawer.issue_a_refund')}</h2>
-          <DasForm
-            id={FORM_ID}
-            schema={schema}
-            onSubmit={onSubmit}
-            className="gap-0"
-            defaultValues={{
-              refundAmount: '',
-              reference: '',
-              consent: false,
-            }}
-          >
-            <DasForm.Fields />
-          </DasForm>
-        </div>
+        <RefundForm transactionDetail={transactionDetail} onSubmit={onSubmit} />
       </DasDrawer.Body>
 
       <DasDrawer.Footer>
         <div className="flex gap-3">
           <Button
             type="submit"
-            form={FORM_ID}
+            form={REFUND_FORM_ID}
             disabled={loading}
             className="flex-1 shadow-[0px_4px_9px_0px_rgba(0,0,0,0.1)]"
           >

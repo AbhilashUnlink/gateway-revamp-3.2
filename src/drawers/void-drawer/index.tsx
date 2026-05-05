@@ -1,6 +1,6 @@
 ﻿import { useTranslation } from 'react-i18next';
-import DasDrawer from '@/components/ui/DasDrawer';
-import { DasSpinner } from '@/components/ui/DasSpinner';
+import DasDrawer from '@/components/ui/das-drawer';
+import { DasSpinner } from '@/components/ui/das-spinner';
 import { Button } from '@/components/ui/button';
 import { DrawerTransactionHeader } from '@/drawers/shared/DrawerTransactionHeader';
 import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';

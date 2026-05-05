@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { cn } from '@/utils/cn';
-import { CopyButton } from '@/components/ui/CopyButton';
+import { CopyButton } from '@/components/ui/copy-button';
 
 export type FieldAlign = 'start' | 'end';
 

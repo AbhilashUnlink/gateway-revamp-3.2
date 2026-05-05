@@ -1,5 +1,5 @@
 ﻿import { useCallback, useMemo, type ReactNode } from 'react';
-import DasDrawer from '@/components/ui/DasDrawer';
+import DasDrawer from '@/components/ui/das-drawer';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 import { useProductDetails } from '@/hooks/transactions/useProductDetails';

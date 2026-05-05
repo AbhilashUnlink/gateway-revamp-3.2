@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-import { DasSpinner } from '@/components/ui/DasSpinner';
+import { DasSpinner } from '@/components/ui/das-spinner';
 import { useDasFormContext } from './DasFormContext';
 import { cn } from '@/utils/cn';
 import type { ActionSchema } from '@/types/form/form.types';

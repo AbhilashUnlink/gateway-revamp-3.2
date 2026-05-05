@@ -1,8 +1,8 @@
 import { cn } from '@/utils/cn';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 import { Button } from '@/components/ui/button';
 import type { CellData } from '@/types/transactions/transaction.types';
-import { CopyButton } from '@/components/ui/CopyButton';
+import { CopyButton } from '@/components/ui/copy-button';
 import { isPresent } from '../utils/isPresent';
 
 interface ActionCellProps {

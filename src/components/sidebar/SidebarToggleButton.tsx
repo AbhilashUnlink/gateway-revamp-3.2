@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 import { Button } from '@/components/ui/button';
 
 interface SidebarToggleButtonProps {

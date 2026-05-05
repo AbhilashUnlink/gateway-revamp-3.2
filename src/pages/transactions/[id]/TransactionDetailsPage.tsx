@@ -2,7 +2,7 @@
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TabGroup, TabPanel, TabPanels } from '@headlessui/react';
-import { DasSpinner } from '@/components/ui/DasSpinner';
+import { DasSpinner } from '@/components/ui/das-spinner';
 import { Button } from '@/components/ui/button';
 import { useChargebackHistory } from '@/hooks/transactions/useChargebackHistory';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
@@ -10,7 +10,7 @@ import { useTransactionActions } from '@/hooks/transactions/useTransactionAction
 import { useAppDispatch } from '@/store/hooks';
 import { fetchTransactionDetails } from '@/store/thunks/transactionDetailsThunks';
 import { DetailsHeader } from './components/DetailsHeader';
-import { TransactionLifecycle } from '@/components/transactions/TransactionLifecycle';
+import { TransactionLifecycle } from '@/components/transactions/transaction-lifecycle';
 import { PageTabsList } from './components/PageTabs';
 import { PAGE_TABS } from './components/PageTabs.config';
 import { ChargebackHistory } from './components/history/ChargebackHistory';

@@ -1,8 +1,8 @@
 ﻿import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { DasIcon } from '@/components/ui/DasIcon';
-import { CopyButton } from '@/components/ui/CopyButton';
-import { Skeleton } from '@/components/ui/Skeleton';
+import { DasIcon } from '@/components/ui/das-icon';
+import { CopyButton } from '@/components/ui/copy-button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useDrawerTransaction } from '@/hooks/transactions/useDrawerTransaction';
 import { useTransactionActions } from '@/hooks/transactions/useTransactionActions';
 import { useNavigate } from 'react-router-dom';

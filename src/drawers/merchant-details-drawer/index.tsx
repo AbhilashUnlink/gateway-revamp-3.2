@@ -1,8 +1,8 @@
 ﻿import { useCallback, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { DasIcon } from '@/components/ui/DasIcon';
-import { CopyButton } from '@/components/ui/CopyButton';
-import DasDrawer from '@/components/ui/DasDrawer';
+import { DasIcon } from '@/components/ui/das-icon';
+import { CopyButton } from '@/components/ui/copy-button';
+import DasDrawer from '@/components/ui/das-drawer';
 import { useMerchantDetails } from '@/hooks/transactions/useMerchantDetails';
 import { DrawerEntityHeader } from '../shared/DrawerEntityHeader';
 import { DrawerFieldGrid, DrawerSection, type DrawerFieldConfig } from '../shared/DrawerFieldGrid';

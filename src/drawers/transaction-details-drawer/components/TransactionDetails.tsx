@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { DasAccordion } from '@/components/ui/accordian';
-import { DasSpinner } from '@/components/ui/DasSpinner';
-import { TransactionLifecycle } from '@/components/transactions/TransactionLifecycle';
+import { DasSpinner } from '@/components/ui/das-spinner';
+import { TransactionLifecycle } from '@/components/transactions/transaction-lifecycle';
 import { useDrawerControl } from '@/hooks/useDrawerControl';
 import { useDrawerParams } from '@/hooks/useDrawerParams';
 import { useAppSelector } from '@/store/hooks';

@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CopyButton } from '@/components/ui/CopyButton';
+import { CopyButton } from '@/components/ui/copy-button';
 import type { ChargebackCase } from '@/types/transactions/chargeback.types';
 import { FieldCell, HistoryCard, HistoryState, StatusBadge } from '../primitives';
 import { useUserDateFormat } from '@/hooks/useUserDateFormat';

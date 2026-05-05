@@ -1,5 +1,5 @@
 ﻿import { useMemo } from 'react';
-import DasDrawer from '@/components/ui/DasDrawer';
+import DasDrawer from '@/components/ui/das-drawer';
 import { cn } from '@/utils/cn';
 import { useAcquirerDetails } from '@/hooks/transactions/useAcquirerDetails';
 import { DrawerEntityHeader } from '../shared/DrawerEntityHeader';

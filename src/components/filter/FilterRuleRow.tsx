@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/store/hooks';
-import { DasIcon } from '@/components/ui/DasIcon';
+import { DasIcon } from '@/components/ui/das-icon';
 import { Button } from '@/components/ui/button';
 import { selectOptionsByKey } from '@/store/slices/gatewayConfigSlice';
 import { TextInput } from '@/components/fields/TextInput';

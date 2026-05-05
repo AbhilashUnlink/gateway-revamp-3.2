@@ -1,4 +1,4 @@
-import type { DasIconName } from '@/components/ui/DasIcon';
+import type { DasIconName } from '@/components/ui/das-icon';
 
 export interface TabConfig {
   id: string;
