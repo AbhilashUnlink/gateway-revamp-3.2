@@ -8,6 +8,8 @@ const EditStatusDrawer = lazy(() => import('@/drawers/edit-status-drawer'));
 const ProductDetailsDrawer = lazy(() => import('@/drawers/product-details-drawer'));
 const AcquirerMidDrawer = lazy(() => import('@/drawers/acquirer-mid-drawer'));
 const MerchantDetailsDrawer = lazy(() => import('@/drawers/merchant-details-drawer'));
+const MerchantUserFormDrawer = lazy(() => import('@/drawers/merchant-user-form-drawer'));
+const MerchantIpFormDrawer = lazy(() => import('@/drawers/merchant-ip-form-drawer'));
 
 export interface DrawerComponentProps {
   type: string;
@@ -31,4 +33,6 @@ export const DRAWER_REGISTRY: DrawerRegistryEntry[] = [
   { type: 'product', component: ProductDetailsDrawer, width: 640, topOffset: 100 },
   { type: 'acquirer-mid', component: AcquirerMidDrawer, width: 640, topOffset: 100 },
   { type: 'merchant', component: MerchantDetailsDrawer, width: 640, topOffset: 100 },
+  { type: 'merchant-user-form', component: MerchantUserFormDrawer, width: 640, topOffset: 100 },
+  { type: 'merchant-ip-form', component: MerchantIpFormDrawer, width: 640, topOffset: 100 },
 ];

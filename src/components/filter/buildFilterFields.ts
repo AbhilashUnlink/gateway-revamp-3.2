@@ -11,8 +11,8 @@ import type { FilterField } from './types';
  * - Filter-only synthetic fields (e.g. amount range, transaction event) can be
  *   appended via the `extras` arg.
  */
-export function buildFilterFields(
-  columns: ColumnConfig[],
+export function buildFilterFields<TRow = unknown>(
+  columns: ColumnConfig<TRow>[],
   extras: FilterField[] = []
 ): FilterField[] {
   const fromColumns: FilterField[] = [];

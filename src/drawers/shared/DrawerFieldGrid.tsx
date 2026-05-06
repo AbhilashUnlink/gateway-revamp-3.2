@@ -49,21 +49,26 @@ export function DrawerFieldCell({ field }: DrawerFieldCellProps) {
   );
 }
 
+type GridColumnCount = 1 | 2 | 3 | 4 | 5 | 6;
+
+const GRID_COLS_MAP: Record<GridColumnCount, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+  4: 'grid-cols-4',
+  5: 'grid-cols-5',
+  6: 'grid-cols-6',
+};
+
 interface DrawerFieldGridProps {
   fields: DrawerFieldConfig[];
-  columns?: 1 | 2;
+  columns?: GridColumnCount;
   className?: string;
 }
 
 export function DrawerFieldGrid({ fields, columns = 2, className }: DrawerFieldGridProps) {
   return (
-    <div
-      className={cn(
-        'grid gap-x-3 gap-y-3',
-        columns === 2 ? 'grid-cols-2' : 'grid-cols-1',
-        className
-      )}
-    >
+    <div className={cn('grid gap-x-3 gap-y-3', GRID_COLS_MAP[columns], className)}>
       {fields.map((field) => (
         <DrawerFieldCell key={field.key} field={field} />
       ))}

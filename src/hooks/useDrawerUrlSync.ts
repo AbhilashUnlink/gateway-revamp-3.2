@@ -12,6 +12,14 @@ import { isDrawerAllowed, ALWAYS_ALLOWED_DRAWERS } from '@/utils/drawerPermissio
 
 const REGISTERED_TYPES = new Set(DRAWER_REGISTRY.map((entry) => entry.type));
 
+/**
+ * Drawer types that are transient — they're opened with rich, often
+ * non-serializable payloads (callbacks, prefilled form data) and do not
+ * round-trip through URL state. The URL sync below ignores them on both
+ * directions: don't open them from URL, don't close them when URL is empty.
+ */
+export const NON_URL_DRAWER_TYPES = new Set(['merchant-user-form']);
+
 export function useDrawerUrlSync() {
   const dispatch = useAppDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -35,6 +43,13 @@ export function useDrawerUrlSync() {
         { replace: true }
       );
     };
+
+    // Transient drawers (e.g. forms) are managed entirely through Redux —
+    // never touched by URL changes. Bail out before the URL sync can stomp
+    // on their rich in-memory payload.
+    if (current && NON_URL_DRAWER_TYPES.has(current.type)) {
+      return;
+    }
 
     if (!urlType && !id) {
       if (current) dispatch(closeDrawer());

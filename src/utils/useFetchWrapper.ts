@@ -12,8 +12,20 @@ interface ApiErrorBody {
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 const X_API_KEY = import.meta.env.VITE_API_X_API_KEY ?? '';
 
-const PUBLIC_ROUTES = ['/auth/signIn', '/auth/checkMfaExist', '/auth/refreshToken'];
-
+const PUBLIC_ROUTES = ['auth/signIn', 'auth/check-mfa-exist', 'auth/refreshToken'];
+const V1_ROUTES = [
+  'auth/signIn',
+  'auth/check-mfa-exist',
+  'auth/refreshToken',
+  'dasconfig/user-preferences',
+  'dasconfig/gateway-configuration',
+  'auth/signOut',
+  'entities/merchant/?',
+  'entities/merchant/M',
+  'entities/user-management/user',
+  'entities/merchant/merchant-ip',
+];
+const refreshTokenRoute = 'v1/auth/refreshToken';
 // Refresh slightly before actual expiry to absorb network/clock skew.
 const EXP_SKEW_SECONDS = 30;
 
@@ -30,7 +42,7 @@ const refreshApiClient = axios.create({ baseURL: BASE_URL });
 // ==============================
 
 function getSignInData() {
-  return store.getState().auth.signInData;
+  return store.getState()?.auth?.signInData;
 }
 
 function getIdToken(): string {
@@ -96,7 +108,7 @@ async function doRefresh(): Promise<string> {
 
   try {
     const res = await refreshApiClient.post<SignInResponse>(
-      '/auth/refreshToken',
+      refreshTokenRoute,
       { username, refreshToken },
       {
         headers: {
@@ -136,6 +148,12 @@ export function useFetchWrapper(): AxiosInstance {
   instance.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
       const url = config.url ?? '';
+      const isV1Route = V1_ROUTES.some((route) => url.includes(route));
+      if (isV1Route) {
+        config.baseURL = `${BASE_URL}/v1`;
+      } else {
+        config.baseURL = `${BASE_URL}/v2`;
+      }
       const isPublicRoute = PUBLIC_ROUTES.some((route) => url.includes(route));
 
       config.headers ??= {} as InternalAxiosRequestConfig['headers'];

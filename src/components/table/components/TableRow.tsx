@@ -7,23 +7,23 @@ import type {
 } from '@/types/transactions/transaction.types';
 import { TableCell } from './TableCell';
 
-interface TableRowProps {
-  row: Row<TransactionRow>;
-  columnConfigs: ColumnConfig[];
+interface TableRowProps<TRow = TransactionRow> {
+  row: Row<TRow>;
+  columnConfigs: ColumnConfig<TRow>[];
   className?: string;
-  onRowClick?: (row: TransactionRow) => void;
+  onRowClick?: (row: TRow) => void;
   stickyOffsets?: (number | undefined)[];
   stickyEdgeIndex?: number;
 }
 
-export function TableRow({
+export function TableRow<TRow = TransactionRow>({
   row,
   columnConfigs,
   className,
   onRowClick,
   stickyOffsets,
   stickyEdgeIndex = -1,
-}: TableRowProps) {
+}: TableRowProps<TRow>) {
   return (
     <tr
       className={cn(
@@ -45,6 +45,7 @@ export function TableRow({
             width={config.width}
             stickyLeft={stickyOffsets?.[i]}
             isStickyEdge={i === stickyEdgeIndex}
+            customNode={config.renderCell ? config.renderCell(row.original) : undefined}
             onPrimaryClick={
               config.onPrimaryClick ? () => config.onPrimaryClick!(row.original) : undefined
             }

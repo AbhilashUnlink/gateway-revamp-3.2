@@ -39,6 +39,13 @@ const statusStyleMap: Record<string, StatusStyle> = {
   in_progress: ORANGE,
   review: ORANGE,
   incomplete: ORANGE,
+  submitted: ORANGE,
+  // Completed / Info
+  completed: BLUE,
+  // Closed / Terminated
+  closed: GRAY,
+  terminated: RED,
+  active: GREEN,
   // Void
   void: ORANGE,
   voided: GRAY,
