@@ -11,6 +11,8 @@ export { CopyCell } from './cells/CopyCell';
 export { ActionCell } from './cells/ActionCell';
 export { DateCell } from './cells/DateCell';
 export { PaymentCell } from './cells/PaymentCell';
+export { CountCell } from './cells/CountCell';
+export { TagCell } from './cells/TagCell';
 export { cellRendererMap } from './utils/cellRendererMap';
 export { getStatusStyle, statusStyleMap } from './utils/statusConfig';
 export { useInfiniteScroll } from './hooks/useInfiniteScroll';

@@ -48,7 +48,9 @@ export type CellType =
   | 'action'
   | 'date'
   | 'payment'
-  | 'link-copy';
+  | 'link-copy'
+  | 'count'
+  | 'tag';
 
 export type FilterAttributeType = 'text' | 'select' | 'multiSelect' | 'number' | 'dateRange';
 
@@ -85,14 +87,20 @@ export interface ColumnFilterAttribute {
   options?: { label: string; value: string }[];
 }
 
-export interface ColumnConfig {
+export interface ColumnConfig<TRow = TransactionRow> {
   id: string;
   headerPrimaryKey: string;
   headerSecondaryKey?: string;
   cellType: CellType;
   width: number;
-  accessorFn: (row: TransactionRow) => CellData;
-  onPrimaryClick?: (row: TransactionRow) => void;
+  accessorFn: (row: TRow) => CellData;
+  onPrimaryClick?: (row: TRow) => void;
+  /**
+   * Optional fully-custom cell renderer. When set, takes precedence over `cellType`
+   * and receives the row directly — useful for action buttons or bespoke widgets
+   * that don't fit the CellData shape.
+   */
+  renderCell?: (row: TRow) => import('react').ReactNode;
   /**
    * Pin this column to the left while the table scrolls horizontally. Only
    * the leading run of `sticky: true` columns is pinned — the first non-sticky

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { cn } from '@/utils/cn';
 import type { CellData, CellType } from '@/types/transactions/transaction.types';
 import { cellRendererMap } from '../utils/cellRendererMap';
@@ -8,6 +9,8 @@ interface TableCellProps {
   width: number;
   className?: string;
   onPrimaryClick?: () => void;
+  /** Custom node from `ColumnConfig.renderCell` — overrides cellType when set. */
+  customNode?: ReactNode;
   /** When set, this cell is pinned `left: <offset>px` while the table scrolls. */
   stickyLeft?: number;
   /** Last sticky column — renders a right-edge shadow to separate from scroll area. */
@@ -20,6 +23,7 @@ export function TableCell({
   width,
   className,
   onPrimaryClick,
+  customNode,
   stickyLeft,
   isStickyEdge,
 }: TableCellProps) {
@@ -34,7 +38,7 @@ export function TableCell({
         className
       )}
     >
-      {cellRendererMap[cellType](data, onPrimaryClick)}
+      {customNode ?? cellRendererMap[cellType](data, onPrimaryClick)}
     </td>
   );
 }

@@ -8,17 +8,20 @@ import { TableRow } from './TableRow';
 import { SkeletonRow } from './SkeletonRow';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 
-interface DataTableProps {
-  columnConfigs: ColumnConfig[];
-  data: TransactionRow[];
+interface DataTableProps<TRow = TransactionRow> {
+  columnConfigs: ColumnConfig<TRow>[];
+  data: TRow[];
   loading: boolean;
   hasMore: boolean;
   onLoadMore: () => void;
   className?: string;
-  onRowClick?: (row: TransactionRow) => void;
+  onRowClick?: (row: TRow) => void;
+  /** Hide the trailing "no more data" footer row. Useful when the table renders
+   *  a self-contained, fully loaded slice (e.g. products embedded in merchant details). */
+  hideNoMoreFooter?: boolean;
 }
 
-export function DataTable({
+export function DataTable<TRow = TransactionRow>({
   columnConfigs,
   data,
   loading,
@@ -26,15 +29,16 @@ export function DataTable({
   onLoadMore,
   className,
   onRowClick,
-}: DataTableProps) {
+  hideNoMoreFooter,
+}: DataTableProps<TRow>) {
   const { t } = useTranslation();
 
-  const tanstackColumns = useMemo<ColumnDef<TransactionRow>[]>(
+  const tanstackColumns = useMemo<ColumnDef<TRow>[]>(
     () =>
       columnConfigs.map((col) => ({
         id: col.id,
         size: col.width,
-        accessorFn: (row: TransactionRow) => col.accessorFn(row),
+        accessorFn: (row: TRow) => col.accessorFn(row),
       })),
     [columnConfigs]
   );
@@ -119,7 +123,7 @@ export function DataTable({
             </tr>
           )}
 
-          {!loading && !hasMore && data.length > 0 && (
+          {!loading && !hasMore && data.length > 0 && !hideNoMoreFooter && (
             <tr>
               <td
                 colSpan={columnConfigs.length}

@@ -78,6 +78,8 @@ export const apiService = {
 
   transactions: {
     listV2: (payload: unknown) => Api().post(`transactions/listv2`, payload),
+    getTransactionSchema: () =>
+      Api().get(`transactions/transaction-schema/list?schemaType=Transaction`),
     getById: (params: { id: string }) => Api().get(`transactions/${params.id}`),
     getChargebackByTransactionId: (params: { transactionId: string }) =>
       Api().get(`chargeback/transactionId/${params.transactionId}`),
@@ -142,6 +144,15 @@ export const apiService = {
       Api().patch(`entities/product/updateDASMIDStatus`, data),
     postUserManagementUserAdd: (data?: unknown) =>
       Api().post(`entities/user-management/user/add`, data),
+    getUserManagementUserList: (params: {
+      merchantId: string;
+      take: number;
+      skip: number;
+      TimeZone: string;
+    }) =>
+      Api().get(
+        `entities/user-management/user?MerchantID=${encodeURIComponent(params.merchantId)}&take=${params.take}&skip=${params.skip}&TimeZone=${encodeURIComponent(params.TimeZone)}`
+      ),
     postRecurringPlanCreatePlan: (data?: unknown) =>
       Api().post(`entities/recurring/plan/createPlan`, data),
     patchRecurringSubscriptionEdit: (data?: unknown) =>
@@ -158,6 +169,16 @@ export const apiService = {
       ),
     getMerchantById: (params: { merchantId: string }) =>
       Api().get(`entities/merchant/${encodeURIComponent(params.merchantId)}/`),
+    getMerchantList: (params: {
+      take: number;
+      skip: number;
+      TimeZone: string;
+      filterQs?: string;
+    }) => {
+      const base = `entities/merchant/?take=${params.take}&skip=${params.skip}&TimeZone=${encodeURIComponent(params.TimeZone)}`;
+      const extra = params.filterQs ? params.filterQs.replace(/^\?/, '&') : '';
+      return Api().get(`${base}${extra}`);
+    },
     postMerchantDevicesCreate: (data?: unknown) =>
       Api().post(`entities/merchant/devices/create`, data),
     postMerchantCatalogCategories: (data?: unknown) =>
@@ -167,6 +188,17 @@ export const apiService = {
     postMerchantCatalogUploadProductsImages: (data?: unknown) =>
       Api().post(`entities/merchant/catalog/upload-products-images`, data),
     postMerchantMerchantIp: (data?: unknown) => Api().post(`entities/merchant/merchant-ip`, data),
+    getMerchantIpList: (params: {
+      merchantId: string;
+      take: number;
+      skip: number;
+      TimeZone: string;
+    }) =>
+      Api().get(
+        `entities/merchant/merchant-ip/${encodeURIComponent(params.merchantId)}?take=${params.take}&skip=${params.skip}&TimeZone=${encodeURIComponent(params.TimeZone)}`
+      ),
+    deleteMerchantMerchantIp: (params: { id: number | string }) =>
+      Api().delete(`entities/merchant/merchant-ip/${params.id}`),
     postMerchantWebhook: (data?: unknown) => Api().post(`entities/merchant/webhook`, data),
   },
 

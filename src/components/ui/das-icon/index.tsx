@@ -49,6 +49,7 @@ import {
   type LucideIcon,
   type LucideProps,
 } from 'lucide-react';
+import { CUSTOM_ICONS, type CustomIconName } from './custom-icons-map';
 
 const ICON_MAP = {
   'alert-circle': AlertCircle,
@@ -100,13 +101,18 @@ const ICON_MAP = {
   'x-circle': XCircle,
 } as const satisfies Record<string, LucideIcon>;
 
-export type DasIconName = keyof typeof ICON_MAP;
+export type DasIconName = keyof typeof ICON_MAP | CustomIconName;
 
 interface DasIconProps extends LucideProps {
   name: DasIconName;
 }
 
 export function DasIcon({ name, ...props }: DasIconProps) {
-  const Icon = ICON_MAP[name];
+  if (name in CUSTOM_ICONS) {
+    const Custom = CUSTOM_ICONS[name as CustomIconName];
+    // Custom button-style SVGs accept an optional `size` prop alongside std SVG props.
+    return <Custom {...(props as React.SVGProps<SVGSVGElement>)} />;
+  }
+  const Icon = ICON_MAP[name as keyof typeof ICON_MAP];
   return <Icon {...props} />;
 }
