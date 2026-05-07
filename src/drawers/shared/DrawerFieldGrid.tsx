@@ -27,7 +27,7 @@ export function DrawerFieldCell({ field }: DrawerFieldCellProps) {
   const alignEnd = field.align === 'end';
 
   return (
-    <div className={cn('flex h-11 flex-col gap-1', alignEnd && 'items-end')}>
+    <div className={cn('flex min-h-11 flex-col gap-1', alignEnd && 'items-end')}>
       <span className={cn('h-5 w-full text-sm leading-5 text-[#808080]', alignEnd && 'text-right')}>
         {field.label}
       </span>

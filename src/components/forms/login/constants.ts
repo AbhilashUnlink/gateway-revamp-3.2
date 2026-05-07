@@ -1,8 +1,6 @@
 import type { TFunction } from 'i18next';
 import type { FormSchema } from '@/types/form/form.types';
-
-const EMAIL_REGEX =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+import { EMAIL_REGEX } from '@/constants/validation';
 
 export const getLoginSchema = (t: TFunction): FormSchema => ({
   columns: 1,

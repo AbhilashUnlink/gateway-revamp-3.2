@@ -101,7 +101,7 @@ function MerchantListPage() {
         hasMore={hasMore}
         onLoadMore={loadMore}
         onRowClick={handleRowClick}
-        className="flex-1 mt-4"
+        className="flex-1 mt-4 pr-2"
       />
     </div>
   );
