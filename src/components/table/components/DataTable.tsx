@@ -82,7 +82,7 @@ export function DataTable<TRow = TransactionRow>({
   }, [stickyOffsets]);
 
   return (
-    <div className={cn('w-full overflow-auto rounded-2xl', className)}>
+    <div className={cn('w-full overflow-auto rounded-2xl', 'sleek-scrollbar', className)}>
       <table className="border-separate border-spacing-0 w-full min-w-max">
         <TableHeader
           columnConfigs={columnConfigs}

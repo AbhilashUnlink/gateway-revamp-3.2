@@ -3,6 +3,7 @@ import { TextareaField } from './fields/TextareaField';
 import { CheckboxField } from './fields/CheckboxField';
 import { DisplayField } from './fields/DisplayField';
 import { SelectField } from './fields/SelectField';
+import { MultiSelectField } from './fields/MultiSelectField';
 import { DateField } from './fields/DateField';
 import type { FieldType, FieldSchema } from '@/types/form/form.types';
 
@@ -15,6 +16,7 @@ export const fieldComponentMap: Partial<Record<FieldType, FieldComponent>> = {
   checkbox: CheckboxField as FieldComponent,
   display: DisplayField as FieldComponent,
   select: SelectField as FieldComponent,
+  multiselect: MultiSelectField as FieldComponent,
   date: DateField as FieldComponent,
 };
 

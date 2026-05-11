@@ -13,13 +13,18 @@ export function forceLogout(message?: string): void {
 
   showToast.error(title, { id: 'session-expired', duration: 5000 });
 
+  // Reset in-memory Redux state synchronously so any in-flight selectors
+  // immediately see a logged-out store.
   store.dispatch({ type: SESSION_EXPIRED_ACTION });
 
-  void persistor.purge().finally(() => {
-    if (window.location.pathname !== '/login') {
-      window.location.replace('/login');
-    }
-  });
+  // Kick off persisted-storage purge in the background — never gate the
+  // redirect on it. If purge hangs or rejects, the user would otherwise stay
+  // stranded on the authed page after a refresh-token failure.
+  void persistor.purge().catch(() => undefined);
+
+  if (window.location.pathname !== '/login') {
+    window.location.replace('/login');
+  }
 }
 
 export function resetForceLogout(): void {

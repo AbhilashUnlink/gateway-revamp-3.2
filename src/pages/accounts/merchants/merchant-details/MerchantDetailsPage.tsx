@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useCallback, useMemo, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DasSpinner } from '@/components/ui/das-spinner';
 import { Button } from '@/components/ui/button';
@@ -13,17 +13,47 @@ import { MerchantInfoFilterPills } from './components/MerchantInfoFilterPills';
 import { BusinessDetailsSection, ContactDetailsSection } from './components/MerchantInfoSections';
 import { ProductInformationTab } from './components/ProductInformationTab';
 import { UserManagementTab } from './components/UserManagementTab';
-import { type MerchantInfoFilter, type MerchantTabId } from './merchantDetailsConfig';
+import {
+  MERCHANT_DETAIL_TABS,
+  type MerchantInfoFilter,
+  type MerchantTabId,
+} from './merchantDetailsConfig';
 import { MERCHANT_SETTINGS, DEFAULT_SETTING_ID } from './settings/merchantSettingsConfig';
+
+const TAB_QUERY_KEY = 'tab';
+const DEFAULT_TAB_ID: MerchantTabId = 'merchant-information';
+const VALID_TAB_IDS = new Set<MerchantTabId>(MERCHANT_DETAIL_TABS.map((t) => t.id));
+
+function isMerchantTabId(value: string | null): value is MerchantTabId {
+  return !!value && VALID_TAB_IDS.has(value as MerchantTabId);
+}
 
 function MerchantDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { data, loading, error } = useMerchantDetails(id ?? null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [infoFilter, setInfoFilter] = useState<MerchantInfoFilter>('all');
-  const [activeTabId, setActiveTabId] = useState<MerchantTabId>('merchant-information');
   const [activeSettingId, setActiveSettingId] = useState<string>(DEFAULT_SETTING_ID ?? '');
   const { open: openDrawer } = useDrawerControl();
+
+  const urlTab = searchParams.get(TAB_QUERY_KEY);
+  const activeTabId: MerchantTabId = isMerchantTabId(urlTab) ? urlTab : DEFAULT_TAB_ID;
+
+  const setActiveTabId = useCallback(
+    (next: MerchantTabId) => {
+      setSearchParams(
+        (prev) => {
+          const params = new URLSearchParams(prev);
+          if (next === DEFAULT_TAB_ID) params.delete(TAB_QUERY_KEY);
+          else params.set(TAB_QUERY_KEY, next);
+          return params;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
 
   const merchantId = data?.MerchantID || id || '';
   const userList = useMerchantUserList(merchantId || null);

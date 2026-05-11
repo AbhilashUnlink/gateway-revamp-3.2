@@ -3,7 +3,15 @@ import type { DasIconName } from '@/components/ui/das-icon';
 
 // ── Field types ───────────────────────────────────────────────────────────
 
-export type FieldType = 'input' | 'textarea' | 'checkbox' | 'display' | 'select' | 'date' | 'radio';
+export type FieldType =
+  | 'input'
+  | 'textarea'
+  | 'checkbox'
+  | 'display'
+  | 'select'
+  | 'multiselect'
+  | 'date'
+  | 'radio';
 
 interface BaseFieldSchema {
   name: string;
@@ -50,6 +58,11 @@ export interface SelectFieldSchema extends BaseFieldSchema {
   options: SelectOption[];
 }
 
+export interface MultiSelectFieldSchema extends BaseFieldSchema {
+  type: 'multiselect';
+  options: SelectOption[];
+}
+
 export interface DateFieldSchema extends BaseFieldSchema {
   type: 'date';
 }
@@ -61,6 +74,7 @@ export type FieldSchema =
   | CheckboxFieldSchema
   | DisplayFieldSchema
   | SelectFieldSchema
+  | MultiSelectFieldSchema
   | DateFieldSchema;
 
 // ── Action types ──────────────────────────────────────────────────────────

@@ -9,6 +9,7 @@ export type {
   CheckboxFieldSchema,
   DisplayFieldSchema,
   SelectFieldSchema,
+  MultiSelectFieldSchema,
   DateFieldSchema,
   SelectOption,
 } from '@/types/form/form.types';

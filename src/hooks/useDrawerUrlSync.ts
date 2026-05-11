@@ -18,7 +18,7 @@ const REGISTERED_TYPES = new Set(DRAWER_REGISTRY.map((entry) => entry.type));
  * round-trip through URL state. The URL sync below ignores them on both
  * directions: don't open them from URL, don't close them when URL is empty.
  */
-export const NON_URL_DRAWER_TYPES = new Set(['merchant-user-form']);
+export const NON_URL_DRAWER_TYPES = new Set(['merchant-user-form', 'merchant-ip-form']);
 
 export function useDrawerUrlSync() {
   const dispatch = useAppDispatch();
